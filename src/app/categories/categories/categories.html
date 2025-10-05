@@ -1,0 +1,31 @@
+<section class="categories">
+  <header class="categories__header">
+    <h1>الفئات الرئيسية</h1>
+    <p lang="ru">Основные категории</p>
+  </header>
+
+  <div class="categories__grid" *ngIf="categories$ | async as categories; else loading">
+    <a
+      class="categories__card"
+      *ngFor="let category of categories"
+      [routerLink]="['/categories', category.id]"
+    >
+      <img class="categories__image" [src]="category.imageUrl" [alt]="category.name.ar" />
+      <div class="categories__content">
+        <h2>
+          <span>{{ category.name.ar }}</span>
+          <span lang="ru">{{ category.name.ru }}</span>
+        </h2>
+        <p>
+          <span>{{ category.description.ar }}</span>
+          <span lang="ru">{{ category.description.ru }}</span>
+        </p>
+      </div>
+      {{ category | json }}
+    </a>
+  </div>
+
+  <ng-template #loading>
+    <p class="categories__loading">...جاري تحميل الفئات / Загрузка категорий...</p>
+  </ng-template>
+</section>

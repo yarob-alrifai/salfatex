@@ -1,0 +1,37 @@
+<section class="manager">
+  <header>
+    <h2>التصنيفات</h2>
+    <p>قم بإنشاء تصنيفات جديدة مع صورة تعريفية ووصف مختصر.</p>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="createCategory()" class="form-grid">
+    <label>
+      اسم التصنيف
+      <input formControlName="name" placeholder="الأقمشة" />
+    </label>
+
+    <label>
+      الوصف
+      <textarea formControlName="description" rows="3" placeholder="تفاصيل عن التصنيف"></textarea>
+    </label>
+
+    <label class="file-input">
+      صورة التصنيف
+      <input type="file" accept="image/*" (change)="onImageChange($event)" />
+    </label>
+
+    <button type="submit">حفظ التصنيف</button>
+    <p class="feedback" *ngIf="feedback()">{{ feedback() }}</p>
+  </form>
+
+  <section class="list">
+    <article *ngFor="let category of categories$ | async" class="list-item">
+      <div class="details">
+        <h3>{{ category.name }}</h3>
+        <p>{{ category.description || 'لا يوجد وصف' }}</p>
+      </div>
+
+      <button type="button" (click)="deleteCategory(category)">حذف</button>
+    </article>
+  </section>
+</section>

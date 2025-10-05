@@ -1,0 +1,68 @@
+<section class="manager">
+  <header>
+    <h2>إدارة المنتجات</h2>
+    <p>قم بإضافة منتجات كاملة بالصور الرئيسية والمعرض والربط مع التصنيفات.</p>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="saveProduct()" class="form-grid">
+    <label>
+      التصنيف
+      <select formControlName="categoryId">
+        <option value="" disabled>اختر التصنيف</option>
+        <option *ngFor="let category of categories$ | async" [value]="category.id">
+          {{ category.name }}
+        </option>
+      </select>
+    </label>
+
+    <label>
+      التصنيف الفرعي
+      <select formControlName="subcategoryId">
+        <option value="">بدون</option>
+        <option *ngFor="let subcategory of filteredSubcategories$ | async" [value]="subcategory.id">
+          {{ subcategory.name }}
+        </option>
+      </select>
+    </label>
+
+    <label>
+      اسم المنتج
+      <input formControlName="name" placeholder="اسم المنتج" />
+    </label>
+
+    <label>
+      السعر
+      <input type="number" formControlName="price" min="0" step="0.01" />
+    </label>
+
+    <label class="full-row">
+      الوصف
+      <textarea formControlName="description" rows="4" placeholder="تفاصيل المنتج"></textarea>
+    </label>
+
+    <label>
+      صورة رئيسية
+      <input type="file" accept="image/*" (change)="onMainImageChange($event)" />
+    </label>
+
+    <label>
+      معرض الصور (يمكن اختيار عدة صور)
+      <input type="file" accept="image/*" multiple (change)="onGalleryChange($event)" />
+    </label>
+
+    <button type="submit">حفظ المنتج</button>
+    <p class="feedback" *ngIf="feedback()">{{ feedback() }}</p>
+  </form>
+
+  <section class="list">
+    <article *ngFor="let product of products$ | async" class="list-item">
+      <div class="details">
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.description }}</p>
+        <span>{{ product.price | currency : 'SAR' }}</span>
+      </div>
+
+      <button type="button" (click)="deleteProduct(product)">حذف</button>
+    </article>
+  </section>
+</section>

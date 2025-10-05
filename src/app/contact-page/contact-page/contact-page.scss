@@ -1,0 +1,54 @@
+.contact {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding-block: 2rem 3rem;
+}
+
+.contact h1 {
+  margin: 0;
+  font-size: clamp(2.1rem, 4vw, 2.85rem);
+}
+
+.contact h2 {
+  margin: 0;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.contact p {
+  margin: 0;
+  line-height: 1.8;
+  color: #374151;
+}
+
+.contact__cards {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.contact__cards article {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 16px 40px -30px rgba(15, 23, 42, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.contact__cards h3 {
+  margin: 0;
+  color: #111827;
+}
+
+.contact__cards a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.contact__cards a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,69 @@
+<section class="subcategory" *ngIf="viewModel$ | async as vm; else loading">
+  <header class="subcategory__header" *ngIf="vm.category as category">
+    {{ category | json }}
+    <h1>
+      <span>{{ category.name.ar }}</span>
+      <span lang="ru">{{ category.name.ru }}</span>
+    </h1>
+    <p>
+      <span>{{ category.description.ar }}</span>
+      <span lang="ru">{{ category.description.ru }}</span>
+    </p>
+    <a routerLink="/categories" class="subcategory__back"
+      >⬅︎ عودة إلى كل الفئات / Вернуться к категориям</a
+    >
+  </header>
+
+  <div class="subcategory__list" *ngIf="vm.items.length; else empty">
+    <article class="subcategory__item" *ngFor="let item of vm.items">
+      {{ item.subcategory | json }}
+      <div class="subcategory__info">
+        <img [src]="item.subcategory.imageUrl" [alt]="item.subcategory.name.ar" />
+        <div>
+          <h2>
+            <span>{{ item.subcategory.name.ar }}</span>
+            <span lang="ru">{{ item.subcategory.name.ru }}</span>
+          </h2>
+          <p>
+            <span>{{ item.subcategory.description.ar }}</span>
+            <span lang="ru">{{ item.subcategory.description.ru }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="subcategory__products">
+        <h3>المنتجات / Товары</h3>
+        <div class="subcategory__product-grid">
+          <a
+            *ngFor="let product of item.products"
+            class="subcategory__product-card"
+            [routerLink]="['/product', product.id]"
+          >
+            {{ product | json }}
+            <img [src]="product.images[0]" [alt]="product.name.ar" />
+            <div>
+              <h4>
+                <span>{{ product.name.ar }}</span>
+                <span lang="ru">{{ product.name.ru }}</span>
+              </h4>
+              <p class="subcategory__price">
+                {{ product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+              </p>
+              <p class="subcategory__color">
+                <span>{{ product.color }}</span>
+              </p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<ng-template #loading>
+  <p class="subcategory__loading">...يتم تحميل التفاصيل / Загрузка данных...</p>
+</ng-template>
+
+<ng-template #empty>
+  <p class="subcategory__empty">لا توجد أقسام فرعية متاحة حالياً / Нет доступных подкатегорий.</p>
+</ng-template>

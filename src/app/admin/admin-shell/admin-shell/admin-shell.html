@@ -1,0 +1,23 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="branding">
+      <h2>لوحة التحكم</h2>
+      <p class="timestamp">{{ admin() ? admin()!.displayName || admin()!.email : '...' }}</p>
+    </div>
+
+    <nav>
+      <a routerLink="/admin/orders" routerLinkActive="active">الطلبات</a>
+      <a routerLink="/admin/products" routerLinkActive="active">المنتجات</a>
+      <a routerLink="/admin/categories" routerLinkActive="active">التصنيفات</a>
+      <a routerLink="/admin/subcategories" routerLinkActive="active">التصنيفات الفرعية</a>
+    </nav>
+
+    <button type="button" class="logout" (click)="signOut()" [disabled]="loading()">
+      تسجيل الخروج
+    </button>
+  </aside>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

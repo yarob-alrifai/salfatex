@@ -1,0 +1,62 @@
+<section class="search">
+  <header class="search__header">
+    <h1>البحث عن المنتجات</h1>
+    <p lang="ru">Поиск по каталогу</p>
+  </header>
+
+  <form class="search__form" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="search__field">
+      <label for="term">الاسم / Название</label>
+      <input id="term" type="text" formControlName="term" placeholder="أدخل اسم المنتج" />
+    </div>
+
+    <div class="search__field">
+      <label for="color">اللون / Цвет</label>
+      <input id="color" type="text" formControlName="color" placeholder="أدخل اللون" />
+    </div>
+
+    <div class="search__field">
+      <label for="maxPrice">السعر الأقصى / Максимальная цена</label>
+      <input
+        id="maxPrice"
+        type="number"
+        formControlName="maxPrice"
+        placeholder="على سبيل المثال 100"
+      />
+    </div>
+
+    <div class="search__actions">
+      <button type="submit">بحث / Поиск</button>
+      <button type="button" class="secondary" (click)="onReset()">إعادة تعيين / Сброс</button>
+    </div>
+  </form>
+
+  <div class="search__results" *ngIf="results$ | async as results">
+    <h2>
+      <span>النتائج ({{ results.length }})</span>
+      <span lang="ru">Найдено: {{ results.length }}</span>
+    </h2>
+
+    <div class="search__grid" *ngIf="results.length; else noResults">
+      <a
+        class="search__card"
+        *ngFor="let product of results"
+        [routerLink]="['/product', product.id]"
+      >
+        <img [src]="product.images[0]" [alt]="product.name.ar" />
+        <div>
+          <h3>
+            <span>{{ product.name.ar }}</span>
+            <span lang="ru">{{ product.name.ru }}</span>
+          </h3>
+          <p class="search__price">{{ product.price | currency : 'USD' : 'symbol' : '1.0-0' }}</p>
+          <p class="search__color">{{ product.color }}</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<ng-template #noResults>
+  <p class="search__empty">لا توجد منتجات مطابقة / Нет подходящих товаров.</p>
+</ng-template>

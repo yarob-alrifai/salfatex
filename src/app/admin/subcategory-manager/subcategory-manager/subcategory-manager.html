@@ -1,0 +1,47 @@
+<section class="manager">
+  <header>
+    <h2>التصنيفات الفرعية</h2>
+    <p>اربط التصنيفات الفرعية بالتصنيف الرئيسي وحدد صورة أو وصف لكل منها.</p>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="saveSubcategory()" class="form-grid">
+    <label>
+      التصنيف الرئيسي
+      <select formControlName="categoryId">
+        <option value="" disabled>اختر التصنيف</option>
+        <option *ngFor="let category of categories$ | async" [value]="category.id">
+          {{ category.name }}
+        </option>
+      </select>
+    </label>
+
+    <label>
+      اسم التصنيف الفرعي
+      <input formControlName="name" placeholder="أقمشة رجالية" />
+    </label>
+
+    <label>
+      الوصف
+      <textarea formControlName="description" rows="3"></textarea>
+    </label>
+
+    <label class="file-input">
+      صورة تعريفية
+      <input type="file" accept="image/*" (change)="onImageChange($event)" />
+    </label>
+
+    <button type="submit">حفظ</button>
+    <p class="feedback" *ngIf="feedback()">{{ feedback() }}</p>
+  </form>
+
+  <section class="list">
+    <article *ngFor="let subcategory of filteredSubcategories$ | async" class="list-item">
+      <div class="details">
+        <h3>{{ subcategory.name }}</h3>
+        <p>{{ subcategory.description || 'لا يوجد وصف' }}</p>
+      </div>
+
+      <button type="button" (click)="deleteSubcategory(subcategory)">حذف</button>
+    </article>
+  </section>
+</section>

@@ -1,0 +1,27 @@
+<section class="login-wrapper">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+    <h1>تسجيل الدخول للإدارة</h1>
+
+    <label>
+      البريد الإلكتروني
+      <input type="email" formControlName="email" placeholder="example@email.com" />
+      <small *ngIf="form.controls.email.invalid && form.controls.email.touched">
+        الرجاء إدخال بريد إلكتروني صحيح.
+      </small>
+    </label>
+
+    <label>
+      كلمة المرور
+      <input type="password" formControlName="password" placeholder="••••••" />
+      <small *ngIf="form.controls.password.invalid && form.controls.password.touched">
+        يجب أن لا تقل كلمة المرور عن 6 أحرف.
+      </small>
+    </label>
+
+    <p class="error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+
+    <button type="submit" [disabled]="loading">
+      {{ loading ? 'جاري التحقق...' : 'دخول' }}
+    </button>
+  </form>
+</section>

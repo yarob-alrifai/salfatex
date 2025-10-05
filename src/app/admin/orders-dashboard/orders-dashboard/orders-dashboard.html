@@ -1,0 +1,97 @@
+<section class="dashboard">
+  <header>
+    <h2>الطلبات</h2>
+    <p>تتبع الطلبات وقم بتحديث حالتها أو تعديل بيانات العميل بسهولة.</p>
+  </header>
+
+  <form [formGroup]="filterForm" class="filters">
+    <label>
+      الحالة
+      <select formControlName="status">
+        <option value="">الكل</option>
+        <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+      </select>
+    </label>
+
+    <label>
+      من تاريخ
+      <input type="date" formControlName="startDate" />
+    </label>
+
+    <label>
+      إلى تاريخ
+      <input type="date" formControlName="endDate" />
+    </label>
+  </form>
+
+  <section class="feedback">
+    <p *ngIf="feedback()" class="success">{{ feedback() }}</p>
+    <p *ngIf="error()" class="error">{{ error() }}</p>
+  </section>
+
+  <section class="orders">
+    <article *ngFor="let order of filteredOrders$ | async" class="order-card">
+      {{ order | json }}
+      <header>
+        <h3>{{ order.customerName }}</h3>
+        <span>{{ order.total | currency : 'SAR' }}</span>
+      </header>
+
+      <p class="meta">
+        <span>الحالة الحالية: {{ order.status }}</span>
+        <span>التاريخ: {{ toDate(order.createdAt) | date : 'medium' }}</span>
+      </p>
+
+      <section class="items">
+        <h4>المنتجات</h4>
+        <ul>
+          <li *ngFor="let item of order.items">
+            {{ item.name }} ({{ item.quantity }}) - {{ item.price | currency : 'SAR' }}
+          </li>
+        </ul>
+      </section>
+
+      <section class="actions">
+        <label>تغيير الحالة</label>
+        <div class="status-buttons">
+          <button
+            type="button"
+            *ngFor="let status of statuses"
+            (click)="confirmStatus(order, status)"
+          >
+            {{ status }}
+          </button>
+        </div>
+
+        <button type="button" class="edit" (click)="editOrder(order)">تعديل</button>
+        <button type="button" class="delete" (click)="deleteOrder(order)">حذف</button>
+      </section>
+
+      <section class="edit-form" *ngIf="editingOrderId() === order.id">
+        <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
+          <label>
+            الحالة
+            <select formControlName="status">
+              <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+            </select>
+          </label>
+
+          <label>
+            ملاحظات
+            <textarea formControlName="notes" rows="3"></textarea>
+          </label>
+
+          <label>
+            عنوان الشحن
+            <textarea formControlName="shippingAddress" rows="3"></textarea>
+          </label>
+
+          <div class="edit-actions">
+            <button type="submit">حفظ</button>
+            <button type="button" (click)="cancelEdit()">إلغاء</button>
+          </div>
+        </form>
+      </section>
+    </article>
+  </section>
+</section>

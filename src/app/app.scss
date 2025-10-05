@@ -1,0 +1,145 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f3f4f6;
+  color: #111827;
+  font-family: 'Tajawal', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.app-shell__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem clamp(1rem, 5vw, 3.5rem);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(124, 58, 237, 0.95));
+  color: #ffffff;
+  box-shadow: 0 18px 45px -30px rgba(29, 78, 216, 0.7);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.app-shell__logo {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: inherit;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.app-shell__nav {
+  display: flex;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  flex-wrap: wrap;
+}
+
+.app-shell__nav a {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.app-shell__nav a:hover,
+.app-shell__nav a.active {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.app-shell__main {
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.app-shell__footer {
+  padding: 1.5rem clamp(1rem, 5vw, 3.5rem);
+  background: #111827;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.app-shell__footer p {
+  margin: 0;
+}
+
+.layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+}
+
+.layout__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem clamp(1rem, 4vw, 3rem);
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.layout__brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: inherit;
+  text-decoration: none;
+}
+
+.layout__nav {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.layout__nav a {
+  color: rgba(248, 250, 252, 0.8);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.layout__nav a:hover {
+  color: #f8fafc;
+}
+
+.layout__main {
+  padding: 2rem clamp(1rem, 4vw, 3rem);
+}
+
+.layout__footer {
+  text-align: center;
+  padding: 1.5rem;
+  background: #0f172a;
+  color: rgba(248, 250, 252, 0.7);
+}
+
+@media (max-width: 768px) {
+  .layout__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .layout__nav {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell__header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+}
