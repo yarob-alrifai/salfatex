@@ -5,6 +5,8 @@ import { ProductDetailComponent } from './product-detail/product-detail/product-
 import { SearchPageComponent } from './search-page/search-page/search-page';
 import { AboutPageComponent } from './about-page/about-page/about-page';
 import { ContactPageComponent } from './contact-page/contact-page/contact-page';
+import { CartPageComponent } from './cart/cart-page/cart-page';
+import { CheckoutPageComponent } from './cart/checkout-page/checkout-page';
 // import { AboutPageComponent } from './about-page/about-page.component';
 // import { CategoriesComponent } from './categories/categories.component';
 // import { ContactPageComponent } from './contact-page/contact-page.component';
@@ -24,6 +26,8 @@ export const routes: Routes = [
   { path: 'search', component: SearchPageComponent },
   { path: 'about', component: AboutPageComponent },
   { path: 'contact', component: ContactPageComponent },
+  { path: 'cart', component: CartPageComponent },
+  { path: 'checkout', component: CheckoutPageComponent },
 
   { path: '', redirectTo: 'categories', pathMatch: 'full' },
 

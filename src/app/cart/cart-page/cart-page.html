@@ -1,0 +1,77 @@
+<section class="cart">
+  <header class="cart__header">
+    <h1>سلة التسوق</h1>
+    <p lang="ru">Корзина покупок</p>
+  </header>
+
+  <div class="cart__content" *ngIf="items().length; else empty">
+    <table class="cart__table">
+      <thead>
+        <tr>
+          <th>المنتج / Товар</th>
+          <th>السعر / Цена</th>
+          <th>الكمية / Количество</th>
+          <th>الإجمالي / Итого</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items(); trackBy: trackByProduct">
+          <td>
+            <div class="cart__product">
+              <img [src]="item.product.images[0]" [alt]="item.product.name.ar" />
+              <div>
+                <strong>{{ item.product.name.ar }}</strong>
+                <strong lang="ru">{{ item.product.name.ru }}</strong>
+                <span class="cart__color">{{ item.product.color }}</span>
+              </div>
+            </div>
+          </td>
+          <td class="cart__price">
+            <span>{{ item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}</span>
+            <span lang="ru">{{ item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}</span>
+          </td>
+          <td class="cart__quantity">
+            <input
+              type="number"
+              min="0"
+              [value]="item.quantity"
+              (change)="updateQuantity(item.product.id, $any($event.target).value)"
+            />
+          </td>
+          <td class="cart__price">
+            <span>{{ lineTotal(item) | currency : 'USD' : 'symbol' : '1.0-0' }}</span>
+            <span lang="ru">{{ lineTotal(item) | currency : 'USD' : 'symbol' : '1.0-0' }}</span>
+          </td>
+          <td class="cart__actions">
+            <button type="button" (click)="remove(item.product.id)">✕</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <footer class="cart__footer">
+      <div class="cart__summary">
+        <span>
+          <strong>الإجمالي</strong>
+          <strong lang="ru">Всего</strong>
+        </span>
+        <span class="cart__total">{{ totalPrice() | currency : 'USD' : 'symbol' : '1.0-0' }}</span>
+      </div>
+      <div class="cart__footer-actions">
+        <button type="button" class="cart__clear" (click)="clear()">
+          إفراغ السلة / Очистить корзину
+        </button>
+        <a class="cart__checkout" routerLink="/checkout"> إتمام الطلب / Оформить заказ </a>
+      </div>
+    </footer>
+  </div>
+</section>
+
+<ng-template #empty>
+  <div class="cart__empty">
+    <p>السلة فارغة حالياً.</p>
+    <p lang="ru">В вашей корзине пока нет товаров.</p>
+    <a routerLink="/categories">ابدأ التسوق / Перейти к каталогу</a>
+  </div>
+</ng-template>

@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Observable, startWith, switchMap } from 'rxjs';
 import { CatalogService } from '../../services/catalog.service';
 import { Product } from '../../models/catalog.models';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-search-page',
@@ -12,10 +13,12 @@ import { Product } from '../../models/catalog.models';
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './search-page.html',
   styleUrls: ['./search-page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly catalog = inject(CatalogService);
+  private readonly cart = inject(CartService);
 
   readonly form = this.fb.group({
     term: [''],
@@ -40,5 +43,9 @@ export class SearchPageComponent {
 
   onReset(): void {
     this.form.reset({ term: '', color: '', maxPrice: '' });
+  }
+
+  addToCart(product: Product): void {
+    this.cart.addItem(product, 1);
   }
 }

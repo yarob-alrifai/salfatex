@@ -1,0 +1,22 @@
+<a class="cart-widget" routerLink="/cart" aria-label="سلة التسوق / Корзина">
+  <span class="cart-widget__icon" aria-hidden="true">🛒</span>
+  <span class="cart-widget__details">
+    <span class="cart-widget__title">سلة التسوق</span>
+    <span class="cart-widget__title" lang="ru">Корзина</span>
+    <ng-container *ngIf="hasItems(); else emptyState">
+      <span class="cart-widget__subtitle">
+        <span>({{ totalQuantity() }}) عناصر</span>
+        <span lang="ru">({{ totalQuantity() }}) товаров</span>
+      </span>
+      <span class="cart-widget__subtitle">
+        {{ totalPrice() | currency : 'USD' : 'symbol' : '1.0-0' }}
+      </span>
+    </ng-container>
+  </span>
+  <span class="cart-widget__count" *ngIf="hasItems()">{{ totalQuantity() }}</span>
+</a>
+
+<ng-template #emptyState>
+  <span class="cart-widget__subtitle">لا توجد عناصر</span>
+  <span class="cart-widget__subtitle" lang="ru">Пока пусто</span>
+</ng-template>

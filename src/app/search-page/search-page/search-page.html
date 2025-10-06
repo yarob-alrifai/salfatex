@@ -38,21 +38,23 @@
     </h2>
 
     <div class="search__grid" *ngIf="results.length; else noResults">
-      <a
-        class="search__card"
-        *ngFor="let product of results"
-        [routerLink]="['/product', product.id]"
-      >
-        <img [src]="product.images[0]" [alt]="product.name.ar" />
-        <div>
-          <h3>
-            <span>{{ product.name.ar }}</span>
-            <span lang="ru">{{ product.name.ru }}</span>
-          </h3>
-          <p class="search__price">{{ product.price | currency : 'USD' : 'symbol' : '1.0-0' }}</p>
-          <p class="search__color">{{ product.color }}</p>
-        </div>
-      </a>
+      <article class="search__card" *ngFor="let product of results">
+        <a class="search__link" [routerLink]="['/product', product.id]">
+          <img [src]="product.images[0]" [alt]="product.name.ar" />
+          <div>
+            <h3>
+              <span>{{ product.name.ar }}</span>
+              <span lang="ru">{{ product.name.ru }}</span>
+            </h3>
+            <p class="search__price">{{ product.price | currency : 'USD' : 'symbol' : '1.0-0' }}</p>
+            <p class="search__color">{{ product.color }}</p>
+          </div>
+        </a>
+        <button type="button" class="search__add" (click)="addToCart(product)">
+          <span>أضف إلى السلة</span>
+          <span lang="ru">В корзину</span>
+        </button>
+      </article>
     </div>
   </div>
 </section>

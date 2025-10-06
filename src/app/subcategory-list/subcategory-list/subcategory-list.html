@@ -34,26 +34,27 @@
       <div class="subcategory__products">
         <h3>المنتجات / Товары</h3>
         <div class="subcategory__product-grid">
-          <a
-            *ngFor="let product of item.products"
-            class="subcategory__product-card"
-            [routerLink]="['/product', product.id]"
-          >
-            {{ product | json }}
-            <img [src]="product.images[0]" [alt]="product.name.ar" />
-            <div>
-              <h4>
-                <span>{{ product.name.ar }}</span>
-                <span lang="ru">{{ product.name.ru }}</span>
-              </h4>
-              <p class="subcategory__price">
-                {{ product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
-              </p>
-              <p class="subcategory__color">
-                <span>{{ product.color }}</span>
-              </p>
-            </div>
-          </a>
+          <div *ngFor="let product of item.products" class="subcategory__product-card">
+            <a class="subcategory__product-link" [routerLink]="['/product', product.id]">
+              <img [src]="product.images[0]" [alt]="product.name.ar" />
+              <div>
+                <h4>
+                  <span>{{ product.name.ar }}</span>
+                  <span lang="ru">{{ product.name.ru }}</span>
+                </h4>
+                <p class="subcategory__price">
+                  {{ product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+                </p>
+                <p class="subcategory__color">
+                  <span>{{ product.color }}</span>
+                </p>
+              </div>
+            </a>
+            <button type="button" (click)="addToCart(product)" class="subcategory__add">
+              <span>أضف إلى السلة</span>
+              <span lang="ru">В корзину</span>
+            </button>
+          </div>
         </div>
       </div>
     </article>

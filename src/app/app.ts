@@ -7,7 +7,7 @@ import {
 } from '@angular/fire/auth';
 import { Firestore, collection, addDoc, getDocs } from '@angular/fire/firestore';
 import { Storage, ref, uploadString, getDownloadURL } from '@angular/fire/storage';
-import { CartWidgetComponent } from './components/cart-widget/cart-widget/cart-widget';
+import { CartWidgetComponent } from './component/cart-widget/cart-widget';
 
 @Component({
   selector: 'app-root',

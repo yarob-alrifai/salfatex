@@ -87,6 +87,62 @@
   gap: 0.2rem;
 }
 
+.product__purchase {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.product__quantity {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #f1f5f9;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  overflow: hidden;
+}
+
+.product__quantity button {
+  background: none;
+  border: none;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #0f172a;
+}
+
+.product__quantity input {
+  width: 60px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.product__add {
+  align-self: flex-start;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.9rem 1.5rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #ffffff;
+  box-shadow: 0 18px 35px -22px rgba(37, 99, 235, 0.6);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product__add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -22px rgba(37, 99, 235, 0.65);
+}
+
 .product__back {
   align-self: flex-start;
   margin-top: 0.5rem;
