@@ -14,35 +14,9 @@ import {
 } from '@angular/fire/firestore';
 import { Observable, firstValueFrom } from 'rxjs';
 import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
-
-export interface Category {
-  id?: string;
-  name: string;
-  description?: string;
-  imageUrl?: string;
-  createdAt?: Timestamp;
-}
-
-export interface Subcategory {
-  id?: string;
-  name: string;
-  description?: string;
-  categoryId: string;
-  imageUrl?: string;
-  createdAt?: Timestamp;
-}
-
-export interface Product {
-  id?: string;
-  name: string;
-  description?: string;
-  price: number;
-  categoryId: string;
-  subcategoryId?: string;
-  mainImageUrl?: string;
-  galleryUrls?: string[];
-  createdAt?: Timestamp;
-}
+import { Category } from './models/category.model';
+import { Subcategory } from './models/subcategory.model';
+import { Product } from './models/product.model';
 
 export interface OrderItem {
   productId: string;
@@ -88,6 +62,7 @@ export class AdminDataService {
     { idField: 'id' }
   ) as Observable<AdminOrder[]>;
 
+  // RED ================================================ CREATE CATEGORY ====================================
   async createCategory(category: Omit<Category, 'id' | 'createdAt' | 'imageUrl'>, image?: File) {
     const payload: Category = {
       ...category,
@@ -104,6 +79,8 @@ export class AdminDataService {
   async deleteCategory(categoryId: string) {
     await deleteDoc(doc(this.firestore, 'categories', categoryId));
   }
+
+  // RED ================================================ CREATE SUBCATEGORY ====================================
 
   async createSubcategory(
     subcategory: Omit<Subcategory, 'id' | 'createdAt' | 'imageUrl'>,
@@ -125,6 +102,7 @@ export class AdminDataService {
     await deleteDoc(doc(this.firestore, 'subcategories', subcategoryId));
   }
 
+  // RED ================================================ CREATE PRODUCT ====================================
   async createProduct(
     product: Omit<Product, 'id' | 'createdAt' | 'mainImageUrl' | 'galleryUrls'>,
     mainImage?: File,
@@ -157,6 +135,7 @@ export class AdminDataService {
   async deleteProduct(productId: string) {
     await deleteDoc(doc(this.firestore, 'products', productId));
   }
+  // RED ================================================ CREATE ORDER ====================================
 
   async updateOrderStatus(orderId: string, status: AdminOrder['status']) {
     await updateDoc(doc(this.firestore, 'orders', orderId), { status });
@@ -189,6 +168,7 @@ export class AdminDataService {
     return Math.random().toString(36).slice(2);
   }
 
+  // RED ================================================ UPLOAD IMAGE  ====================================
   private async uploadFile(path: string, file: File): Promise<string> {
     const storageRef = ref(this.storage, path);
     await uploadBytes(storageRef, file);

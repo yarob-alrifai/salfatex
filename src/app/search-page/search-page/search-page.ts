@@ -46,6 +46,6 @@ export class SearchPageComponent {
   }
 
   addToCart(product: Product): void {
-    this.cart.addItem(product, 1);
+    this.cart.addProduct(product);
   }
 }

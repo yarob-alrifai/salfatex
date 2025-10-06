@@ -33,21 +33,20 @@
       </li>
     </ul>
 
-    <div class="product__purchase">
-      <div class="product__quantity">
-        <button type="button" (click)="decrease()" aria-label="تقليل الكمية">−</button>
-        <input
-          type="number"
-          min="1"
-          [value]="quantity()"
-          (input)="updateQuantityFromInput($any($event.target).value)"
-        />
-        <button type="button" (click)="increase()" aria-label="زيادة الكمية">+</button>
-      </div>
-      <button type="button" class="product__add" (click)="addToCart(product)">
-        <span>أضف إلى السلة</span>
-        <span lang="ru">Добавить в корзину</span>
-      </button>
+    <div class="product__actions">
+      <ng-container *ngIf="getQuantity(product.id) === 0; else quantityControls">
+        <button type="button" class="product__add" (click)="addToCart(product)">
+          أضف إلى السلة
+        </button>
+      </ng-container>
+
+      <ng-template #quantityControls>
+        <div class="product__quantity">
+          <button type="button" (click)="decrement(product)" aria-label="إنقاص الكمية">−</button>
+          <span>{{ getQuantity(product.id) }}</span>
+          <button type="button" (click)="increment(product)" aria-label="زيادة الكمية">+</button>
+        </div>
+      </ng-template>
     </div>
 
     <a routerLink="['/categories', product.categoryId]" class="product__back">

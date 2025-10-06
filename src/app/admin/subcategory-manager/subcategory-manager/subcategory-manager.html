@@ -36,6 +36,8 @@
 
   <section class="list">
     <article *ngFor="let subcategory of filteredSubcategories$ | async" class="list-item">
+      {{ subcategory | json }}
+
       <div class="details">
         <h3>{{ subcategory.name }}</h3>
         <p>{{ subcategory.description || 'لا يوجد وصف' }}</p>

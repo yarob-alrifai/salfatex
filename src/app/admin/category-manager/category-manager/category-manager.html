@@ -26,6 +26,7 @@
 
   <section class="list">
     <article *ngFor="let category of categories$ | async" class="list-item">
+      {{ category | json }}
       <div class="details">
         <h3>{{ category.name }}</h3>
         <p>{{ category.description || 'لا يوجد وصف' }}</p>

@@ -1,22 +1,116 @@
-<a class="cart-widget" routerLink="/cart" aria-label="سلة التسوق / Корзина">
-  <span class="cart-widget__icon" aria-hidden="true">🛒</span>
-  <span class="cart-widget__details">
-    <span class="cart-widget__title">سلة التسوق</span>
-    <span class="cart-widget__title" lang="ru">Корзина</span>
-    <ng-container *ngIf="hasItems(); else emptyState">
-      <span class="cart-widget__subtitle">
-        <span>({{ totalQuantity() }}) عناصر</span>
-        <span lang="ru">({{ totalQuantity() }}) товаров</span>
-      </span>
-      <span class="cart-widget__subtitle">
-        {{ totalPrice() | currency : 'USD' : 'symbol' : '1.0-0' }}
-      </span>
-    </ng-container>
-  </span>
-  <span class="cart-widget__count" *ngIf="hasItems()">{{ totalQuantity() }}</span>
-</a>
+<div class="cart-widget">
+  <button type="button" class="cart-widget__toggle" (click)="toggle()">
+    🛒
+    <span class="cart-widget__badge" *ngIf="itemCount() > 0">{{ itemCount() }}</span>
+  </button>
 
-<ng-template #emptyState>
-  <span class="cart-widget__subtitle">لا توجد عناصر</span>
-  <span class="cart-widget__subtitle" lang="ru">Пока пусто</span>
-</ng-template>
+  <section class="cart-widget__panel" *ngIf="isOpen()">
+    <header class="cart-widget__header">
+      <div>
+        <h2>سلة المشتريات</h2>
+        <p lang="ru">Корзина</p>
+      </div>
+      <button type="button" class="cart-widget__close" (click)="close()" aria-label="إغلاق السلة">
+        ×
+      </button>
+    </header>
+
+    <p class="cart-widget__success" *ngIf="successMessage()">{{ successMessage() }}</p>
+    <p class="cart-widget__error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+
+    <ng-container *ngIf="hasItems(); else emptyCart">
+      <ul class="cart-widget__list">
+        <li class="cart-widget__item" *ngFor="let item of items()">
+          <div>
+            <h3>{{ item.product.name.ar }}</h3>
+            <p lang="ru">{{ item.product.name.ru }}</p>
+            <span class="cart-widget__price">
+              {{ item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+            </span>
+          </div>
+
+          <div class="cart-widget__quantity">
+            <button type="button" (click)="decrement(item.product.id)" aria-label="إنقاص الكمية">
+              −
+            </button>
+            <span>{{ item.quantity }}</span>
+            <button type="button" (click)="increment(item.product.id)" aria-label="زيادة الكمية">
+              +
+            </button>
+          </div>
+
+          <span class="cart-widget__line-total">
+            {{ item.product.price * item.quantity | currency : 'USD' : 'symbol' : '1.0-0' }}
+          </span>
+        </li>
+      </ul>
+
+      <div class="cart-widget__summary">
+        <span>الإجمالي / Итого</span>
+        <strong>{{ total() | currency : 'USD' : 'symbol' : '1.0-0' }}</strong>
+      </div>
+
+      <form class="cart-widget__form" [formGroup]="checkoutForm" (ngSubmit)="submitOrder()">
+        <div class="cart-widget__field">
+          <label for="customerName">اسم العميل</label>
+          <input
+            id="customerName"
+            type="text"
+            formControlName="customerName"
+            placeholder="الاسم الكامل"
+          />
+          <small
+            *ngIf="
+              checkoutForm.controls.customerName.invalid &&
+              checkoutForm.controls.customerName.touched
+            "
+          >
+            يرجى إدخال اسم صالح.
+          </small>
+        </div>
+
+        <div class="cart-widget__field">
+          <label for="customerEmail">البريد الإلكتروني</label>
+          <input
+            id="customerEmail"
+            type="email"
+            formControlName="customerEmail"
+            placeholder="example@email.com"
+          />
+          <small
+            *ngIf="
+              checkoutForm.controls.customerEmail.invalid &&
+              checkoutForm.controls.customerEmail.touched
+            "
+          >
+            يرجى إدخال بريد إلكتروني صالح.
+          </small>
+        </div>
+
+        <div class="cart-widget__field">
+          <label for="shippingAddress">عنوان التوصيل</label>
+          <textarea
+            id="shippingAddress"
+            rows="2"
+            formControlName="shippingAddress"
+            placeholder="المدينة، الشارع، معلومات إضافية"
+          ></textarea>
+        </div>
+
+        <div class="cart-widget__field">
+          <label for="notes">ملاحظات إضافية</label>
+          <textarea id="notes" rows="2" formControlName="notes" placeholder="ملاحظاتك"></textarea>
+        </div>
+
+        <button type="submit" [disabled]="submitting()" class="cart-widget__submit">
+          <span *ngIf="!submitting()">تأكيد الطلب</span>
+          <span *ngIf="submitting()">...جاري الإرسال</span>
+        </button>
+      </form>
+    </ng-container>
+
+    <ng-template #emptyCart>
+      <p class="cart-widget__empty">سلتك فارغة حالياً / Ваша корзина пуста.</p>
+    </ng-template>
+  </section>
+</div>

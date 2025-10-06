@@ -31,6 +31,11 @@
     </label>
 
     <label>
+      لون المنتج
+      <input formControlName="color" placeholder="لون المنتح" />
+    </label>
+
+    <label>
       السعر
       <input type="number" formControlName="price" min="0" step="0.01" />
     </label>
@@ -56,6 +61,7 @@
 
   <section class="list">
     <article *ngFor="let product of products$ | async" class="list-item">
+      {{ product | json }}
       <div class="details">
         <h3>{{ product.name }}</h3>
         <p>{{ product.description }}</p>

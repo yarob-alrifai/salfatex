@@ -24,7 +24,7 @@ export class CheckoutPageComponent {
   private readonly fb = inject(FormBuilder);
 
   readonly items: Signal<CartItem[]> = this.cart.items;
-  readonly totalPrice = this.cart.totalPrice;
+  readonly totalPrice = this.cart.total;
 
   readonly form = this.fb.group({
     name: ['', Validators.required],
@@ -43,15 +43,15 @@ export class CheckoutPageComponent {
     }
 
     const info = this.form.getRawValue() as CustomerInfo;
-    const snapshot = this.cart.createSnapshot();
+    // const snapshot = this.cart.createSnapshot();
 
-    if (!snapshot.items.length) {
-      return;
-    }
+    // if (!snapshot.items.length) {
+    //   return;
+    // }
 
-    this.cart.clear();
+    this.cart.clearCart();
     this.form.reset();
-    this.confirmation.set({ info, snapshot, createdAt: new Date() });
+    // this.confirmation.set({ info, snapshot, createdAt: new Date() });
   }
 
   trackByProduct(_index: number, item: CartItem): string {

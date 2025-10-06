@@ -1,12 +1,13 @@
-import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, CommonModule, NgFor, NgIf } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AdminDataService, Category } from '../../admin-data.service';
+import { AdminDataService } from '../../admin-data.service';
+import { Category } from '../../models/category.model';
 
 @Component({
   selector: 'app-category-manager',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, NgFor, AsyncPipe],
+  imports: [ReactiveFormsModule, NgIf, NgFor, AsyncPipe, CommonModule],
   templateUrl: './category-manager.html',
   styleUrls: ['./category-manager.scss'],
 })

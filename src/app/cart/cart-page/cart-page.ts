@@ -17,8 +17,8 @@ export class CartPageComponent {
   private readonly cart = inject(CartService);
 
   readonly items = this.cart.items;
-  readonly totalQuantity = this.cart.totalQuantity;
-  readonly totalPrice = this.cart.totalPrice;
+  // readonly totalQuantity = this.cart.totalQuantity;
+  readonly totalPrice = this.cart.total;
 
   trackByProduct(_index: number, item: CartItem): string {
     return item.product.id;
@@ -29,15 +29,15 @@ export class CartPageComponent {
     if (Number.isNaN(quantity)) {
       return;
     }
-    this.cart.updateQuantity(productId, Math.max(0, Math.floor(quantity)));
+    // this.cart.updateQuantity(productId, Math.max(0, Math.floor(quantity)));
   }
 
   remove(productId: string): void {
-    this.cart.removeItem(productId);
+    this.cart.removeProduct(productId);
   }
 
   clear(): void {
-    this.cart.clear();
+    this.cart.clearCart();
   }
 
   lineTotal(item: CartItem): number {

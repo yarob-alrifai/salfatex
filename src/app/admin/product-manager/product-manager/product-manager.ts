@@ -1,13 +1,14 @@
-import { AsyncPipe, CurrencyPipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, CommonModule, CurrencyPipe, NgFor, NgIf } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { combineLatest, map, startWith } from 'rxjs';
-import { AdminDataService, Product } from '../../admin-data.service';
+import { AdminDataService } from '../../admin-data.service';
+import { Product } from '../../models/product.model';
 
 @Component({
   selector: 'app-product-manager',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, NgFor, AsyncPipe, CurrencyPipe],
+  imports: [ReactiveFormsModule, NgIf, NgFor, AsyncPipe, CurrencyPipe, CommonModule],
   templateUrl: './product-manager.html',
   styleUrls: ['./product-manager.scss'],
 })
@@ -17,6 +18,7 @@ export class ProductManagerComponent {
 
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
+    color: ['', Validators.required],
     description: ['', Validators.required],
     price: [0, [Validators.required, Validators.min(0)]],
     categoryId: ['', Validators.required],

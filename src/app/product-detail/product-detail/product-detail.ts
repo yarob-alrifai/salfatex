@@ -25,23 +25,19 @@ export class ProductDetailComponent {
     switchMap((productId) => this.catalog.getProductById(productId))
   );
 
-  increase(): void {
-    this.quantity.update((current) => current + 1);
+  addToCart(product: Product) {
+    this.cart.addProduct(product);
   }
 
-  decrease(): void {
-    this.quantity.update((current) => Math.max(1, current - 1));
+  increment(product: Product) {
+    this.cart.increment(product.id);
   }
 
-  updateQuantityFromInput(value: string | number): void {
-    const parsed = Number(value);
-    if (Number.isNaN(parsed)) {
-      return;
-    }
-    this.quantity.set(Math.max(1, Math.floor(parsed)));
+  decrement(product: Product) {
+    this.cart.decrement(product.id);
   }
 
-  addToCart(product: Product): void {
-    this.cart.addItem(product, this.quantity());
+  getQuantity(productId: string): number {
+    return this.cart.getQuantity(productId);
   }
 }

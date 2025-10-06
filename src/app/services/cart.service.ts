@@ -1,119 +1,134 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { CartItem, CartSnapshot } from '../models/cart.models';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { Firestore, addDoc, collection } from '@angular/fire/firestore';
+import { Timestamp } from 'firebase/firestore';
+import type { AdminOrder, OrderItem } from '../admin/admin-data.service';
 import { Product } from '../models/catalog.models';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class CartService {
-  private readonly storageKey = 'salfatex-cart';
-  private readonly isBrowser =
-    typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
-  private readonly itemsSignal = signal<CartItem[]>(this.loadInitialItems());
+export interface CartItem {
+  product: Product;
+  quantity: number;
+}
 
-  readonly items = computed(() => [...this.itemsSignal()]);
-  readonly totalQuantity = computed(() =>
+export interface CheckoutDetails {
+  customerName: string;
+  customerEmail?: string;
+  shippingAddress?: string;
+  notes?: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class CartService {
+  private readonly firestore = inject(Firestore);
+
+  private readonly itemsSignal = signal<CartItem[]>([]);
+  private readonly localOrdersSignal = signal<AdminOrder[]>([]);
+
+  readonly items = computed(() => this.itemsSignal());
+  readonly itemCount = computed(() =>
     this.itemsSignal().reduce((total, item) => total + item.quantity, 0)
   );
-  readonly totalPrice = computed(() =>
+  readonly total = computed(() =>
     this.itemsSignal().reduce((total, item) => total + item.quantity * item.product.price, 0)
   );
+  readonly localOrders = computed(() => this.localOrdersSignal());
 
-  addItem(product: Product, quantity = 1): void {
-    if (quantity <= 0) {
-      return;
+  addProduct(product: Product) {
+    this.itemsSignal.update((items) => {
+      const existingIndex = items.findIndex((item) => item.product.id === product.id);
+
+      if (existingIndex >= 0) {
+        return items.map((item, index) =>
+          index === existingIndex ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+
+      return [...items, { product, quantity: 1 }];
+    });
+  }
+
+  increment(productId: string) {
+    this.itemsSignal.update((items) =>
+      items.map((item) =>
+        item.product.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    );
+  }
+
+  decrement(productId: string) {
+    this.itemsSignal.update((items) =>
+      items
+        .map((item) =>
+          item.product.id === productId ? { ...item, quantity: item.quantity - 1 } : item
+        )
+        .filter((item) => item.quantity > 0)
+    );
+  }
+
+  removeProduct(productId: string) {
+    this.itemsSignal.update((items) => items.filter((item) => item.product.id !== productId));
+  }
+
+  clearCart() {
+    this.itemsSignal.set([]);
+  }
+
+  getQuantity(productId: string): number {
+    return this.itemsSignal().find((item) => item.product.id === productId)?.quantity ?? 0;
+  }
+
+  async submitOrder(details: CheckoutDetails): Promise<AdminOrder> {
+    console.log('yarob');
+    const trimmedName = details.customerName?.trim();
+
+    if (!trimmedName) {
+      throw new Error('يجب إدخال اسم العميل قبل تأكيد الطلب.');
     }
 
     const items = this.itemsSignal();
-    const existingIndex = items.findIndex((item) => item.product.id === product.id);
 
-    if (existingIndex >= 0) {
-      const updated = [...items];
-      updated[existingIndex] = {
-        ...updated[existingIndex],
-        quantity: updated[existingIndex].quantity + quantity,
-      };
-      this.setItems(updated);
-      return;
+    if (!items.length) {
+      throw new Error('لا توجد عناصر في السلة.');
     }
 
-    this.setItems([...items, { product, quantity }]);
-  }
+    const orderItems: OrderItem[] = items.map((item) => ({
+      productId: item.product.id,
+      name: item.product.name.ar,
+      quantity: item.quantity,
+      color: item.product.color,
+      price: item.product.price,
+    }));
 
-  updateQuantity(productId: string, quantity: number): void {
-    if (quantity <= 0) {
-      this.removeItem(productId);
-      return;
-    }
-
-    const updated = this.itemsSignal().map((item) =>
-      item.product.id === productId ? { ...item, quantity } : item
-    );
-    this.setItems(updated);
-  }
-
-  removeItem(productId: string): void {
-    const updated = this.itemsSignal().filter((item) => item.product.id !== productId);
-    this.setItems(updated);
-  }
-
-  clear(): void {
-    this.setItems([]);
-  }
-
-  createSnapshot(): CartSnapshot {
-    const items = this.items();
-    return {
-      items: items.map((item) => ({
-        ...item,
-        product: {
-          ...item.product,
-          name: { ...item.product.name },
-          description: { ...item.product.description },
-          materials: item.product.materials ? { ...item.product.materials } : undefined,
-          features: item.product.features
-            ? item.product.features.map((feature) => ({ ...feature }))
-            : undefined,
-          //   images: [...item.product.images],
-        },
-      })),
-      total: items.reduce((total, item) => total + item.quantity * item.product.price, 0),
+    const payload: Omit<AdminOrder, 'id'> = {
+      customerName: trimmedName,
+      // customerEmail: details.customerEmail?.trim() || undefined,
+      // shippingAddress: details.shippingAddress?.trim() || undefined,
+      // notes: details.notes?.trim() || undefined,
+      status: 'pending',
+      total: this.total(),
+      createdAt: Timestamp.now(),
+      items: orderItems,
     };
+    await addDoc(collection(this.firestore, 'orders'), payload);
+    if (this.firestore) {
+      const ref = await addDoc(collection(this.firestore, 'orders'), payload);
+      const order: AdminOrder = { ...payload, id: ref.id };
+
+      console.log({ order: order });
+      this.clearCart();
+      return order;
+    }
+
+    const fallbackOrder: AdminOrder = { ...payload, id: this.createLocalId() };
+    this.localOrdersSignal.update((orders) => [fallbackOrder, ...orders]);
+    this.clearCart();
+    return fallbackOrder;
   }
 
-  private setItems(items: CartItem[]): void {
-    this.itemsSignal.set(items);
-    this.persist(items);
-  }
-
-  private loadInitialItems(): CartItem[] {
-    if (!this.isBrowser) {
-      return [];
+  private createLocalId(): string {
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+      return crypto.randomUUID();
     }
 
-    try {
-      const raw = window.localStorage.getItem(this.storageKey);
-      if (!raw) {
-        return [];
-      }
-      const parsed = JSON.parse(raw) as CartItem[];
-      return Array.isArray(parsed)
-        ? parsed.filter((item) => item && item.product && item.product.id && item.quantity > 0)
-        : [];
-    } catch {
-      return [];
-    }
-  }
-
-  private persist(items: CartItem[]): void {
-    if (!this.isBrowser) {
-      return;
-    }
-
-    try {
-      window.localStorage.setItem(this.storageKey, JSON.stringify(items));
-    } catch {
-      // Ignore persistence errors (e.g. private browsing)
-    }
+    return Math.random().toString(36).slice(2, 10);
   }
 }

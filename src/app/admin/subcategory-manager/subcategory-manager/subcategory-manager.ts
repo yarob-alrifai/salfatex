@@ -1,13 +1,14 @@
-import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, CommonModule, NgFor, NgIf } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { combineLatest, map, startWith } from 'rxjs';
-import { AdminDataService, Subcategory } from '../../admin-data.service';
+import { AdminDataService } from '../../admin-data.service';
+import { Subcategory } from '../../models/subcategory.model';
 
 @Component({
   selector: 'app-subcategory-manager',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, NgFor, AsyncPipe],
+  imports: [ReactiveFormsModule, NgIf, NgFor, AsyncPipe, CommonModule],
   templateUrl: './subcategory-manager.html',
   styleUrls: ['./subcategory-manager.scss'],
 })
