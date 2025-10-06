@@ -100,15 +100,14 @@ export class CartService {
 
     const payload: Omit<AdminOrder, 'id'> = {
       customerName: trimmedName,
-      // customerEmail: details.customerEmail?.trim() || undefined,
-      // shippingAddress: details.shippingAddress?.trim() || undefined,
-      // notes: details.notes?.trim() || undefined,
+      customerEmail: details.customerEmail?.trim() || undefined,
+      shippingAddress: details.shippingAddress?.trim() || undefined,
+      notes: details.notes?.trim() || undefined,
       status: 'pending',
       total: this.total(),
       createdAt: Timestamp.now(),
       items: orderItems,
     };
-    await addDoc(collection(this.firestore, 'orders'), payload);
     if (this.firestore) {
       const ref = await addDoc(collection(this.firestore, 'orders'), payload);
       const order: AdminOrder = { ...payload, id: ref.id };
