@@ -1,59 +1,128 @@
-<section class="subcategory" *ngIf="viewModel$ | async as vm; else loading">
-  <header class="subcategory__header" *ngIf="vm.category as category">
-    {{ category | json }}
-    <h1>
-      <span>{{ category.name.ar }}</span>
-      <span lang="ru">{{ category.name.ru }}</span>
-    </h1>
-    <p>
-      <span>{{ category.description.ar }}</span>
-      <span lang="ru">{{ category.description.ru }}</span>
-    </p>
-    <a routerLink="/categories" class="subcategory__back"
-      >⬅︎ عودة إلى كل الفئات / Вернуться к категориям</a
+<section
+  class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8"
+  *ngIf="viewModel$ | async as vm; else loading"
+>
+  <header class="space-y-4">
+    <a
+      routerLink="/categories"
+      class="inline-flex items-center text-sm font-medium text-slate-600 transition hover:text-amber-600"
     >
+      <span class="mr-2 text-lg">←</span>
+      عودة إلى الأقسام / العودة للقائمة الرئيسية
+    </a>
+
+    <div class="space-y-2" *ngIf="vm.category as category">
+      <h1 class="text-2xl font-semibold text-slate-900">
+        {{ category.name }}
+      </h1>
+      <p
+        class="max-w-3xl text-sm leading-6 text-slate-600"
+        *ngIf="category.description as categoryDescription"
+      >
+        {{ categoryDescription }}
+      </p>
+    </div>
   </header>
 
-  <div class="subcategory__list" *ngIf="vm.items.length; else empty">
-    <article class="subcategory__item" *ngFor="let item of vm.items">
-      {{ item.subcategory | json }}
-      <div class="subcategory__info">
-        <img [src]="item.subcategory.imageUrl" [alt]="item.subcategory.name.ar" />
-        <div>
-          <h2>
-            <span>{{ item.subcategory.name.ar }}</span>
-            <span lang="ru">{{ item.subcategory.name.ru }}</span>
-          </h2>
-          <p>
-            <span>{{ item.subcategory.description.ar }}</span>
-            <span lang="ru">{{ item.subcategory.description.ru }}</span>
-          </p>
-        </div>
-      </div>
+  <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <p class="text-sm text-slate-500">
+      تم العثور على
+      <span class="font-semibold text-slate-900">{{ vm.filteredItems.length }}</span>
+      من أصل
+      <span class="font-semibold text-slate-900">{{ vm.items.length }}</span>
+      قسم فرعي.
+    </p>
 
-      <div class="subcategory__products">
-        <h3>المنتجات / Товары</h3>
-        <div class="subcategory__product-grid">
-          <div *ngFor="let product of item.products" class="subcategory__product-card">
-            <a class="subcategory__product-link" [routerLink]="['/product', product.id]">
-              <img [src]="product.images[0]" [alt]="product.name.ar" />
-              <div>
-                <h4>
-                  <span>{{ product.name.ar }}</span>
-                  <span lang="ru">{{ product.name.ru }}</span>
-                </h4>
-                <p class="subcategory__price">
-                  {{ product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
-                </p>
-                <p class="subcategory__color">
-                  <span>{{ product.color }}</span>
-                </p>
+    <div class="relative w-full max-w-md">
+      <input
+        type="search"
+        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+        placeholder="ابحث عن قسم فرعي بالاسم أو الوصف"
+        [ngModel]="vm.searchTerm"
+        (ngModelChange)="updateSearch($event)"
+      />
+      <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+        🔍
+      </span>
+    </div>
+  </div>
+
+  <div class="mt-8 space-y-8" *ngIf="vm.filteredItems.length; else empty">
+    <article
+      *ngFor="let item of vm.filteredItems"
+      class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-amber-400 hover:shadow-lg"
+    >
+      <!-- {{ item | json }} -->
+      <div class="flex flex-col gap-6 p-6 lg:flex-row">
+        <div class="flex w-full flex-col items-center gap-3 lg:w-64">
+          <img
+            class="h-48 w-full rounded-xl object-cover"
+            [src]="item.subcategory.imageUrl"
+            [alt]="item.subcategory.name"
+          />
+          <span
+            class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-4 py-1 text-xs font-semibold text-amber-700"
+          >
+            {{ item.products.length }} عنصر
+          </span>
+        </div>
+
+        <div class="flex-1 space-y-6">
+          <div class="space-y-2">
+            <div class="space-y-1">
+              <h2 class="text-xl font-semibold text-slate-900">
+                {{ item.subcategory.name }}
+              </h2>
+            </div>
+            <div class="space-y-1 text-sm leading-6 text-slate-600">
+              <p *ngIf="item.subcategory.description as descriptionAr">{{ descriptionAr }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              أبرز المنتجات
+            </h3>
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <!-- {{ item.products | json }} -->
+              <div
+                *ngFor="let product of item.products"
+                class="group flex h-full flex-col justify-between rounded-xl border border-slate-200 bg-slate-50 p-4 transition hover:border-amber-400 hover:bg-white"
+              >
+                <!-- {{ product | json }} -->
+                <a class="flex flex-col gap-3" [routerLink]="['/product', product.id]">
+                  <img
+                    class="h-40 w-full rounded-lg object-cover"
+                    [src]="product.mainImageUrl"
+                    [alt]="product.name"
+                  />
+                  <div class="space-y-1">
+                    <h4 class="text-base font-semibold text-slate-900">{{ product.name }}</h4>
+                    <!-- <p
+                      class="text-sm text-slate-500"
+                      *ngIf="product.name.ru as productNameRu"
+                      lang="ru"
+                    >
+                      {{ productNameRu }}
+                    </p> -->
+                    <p class="text-sm font-semibold text-amber-600" *ngIf="product.price">
+                      {{ product.price | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
+                    </p>
+                    <p class="text-xs text-slate-500" *ngIf="product.color">
+                      اللون: {{ product.color }}
+                    </p>
+                  </div>
+                </a>
+
+                <button
+                  type="button"
+                  (click)="addToCart(product)"
+                  class="mt-4 inline-flex items-center justify-center rounded-lg bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
+                >
+                  أضف إلى السلة
+                </button>
               </div>
-            </a>
-            <button type="button" (click)="addToCart(product)" class="subcategory__add">
-              <span>أضف إلى السلة</span>
-              <span lang="ru">В корзину</span>
-            </button>
+            </div>
           </div>
         </div>
       </div>
@@ -62,9 +131,15 @@
 </section>
 
 <ng-template #loading>
-  <p class="subcategory__loading">...يتم تحميل التفاصيل / Загрузка данных...</p>
+  <div class="flex min-h-[40vh] items-center justify-center">
+    <p class="text-sm text-slate-500">...يتم تحميل التفاصيل / Загрузка данных...</p>
+  </div>
 </ng-template>
 
 <ng-template #empty>
-  <p class="subcategory__empty">لا توجد أقسام فرعية متاحة حالياً / Нет доступных подкатегорий.</p>
+  <div
+    class="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm text-slate-500"
+  >
+    لا توجد أقسام فرعية مطابقة لبحثك في الوقت الحالي.
+  </div>
 </ng-template>
