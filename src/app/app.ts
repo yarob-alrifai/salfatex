@@ -8,11 +8,12 @@ import {
 import { Firestore, collection, addDoc, getDocs } from '@angular/fire/firestore';
 import { Storage, ref, uploadString, getDownloadURL } from '@angular/fire/storage';
 import { CartWidgetComponent } from './component/cart-widget/cart-widget';
+import { MainAdminComponent } from './admin/main-admin/main-admin.component';
 
 @Component({
   selector: 'app-root',
   standalone: true, // add if using standalone
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CartWidgetComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CartWidgetComponent, MainAdminComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

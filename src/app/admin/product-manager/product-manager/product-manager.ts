@@ -1,18 +1,63 @@
 import { AsyncPipe, CommonModule, CurrencyPipe, NgFor, NgIf } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { combineLatest, map, startWith } from 'rxjs';
 import { AdminDataService } from '../../admin-data.service';
 import { Product } from '../../models/product.model';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+// interface Product {
+//   imageUrl: string;
+//   name: string;
+//   color: string;
+//   categoryName: string;
+//   price: number;
+//   createdAt: Date;
+// }
 
 @Component({
   selector: 'app-product-manager',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, NgFor, AsyncPipe, CurrencyPipe, CommonModule],
+  imports: [
+    ReactiveFormsModule,
+    NgIf,
+    NgFor,
+    AsyncPipe,
+    CurrencyPipe,
+    CommonModule,
+    MatTableModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatIconModule,
+    MatButtonModule,
+  ],
   templateUrl: './product-manager.html',
   styleUrls: ['./product-manager.scss'],
 })
-export class ProductManagerComponent {
+export class ProductManagerComponent implements OnInit {
+  displayedColumns: string[] = [
+    'image',
+    'name',
+    'color',
+    'category',
+    'price',
+    'createdAt',
+    'actions',
+  ];
+  dataSource = new MatTableDataSource<Product>([]);
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
   private readonly fb = inject(FormBuilder);
   private readonly adminDataService = inject(AdminDataService);
 
@@ -33,6 +78,13 @@ export class ProductManagerComponent {
   readonly categories$ = this.adminDataService.categories$;
   readonly subcategories$ = this.adminDataService.subcategories$;
   readonly products$ = this.adminDataService.products$;
+
+  ngOnInit(): void {
+    // ربط المنتجات بالـ datasource
+    this.products$.pipe(takeUntilDestroyed()).subscribe((products) => {
+      this.dataSource.data = products;
+    });
+  }
 
   readonly filteredSubcategories$ = combineLatest([
     this.subcategories$,
@@ -84,5 +136,15 @@ export class ProductManagerComponent {
     }
 
     await this.adminDataService.deleteProduct(product.id);
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 }

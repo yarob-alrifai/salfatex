@@ -1,17 +1,16 @@
-<div class="flex h-screen bg-gray-100">
-  <!-- Sidebar -->
-  <aside class="w-64 bg-white shadow-xl flex flex-col p-6 border-r border-gray-200">
-    <!-- Branding -->
-    <div class="text-center pb-6 border-b border-gray-200">
-      <h2 class="text-2xl font-bold text-indigo-600">لوحة التحكم</h2>
-      <p class="text-sm text-gray-500 pt-2">
-        {{ admin() ? admin()!.displayName || admin()!.email : '...' }}
-      </p>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="flex-1 pt-6 space-y-2">
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav
+    #drawer
+    class="sidenav"
+    fixedInViewport
+    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'"
+    [opened]="(isHandset$ | async) === false"
+  >
+    <mat-toolbar>Menu</mat-toolbar>
+    <mat-nav-list>
       <a
+        mat-list-item
         routerLink="/admin/orders"
         routerLinkActive="!bg-indigo-100 text-indigo-700"
         class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
@@ -19,6 +18,7 @@
         🛒 الطلبات
       </a>
       <a
+        mat-list-item
         routerLink="/admin/products"
         routerLinkActive="!bg-indigo-100 text-indigo-700"
         class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
@@ -26,6 +26,7 @@
         📦 المنتجات
       </a>
       <a
+        mat-list-item
         routerLink="/admin/categories"
         routerLinkActive="!bg-indigo-100 text-indigo-700"
         class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
@@ -33,27 +34,25 @@
         🗂️ التصنيفات
       </a>
       <a
+        mat-list-item
         routerLink="/admin/subcategories"
         routerLinkActive="!bg-indigo-100 text-indigo-700"
         class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
       >
         📑 التصنيفات الفرعية
       </a>
-    </nav>
-
-    <!-- Logout Button -->
-    <button
-      type="button"
-      class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow transition disabled:opacity-50"
-      (click)="signOut()"
-      [disabled]="loading()"
-    >
-      تسجيل الخروج
-    </button>
-  </aside>
-
-  <!-- Main content -->
-  <main class="flex-1 p-6 overflow-y-auto">
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      @if (isHandset$ | async) {
+      <button type="button" aria-label="Toggle sidenav" matIconButton (click)="drawer.toggle()">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+      }
+      <span>salfatex</span>
+    </mat-toolbar>
+    <!-- Add Content Here -->
     <router-outlet></router-outlet>
-  </main>
-</div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
