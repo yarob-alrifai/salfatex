@@ -1,7 +1,6 @@
 <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
   <header class="mb-12 text-center">
     <h1 class="text-3xl font-bold text-slate-900 sm:text-4xl">الفئات الرئيسية</h1>
-    <p class="mt-2 text-base font-medium text-slate-500" lang="ru">Основные категории</p>
   </header>
 
   <div
@@ -18,7 +17,7 @@
         <img
           class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           [src]="category.imageUrl"
-          [alt]="category.name.ar"
+          [alt]="category.name"
         />
       </div>
 
@@ -41,7 +40,6 @@
           <div class="rounded-2xl bg-slate-50 p-4 text-slate-700">
             <dt class="text-xs font-semibold tracking-wide text-slate-500">
               <span class="block">التصنيفات الفرعية</span>
-              <span class="block font-normal" lang="ru">Подкатегории</span>
             </dt>
             <dd class="mt-2 text-2xl font-bold text-slate-900">
               {{ category.subcategoryCount }}
@@ -51,7 +49,6 @@
           <div class="rounded-2xl bg-slate-50 p-4 text-slate-700">
             <dt class="text-xs font-semibold tracking-wide text-slate-500">
               <span class="block">العناصر في المتجر</span>
-              <span class="block font-normal" lang="ru">Товары в разделе</span>
             </dt>
             <dd class="mt-2 text-2xl font-bold text-slate-900">
               {{ category.productCount }}
@@ -63,8 +60,6 @@
   </div>
 
   <ng-template #loading>
-    <p class="text-center text-sm font-medium text-slate-500">
-      ...جاري تحميل الفئات / Загрузка категорий...
-    </p>
+    <p class="text-center text-sm font-medium text-slate-500">...جاري تحميل الفئات</p>
   </ng-template>
 </section>

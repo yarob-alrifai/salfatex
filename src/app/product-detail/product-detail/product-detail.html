@@ -1,35 +1,31 @@
 <section class="product" *ngIf="product$ | async as product; else loading">
   {{ product | json }}
   <div class="product__gallery">
-    <img *ngFor="let image of product.images" [src]="image" [alt]="product.name.ar" />
+    <img *ngFor="let image of product.images" [src]="image" [alt]="product.name" />
   </div>
 
   <div class="product__info">
     <h1>
-      <span>{{ product.name.ar }}</span>
-      <span lang="ru">{{ product.name.ru }}</span>
+      {{ product.name }}
     </h1>
 
     <p class="product__price">{{ product.price | currency : 'USD' : 'symbol' : '1.0-0' }}</p>
     <p class="product__color">{{ product.color }}</p>
 
     <p class="product__description">
-      <span>{{ product.description.ar }}</span>
-      <span lang="ru">{{ product.description.ru }}</span>
+      {{ product.description }}
     </p>
 
     <div class="product__materials" *ngIf="product.materials as materials">
-      <h2>الخامات / Состав</h2>
+      <h2>الخامات</h2>
       <p>
-        <span>{{ materials.ar }}</span>
-        <span lang="ru">{{ materials.ru }}</span>
+        {{ materials }}
       </p>
     </div>
 
     <ul class="product__features" *ngIf="product.features?.length">
       <li *ngFor="let feature of product.features">
-        <span>{{ feature.ar }}</span>
-        <span lang="ru">{{ feature.ru }}</span>
+        {{ feature }}
       </li>
     </ul>
 
@@ -50,11 +46,11 @@
     </div>
 
     <a routerLink="['/categories', product.categoryId]" class="product__back">
-      ⬅︎ المزيد من المنتجات / Больше товаров
+      ⬅︎ المزيد من المنتجات
     </a>
   </div>
 </section>
 
 <ng-template #loading>
-  <p class="product__loading">...يتم تحميل المنتج / Загрузка товара...</p>
+  <p class="product__loading">...يتم تحميل المنتج</p>
 </ng-template>

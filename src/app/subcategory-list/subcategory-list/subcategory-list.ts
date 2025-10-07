@@ -67,12 +67,7 @@ export class SubcategoryListComponent {
       const filteredItems = !normalizedSearch
         ? viewModel.items
         : viewModel.items.filter((item) => {
-            const values = [
-              item.subcategory.name?.ar ?? '',
-              item.subcategory.name?.ru ?? '',
-              item.subcategory.description?.ar ?? '',
-              item.subcategory.description?.ru ?? '',
-            ];
+            const values = [item.subcategory.name ?? '', item.subcategory.description ?? ''];
 
             return values.some((value) => value.toLowerCase().includes(normalizedSearch));
           });

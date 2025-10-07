@@ -8,12 +8,12 @@
       <img
         class="subcategory-detail__image"
         [src]="subcategory.imageUrl"
-        [alt]="subcategory.name.ar"
+        [alt]="subcategory.name"
       />
 
       <div class="subcategory-detail__text">
-        <h1>{{ subcategory.name.ar }}</h1>
-        <p>{{ subcategory.description.ar }}</p>
+        <h1>{{ subcategory.name }}</h1>
+        <p>{{ subcategory.description }}</p>
       </div>
     </div>
   </header>
@@ -38,9 +38,9 @@
           ]"
           (click)="$event.stopPropagation()"
         >
-          <img [src]="product.mainImageUrl" [alt]="product.name.ar" />
+          <img [src]="product.mainImageUrl" [alt]="product.name" />
           <div>
-            <h3>{{ product.name.ar }}</h3>
+            <h3>{{ product.name }}</h3>
             <p *ngIf="product.price" class="subcategory-detail__price">
               {{ product.price | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
             </p>

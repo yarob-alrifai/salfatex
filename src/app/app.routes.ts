@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { CategoriesComponent } from './categories/categories/categories';
 import { SubcategoryListComponent } from './subcategory-list/subcategory-list/subcategory-list';
 import { ProductDetailComponent } from './product-detail/product-detail/product-detail';
-import { SearchPageComponent } from './search-page/search-page/search-page';
+// import { SearchPageComponent } from './search-page/search-page/search-page';
 import { AboutPageComponent } from './about-page/about-page/about-page';
 import { ContactPageComponent } from './contact-page/contact-page/contact-page';
 import { CartPageComponent } from './cart/cart-page/cart-page';
@@ -31,7 +31,7 @@ export const routes: Routes = [
     path: 'categories/:categoryId/subcategories/:subcategoryId/products/:productId',
     component: ProductDetailComponent,
   },
-  { path: 'search', component: SearchPageComponent },
+  // { path: 'search', component: SearchPageComponent },
   { path: 'about', component: AboutPageComponent },
   { path: 'contact', component: ContactPageComponent },
   { path: 'cart', component: CartPageComponent },

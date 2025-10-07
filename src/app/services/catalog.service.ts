@@ -20,31 +20,28 @@ export class CatalogService {
   private readonly categoriesFallback: Category[] = [
     {
       id: 'luxury-fabrics',
-      name: { ar: 'أقمشة فاخرة', ru: 'Элитные ткани' },
-      description: {
-        ar: 'مجموعة مختارة من الأقمشة الراقية للحفلات والمناسبات الخاصة.',
-        ru: 'Подборка премиальных тканей для торжеств и особых случаев.',
-      },
+
+      name: 'أقمشة فاخرة',
+      description: 'مجموعة مختارة من الأقمشة الراقية للحفلات والمناسبات الخاصة.',
+
       imageUrl:
         'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80',
     },
     {
       id: 'seasonal-collections',
-      name: { ar: 'مجموعات موسمية', ru: 'Сезонные коллекции' },
-      description: {
-        ar: 'أحدث تشكيلات الأقمشة الملونة لربيع وصيف هذا العام.',
-        ru: 'Актуальные палитры тканей для весны и лета этого года.',
-      },
+
+      name: 'أقمشة فاخرة',
+      description: 'مجموعة مختارة من الأقمشة الراقية للحفلات والمناسبات الخاصة.',
+
       imageUrl:
         'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80',
     },
     {
       id: 'accessories',
-      name: { ar: 'إكسسوارات الخياطة', ru: 'Швейная фурнитура' },
-      description: {
-        ar: 'أشرطة، أزرار، وخامات مساندة لإكمال تصميمك.',
-        ru: 'Ленты, пуговицы и дополнительные материалы для завершения дизайна.',
-      },
+
+      name: 'أقمشة فاخرة',
+      description: 'مجموعة مختارة من الأقمشة الراقية للحفلات والمناسبات الخاصة.',
+
       imageUrl:
         'https://images.unsplash.com/photo-1606214174559-011cda8d08d5?auto=format&fit=crop&w=800&q=80',
     },
@@ -54,68 +51,12 @@ export class CatalogService {
     {
       id: 'velvet',
       categoryId: 'luxury-fabrics',
-      name: { ar: 'مخمل إيطالي', ru: 'Итальянский бархат' },
-      description: {
-        ar: 'مخمل ناعم بملمس فاخر ولمعة خفيفة.',
-        ru: 'Мягкий бархат с благородным блеском.',
-      },
+
+      name: 'أقمشة فاخرة',
+      description: 'مجموعة مختارة من الأقمشة الراقية للحفلات والمناسبات الخاصة.',
+
       imageUrl:
         'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'silk',
-      categoryId: 'luxury-fabrics',
-      name: { ar: 'حرير طبيعي', ru: 'Натуральный шелк' },
-      description: {
-        ar: 'حرير ناعم مناسب للفساتين الفاخرة.',
-        ru: 'Нежный шелк для вечерних платьев.',
-      },
-      imageUrl:
-        'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'linen',
-      categoryId: 'seasonal-collections',
-      name: { ar: 'كتان صيفي', ru: 'Летний лён' },
-      description: {
-        ar: 'كتان خفيف ومتنفس للأيام الحارة.',
-        ru: 'Лёгкий и дышащий лён для тёплых дней.',
-      },
-      imageUrl:
-        'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'cotton',
-      categoryId: 'seasonal-collections',
-      name: { ar: 'قطن مطبوع', ru: 'Хлопок с принтом' },
-      description: {
-        ar: 'أقمشة قطنية بألوان مبهجة ونقوش عصرية.',
-        ru: 'Яркий хлопок с современными узорами.',
-      },
-      imageUrl:
-        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'buttons',
-      categoryId: 'accessories',
-      name: { ar: 'أزرار معدنية', ru: 'Металлические пуговицы' },
-      description: {
-        ar: 'أشكال متعددة من الأزرار المعدنية الكلاسيكية.',
-        ru: 'Разнообразные классические металлические пуговицы.',
-      },
-      imageUrl:
-        'https://images.unsplash.com/photo-1507914372361-1aab87e173c3?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'ribbons',
-      categoryId: 'accessories',
-      name: { ar: 'أشرطة ساتان', ru: 'Атласные ленты' },
-      description: {
-        ar: 'أشرطة ملونة للتزيين والحياكة اليدوية.',
-        ru: 'Цветные атласные ленты для декора и ручного шитья.',
-      },
-      imageUrl:
-        'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=800&q=80',
     },
   ];
 
@@ -125,30 +66,17 @@ export class CatalogService {
       categoryId: 'luxury-fabrics',
       subcategoryId: 'velvet',
       mainImageUrl: 'asd',
-      name: { ar: 'مخمل أزرق ملكي', ru: 'Королевский синий бархат' },
-      description: {
-        ar: 'قماش مخمل بدرجة أزرق ملكي مع لمعان خفيف مثالي للفساتين.',
-        ru: 'Бархат насыщенного синего оттенка с лёгким блеском для вечерних нарядов.',
-      },
+
+      name: 'أقمشة فاخرة',
+      description: 'مجموعة مختارة من الأقمشة الراقية للحفلات والمناسبات الخاصة.',
+
       price: 120,
       color: 'أزرق / Синий',
       images: [
         'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80',
       ],
-      materials: {
-        ar: '80% فيسكوز، 20% حرير',
-        ru: '80% вискоза, 20% шёлк',
-      },
-      features: [
-        {
-          ar: 'عرض القماش 140 سم',
-          ru: 'Ширина полотна 140 см',
-        },
-        {
-          ar: 'صنع في إيطاليا',
-          ru: 'Произведено в Италии',
-        },
-      ],
+      materials: '80% فيسكوز، 20% حرير',
+      features: ['عرض القماش 140 سم', 'صنع في إيطاليا'],
     },
   ];
 
@@ -266,8 +194,8 @@ export class CatalogService {
     const localFilter = (products: Product[]) =>
       products.filter((product) => {
         const matchesTerm = normalizedTerm
-          ? product.name.ar.toLowerCase().includes(normalizedTerm) ||
-            product.name.ru.toLowerCase().includes(normalizedTerm)
+          ? product.name.toLowerCase().includes(normalizedTerm) ||
+            product.description.toLowerCase().includes(normalizedTerm)
           : true;
         const matchesColor = normalizedColor
           ? product.color.toLowerCase().includes(normalizedColor)

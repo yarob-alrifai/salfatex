@@ -8,7 +8,6 @@
     <header class="cart-widget__header">
       <div>
         <h2>سلة المشتريات</h2>
-        <p lang="ru">Корзина</p>
       </div>
       <button type="button" class="cart-widget__close" (click)="close()" aria-label="إغلاق السلة">
         ×
@@ -22,8 +21,7 @@
       <ul class="cart-widget__list">
         <li class="cart-widget__item" *ngFor="let item of items()">
           <div>
-            <h3>{{ item.product.name.ar }}</h3>
-            <p lang="ru">{{ item.product.name.ru }}</p>
+            <h3>{{ item.product.name }}</h3>
             <span class="cart-widget__price">
               {{ item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
             </span>
@@ -46,7 +44,7 @@
       </ul>
 
       <div class="cart-widget__summary">
-        <span>الإجمالي / Итого</span>
+        <span>الإجمالي </span>
         <strong>{{ total() | currency : 'USD' : 'symbol' : '1.0-0' }}</strong>
       </div>
 
@@ -110,7 +108,7 @@
     </ng-container>
 
     <ng-template #emptyCart>
-      <p class="cart-widget__empty">سلتك فارغة حالياً / Ваша корзина пуста.</p>
+      <p class="cart-widget__empty">سلتك فارغة حالياً .</p>
     </ng-template>
   </section>
 </div>

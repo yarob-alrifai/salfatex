@@ -1,19 +1,13 @@
 <section class="checkout">
   <header class="checkout__header">
     <h1>إتمام الطلب</h1>
-    <p lang="ru">Оформление заказа</p>
   </header>
 
   <div class="checkout__success" *ngIf="confirmation() as confirmation">
     <h2>شكراً لثقتكم بنا!</h2>
-    <h2 lang="ru">Спасибо за ваш заказ!</h2>
     <p>
       تم استلام طلبكم بتاريخ {{ confirmation.createdAt | date : 'medium' }}
       وسيتم التواصل معكم قريباً لتأكيد التفاصيل.
-    </p>
-    <p lang="ru">
-      Заказ получен {{ confirmation.createdAt | date : 'medium' }}. Мы свяжемся с вами для уточнения
-      деталей.
     </p>
 
     <div class="checkout__confirmation-details">
@@ -46,14 +40,12 @@
         <h3>ملخص الطلب</h3>
         <ul>
           <li *ngFor="let item of confirmation.snapshot.items; trackBy: trackByProduct">
-            <span>{{ item.product.name.ar }}</span>
-            <span lang="ru">{{ item.product.name.ru }}</span>
+            <span>{{ item.product.name }}</span>
             <span>× {{ item.quantity }}</span>
           </li>
         </ul>
         <p class="checkout__total">
           <strong>الإجمالي:</strong>
-          <strong lang="ru">Итого:</strong>
           {{ confirmation.snapshot.total | currency : 'USD' : 'symbol' : '1.0-0' }}
         </p>
       </div>
@@ -64,12 +56,11 @@
     <div class="checkout__layout">
       <section class="checkout__summary">
         <h2>المنتجات المختارة</h2>
-        <h2 lang="ru">Выбранные товары</h2>
         <ul>
           <li *ngFor="let item of items(); trackBy: trackByProduct">
             <div>
-              <strong>{{ item.product.name.ar }}</strong>
-              <strong lang="ru">{{ item.product.name.ru }}</strong>
+              <strong>{{ item.product.name }}</strong>
+
               <span
                 >{{ item.quantity }} ×
                 {{ item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}</span
@@ -81,19 +72,17 @@
           </li>
         </ul>
         <div class="checkout__grand-total">
-          <span>الإجمالي الكلي / Общая сумма</span>
+          <span>الإجمالي الكلي </span>
           <strong>{{ totalPrice() | currency : 'USD' : 'symbol' : '1.0-0' }}</strong>
         </div>
-        <a class="checkout__edit" routerLink="/cart">تعديل السلة / Изменить корзину</a>
+        <a class="checkout__edit" routerLink="/cart">تعديل السلة </a>
       </section>
 
       <section class="checkout__form">
         <h2>معلومات الزبون</h2>
-        <h2 lang="ru">Данные клиента</h2>
         <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
           <label>
             <span>الاسم الكامل</span>
-            <span lang="ru">Полное имя</span>
             <input type="text" formControlName="name" required />
           </label>
           <div
@@ -101,12 +90,10 @@
             *ngIf="form.controls.name.invalid && form.controls.name.touched"
           >
             <span>الرجاء إدخال الاسم.</span>
-            <span lang="ru">Введите имя.</span>
           </div>
 
           <label>
             <span>البريد الإلكتروني</span>
-            <span lang="ru">Электронная почта</span>
             <input type="email" formControlName="email" required />
           </label>
           <div
@@ -114,12 +101,10 @@
             *ngIf="form.controls.email.invalid && form.controls.email.touched"
           >
             <span>الرجاء إدخال بريد إلكتروني صالح.</span>
-            <span lang="ru">Укажите действительный e-mail.</span>
           </div>
 
           <label>
             <span>اسم المطعم</span>
-            <span lang="ru">Название ресторана</span>
             <input type="text" formControlName="restaurantName" required />
           </label>
           <div
@@ -127,12 +112,10 @@
             *ngIf="form.controls.restaurantName.invalid && form.controls.restaurantName.touched"
           >
             <span>الرجاء إدخال اسم المطعم.</span>
-            <span lang="ru">Введите название ресторана.</span>
           </div>
 
           <label>
             <span>عنوان التوصيل</span>
-            <span lang="ru">Адрес доставки</span>
             <textarea formControlName="address" rows="3" required></textarea>
           </label>
           <div
@@ -140,16 +123,14 @@
             *ngIf="form.controls.address.invalid && form.controls.address.touched"
           >
             <span>الرجاء إدخال العنوان.</span>
-            <span lang="ru">Укажите адрес доставки.</span>
           </div>
 
           <label>
             <span>ملاحظات إضافية</span>
-            <span lang="ru">Дополнительные примечания</span>
             <textarea formControlName="notes" rows="3"></textarea>
           </label>
 
-          <button type="submit" class="checkout__submit">إرسال الطلب / Отправить заказ</button>
+          <button type="submit" class="checkout__submit">إرسال الطلب</button>
         </form>
       </section>
     </div>
@@ -159,7 +140,6 @@
 <ng-template #empty>
   <div class="checkout__empty" *ngIf="!confirmation()">
     <p>السلة فارغة. الرجاء إضافة منتجات قبل إتمام الطلب.</p>
-    <p lang="ru">Корзина пуста. Добавьте товары, чтобы оформить заказ.</p>
-    <a routerLink="/categories">العودة إلى التسوق / Вернуться к покупкам</a>
+    <a routerLink="/categories">العودة إلى التسوق </a>
   </div>
 </ng-template>
