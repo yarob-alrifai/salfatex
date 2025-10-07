@@ -53,6 +53,22 @@ export class ProductManagerComponent {
     this.galleryImages = input.files ? Array.from(input.files) : [];
   }
 
+  readonly productsWithCategories$ = combineLatest([
+    this.products$,
+    this.categories$,
+    this.subcategories$,
+  ]).pipe(
+    map(([products, categories, subcategories]) =>
+      products.map((product) => ({
+        ...product,
+        categoryName: categories.find((category) => category.id === product.categoryId)?.name,
+        subcategoryName: subcategories.find(
+          (subcategory) => subcategory.id === product.subcategoryId
+        )?.name,
+      }))
+    )
+  );
+
   async saveProduct() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
