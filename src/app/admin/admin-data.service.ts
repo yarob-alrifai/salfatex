@@ -112,6 +112,20 @@ export class AdminDataService {
     await addDoc(collection(this.firestore, 'subcategories'), payload);
   }
 
+  async updateSubcategory(
+    subcategoryId: string,
+    changes: Partial<Omit<Subcategory, 'id' | 'createdAt'>>,
+    image?: File
+  ) {
+    const payload: Partial<Subcategory> = { ...changes };
+
+    if (image) {
+      payload.imageUrl = await this.uploadFile(`subcategories/${this.createIdentifier()}`, image);
+    }
+
+    await updateDoc(doc(this.firestore, 'subcategories', subcategoryId), payload);
+  }
+
   async deleteSubcategory(subcategoryId: string) {
     await deleteDoc(doc(this.firestore, 'subcategories', subcategoryId));
   }
