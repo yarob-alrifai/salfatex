@@ -135,6 +135,37 @@ export class AdminDataService {
   async deleteProduct(productId: string) {
     await deleteDoc(doc(this.firestore, 'products', productId));
   }
+
+  async updateProduct(
+    productId: string,
+    changes: Partial<Omit<Product, 'id' | 'createdAt'>>,
+    mainImage?: File,
+    galleryImages: File[] = [],
+    existingGalleryUrls: string[] = []
+  ) {
+    const payload: Partial<Product> = { ...changes };
+
+    if (mainImage) {
+      payload.mainImageUrl = await this.uploadFile(
+        `products/main/${this.createIdentifier()}`,
+        mainImage
+      );
+    }
+
+    const galleryUrls = [...existingGalleryUrls];
+
+    if (galleryImages.length) {
+      for (const image of galleryImages) {
+        const url = await this.uploadFile(`products/gallery/${this.createIdentifier()}`, image);
+        galleryUrls.push(url);
+      }
+    }
+
+    payload.galleryUrls = galleryUrls;
+
+    await updateDoc(doc(this.firestore, 'products', productId), payload);
+  }
+
   // RED ================================================ CREATE ORDER ====================================
 
   async updateOrderStatus(orderId: string, status: AdminOrder['status']) {

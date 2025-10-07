@@ -121,29 +121,313 @@
   </form>
 
   <!-- Product list -->
-  <section class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <article
-      *ngFor="let product of productsWithCategories$ | async"
-      class="bg-white rounded-xl shadow p-5 flex flex-col space-y-3"
-    >
-      {{ product | json }}
-      <div class="details text-right">
-        <h3 class="text-lg font-semibold text-gray-800">{{ product.name }}</h3>
-        <p class="text-sm text-gray-500">{{ product.description }}</p>
-        <div class="flex flex-col items-end text-sm text-gray-600 space-y-1">
-          <span>القسم: {{ product.categoryName || 'غير محدد' }}</span>
-          <span *ngIf="product.subcategoryName">القسم الفرعي: {{ product.subcategoryName }}</span>
-        </div>
-        <span class="text-indigo-600 font-bold">{{ product.price | currency : 'SAR' }}</span>
+  <section class="mt-10 space-y-6" *ngIf="productsView$ | async as view">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div class="relative w-full md:w-80">
+        <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">🔍</span>
+        <input
+          type="search"
+          [formControl]="searchControl"
+          placeholder="ابحث عن منتج..."
+          class="w-full border border-gray-300 rounded-lg py-2 pr-3 pl-10 text-right focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        />
       </div>
 
-      <button
-        type="button"
-        (click)="deleteProduct(product)"
-        class="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded-lg shadow self-start transition"
-      >
-        🗑️ حذف
-      </button>
-    </article>
+      <span class="text-sm text-gray-600">إجمالي المنتجات: {{ view.total }}</span>
+    </div>
+
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-right">
+          <thead class="bg-gray-100 text-gray-700 text-sm">
+            <tr>
+              <th class="px-4 py-3 font-semibold">الاسم</th>
+              <th class="px-4 py-3 font-semibold">الوصف</th>
+              <th class="px-4 py-3 font-semibold">القسم</th>
+              <th class="px-4 py-3 font-semibold">القسم الفرعي</th>
+              <th class="px-4 py-3 font-semibold">السعر</th>
+              <th class="px-4 py-3 font-semibold">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 text-sm text-gray-700">
+            <tr *ngFor="let product of view.items" class="hover:bg-gray-50">
+              <td class="px-4 py-3 font-medium text-gray-900">{{ product.name }}</td>
+              <td class="px-4 py-3">{{ product.description || '—' }}</td>
+              <td class="px-4 py-3">{{ product.categoryName || 'غير محدد' }}</td>
+              <td class="px-4 py-3">{{ product.subcategoryName || '—' }}</td>
+              <td class="px-4 py-3 font-semibold text-indigo-600">
+                {{ product.price | currency : 'SAR' }}
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    (click)="openEdit(product)"
+                    class="bg-amber-500 hover:bg-amber-600 text-white py-1 px-3 rounded-lg shadow transition"
+                  >
+                    ✏️ تعديل
+                  </button>
+                  <button
+                    type="button"
+                    (click)="deleteProduct(product)"
+                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg shadow transition"
+                  >
+                    🗑️ حذف
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="!view.items.length" class="p-6 text-center text-gray-500">
+        لا توجد منتجات مطابقة لبحثك.
+      </div>
+    </div>
+
+    <div
+      class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+      *ngIf="view.totalPages > 1"
+    >
+      <span class="text-sm text-gray-600">
+        عرض
+        <strong>{{ view.startIndex }}</strong>
+        -
+        <strong>{{ view.endIndex }}</strong>
+        من
+        <strong>{{ view.total }}</strong>
+        منتج
+      </span>
+      <div class="flex items-center justify-end gap-2">
+        <button
+          type="button"
+          (click)="goToPage(view.pageIndex - 1, view.totalPages)"
+          [disabled]="view.pageIndex === 0"
+          class="px-3 py-1 rounded-lg border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+        >
+          السابق
+        </button>
+        <button
+          type="button"
+          *ngFor="let page of view.pages"
+          (click)="goToPage(page, view.totalPages)"
+          class="px-3 py-1 rounded-lg border text-sm"
+          [ngClass]="
+            page === view.pageIndex
+              ? 'border-indigo-500 bg-indigo-50 text-indigo-600'
+              : 'border-gray-300 hover:bg-gray-100'
+          "
+        >
+          {{ page + 1 }}
+        </button>
+        <button
+          type="button"
+          (click)="goToPage(view.pageIndex + 1, view.totalPages)"
+          [disabled]="view.pageIndex === view.totalPages - 1"
+          class="px-3 py-1 rounded-lg border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+        >
+          التالي
+        </button>
+      </div>
+    </div>
   </section>
+
+  <!-- Edit modal -->
+  <div
+    class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur overflow-y-auto"
+    *ngIf="isEditModalOpen"
+  >
+    <div
+      class="w-full max-w-3xl bg-white max-h-[90vh] rounded-2xl shadow-xl p-6 space-y-6 overflow-y-auto"
+    >
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-semibold text-gray-800">تعديل المنتج</h3>
+        <button
+          type="button"
+          (click)="closeEditModal()"
+          class="text-gray-500 hover:text-gray-700"
+          aria-label="إغلاق"
+        >
+          ✖️
+        </button>
+      </div>
+
+      <form
+        class="grid grid-cols-1 md:grid-cols-2 gap-4"
+        [formGroup]="editForm"
+        (ngSubmit)="saveProductEdits()"
+      >
+        <label class="flex flex-col text-right">
+          <span class="mb-1 font-medium text-gray-700">اسم المنتج</span>
+          <input
+            formControlName="name"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          />
+        </label>
+
+        <label class="flex flex-col text-right">
+          <span class="mb-1 font-medium text-gray-700">لون المنتج</span>
+          <input
+            formControlName="color"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          />
+        </label>
+
+        <label class="flex flex-col text-right">
+          <span class="mb-1 font-medium text-gray-700">السعر</span>
+          <input
+            type="number"
+            formControlName="price"
+            min="0"
+            step="0.01"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          />
+        </label>
+
+        <label class="flex flex-col text-right">
+          <span class="mb-1 font-medium text-gray-700">التصنيف</span>
+          <select
+            formControlName="categoryId"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          >
+            <option value="" disabled>اختر التصنيف</option>
+            <option *ngFor="let category of categories$ | async" [value]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </label>
+
+        <label class="flex flex-col text-right md:col-span-2">
+          <span class="mb-1 font-medium text-gray-700">التصنيف الفرعي</span>
+          <select
+            formControlName="subcategoryId"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          >
+            <option value="">بدون</option>
+            <option
+              *ngFor="let subcategory of editFilteredSubcategories$ | async"
+              [value]="subcategory.id"
+            >
+              {{ subcategory.name }}
+            </option>
+          </select>
+        </label>
+
+        <label class="flex flex-col text-right md:col-span-2">
+          <span class="mb-1 font-medium text-gray-700">الوصف</span>
+          <textarea
+            formControlName="description"
+            rows="4"
+            class="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          ></textarea>
+        </label>
+
+        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-3 text-right">
+            <span class="block font-medium text-gray-700">الصورة الرئيسية الحالية</span>
+            <img
+              *ngIf="editingProduct?.mainImageUrl; else noMainImage"
+              [src]="editingProduct?.mainImageUrl"
+              alt="الصورة الرئيسية"
+              class="w-full rounded-lg border"
+            />
+            <ng-template #noMainImage>
+              <p class="text-sm text-gray-500">لا توجد صورة رئيسية.</p>
+            </ng-template>
+            <label class="flex flex-col text-right">
+              <span class="mb-1 font-medium text-gray-700">تحديث الصورة الرئيسية</span>
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onEditMainImageChange($event)"
+                class="border border-gray-300 rounded-lg p-2 bg-gray-50"
+              />
+            </label>
+            <div
+              *ngIf="editMainImageFile"
+              class="flex items-center justify-between text-sm text-gray-600"
+            >
+              <span>{{ editMainImageFile.name }}</span>
+              <button
+                type="button"
+                class="text-red-500 hover:text-red-600"
+                (click)="clearEditMainImage()"
+              >
+                إزالة
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-right">
+            <span class="block font-medium text-gray-700">معرض الصور الحالي</span>
+            <div *ngIf="editGalleryUrls.length; else emptyGallery" class="grid grid-cols-2 gap-3">
+              <div *ngFor="let url of editGalleryUrls" class="relative">
+                <img
+                  [src]="url"
+                  alt="صورة المنتج"
+                  class="w-full h-24 object-cover rounded-lg border"
+                />
+                <button
+                  type="button"
+                  class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-2 py-0.5"
+                  (click)="removeExistingGalleryImage(url)"
+                >
+                  إزالة
+                </button>
+              </div>
+            </div>
+            <ng-template #emptyGallery>
+              <p class="text-sm text-gray-500">لا توجد صور في المعرض.</p>
+            </ng-template>
+
+            <label class="flex flex-col text-right">
+              <span class="mb-1 font-medium text-gray-700">إضافة صور جديدة للمعرض</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                (change)="onEditGalleryChange($event)"
+                class="border border-gray-300 rounded-lg p-2 bg-gray-50"
+              />
+            </label>
+
+            <div *ngIf="editNewGalleryFiles.length" class="space-y-1 text-sm text-gray-600">
+              <div
+                *ngFor="let file of editNewGalleryFiles; let i = index"
+                class="flex items-center justify-between"
+              >
+                <span>{{ file.name }}</span>
+                <button
+                  type="button"
+                  class="text-red-500 hover:text-red-600"
+                  (click)="removeNewGalleryImage(i)"
+                >
+                  إزالة
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="md:col-span-2 flex items-center justify-between">
+          <p class="text-sm text-red-500" *ngIf="editFeedback">{{ editFeedback }}</p>
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              (click)="closeEditModal()"
+              class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100"
+            >
+              إلغاء
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow"
+            >
+              حفظ التعديلات
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </section>
