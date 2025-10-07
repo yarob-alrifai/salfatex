@@ -22,10 +22,21 @@ export class SubcategoryManagerComponent {
     categoryId: ['', Validators.required],
   });
 
+  readonly editForm = this.fb.nonNullable.group({
+    name: ['', Validators.required],
+    description: [''],
+    categoryId: ['', Validators.required],
+  });
+
   private imageFile: File | null = null;
+  private editImageFile: File | null = null;
+
   readonly feedback = signal('');
+  readonly editFeedback = signal('');
   readonly imageFileName = signal('');
+  readonly editImageFileName = signal('');
   readonly editingSubcategory = signal<Subcategory | null>(null);
+  readonly isEditModalOpen = signal(false);
 
   readonly categories$ = this.adminDataService.categories$;
   readonly subcategories$ = this.adminDataService.subcategories$;
@@ -59,26 +70,14 @@ export class SubcategoryManagerComponent {
     this.feedback.set('');
 
     const { name, description, categoryId } = this.form.getRawValue();
-    const editing = this.editingSubcategory();
 
     try {
-      if (editing?.id) {
-        await this.adminDataService.updateSubcategory(
-          editing.id,
-          { name, description, categoryId },
-          this.imageFile ?? undefined
-        );
-        this.feedback.set('تم تحديث التصنيف الفرعي.');
-        this.editingSubcategory.set(null);
-        this.resetForm(categoryId);
-      } else {
-        await this.adminDataService.createSubcategory(
-          { name, description, categoryId },
-          this.imageFile ?? undefined
-        );
-        this.feedback.set('تم إنشاء التصنيف الفرعي.');
-        this.resetForm(categoryId);
-      }
+      await this.adminDataService.createSubcategory(
+        { name, description, categoryId },
+        this.imageFile ?? undefined
+      );
+      this.feedback.set('تم إنشاء التصنيف الفرعي.');
+      this.resetForm(categoryId);
     } catch (error: any) {
       this.feedback.set(error?.message ?? 'لم يتم الحفظ.');
     }
@@ -91,22 +90,32 @@ export class SubcategoryManagerComponent {
   }
 
   startEdit(subcategory: Subcategory) {
+    if (!subcategory.id) {
+      return;
+    }
+
     this.editingSubcategory.set(subcategory);
-    this.form.patchValue({
+
+    this.editForm.reset({
       name: subcategory.name,
       description: subcategory.description ?? '',
       categoryId: subcategory.categoryId,
     });
-    this.imageFile = null;
-    this.imageFileName.set('');
-    this.feedback.set('');
+
+    this.editImageFile = null;
+    this.editImageFileName.set('');
+    this.editFeedback.set('');
+    this.isEditModalOpen.set(true);
   }
 
-  cancelEdit() {
-    const current = this.editingSubcategory();
+  closeEditModal() {
+    this.isEditModalOpen.set(false);
     this.editingSubcategory.set(null);
-    this.feedback.set('');
-    this.resetForm(current?.categoryId);
+
+    this.editForm.reset({ name: '', description: '', categoryId: '' });
+    this.editImageFile = null;
+    this.editImageFileName.set('');
+    this.editFeedback.set('');
   }
 
   async deleteSubcategory(subcategory: Subcategory) {
@@ -115,10 +124,40 @@ export class SubcategoryManagerComponent {
     }
 
     if (this.editingSubcategory()?.id === subcategory.id) {
-      this.cancelEdit();
+      this.closeEditModal();
     }
 
     await this.adminDataService.deleteSubcategory(subcategory.id);
+  }
+
+  onEditImageChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.editImageFile = input.files?.[0] ?? null;
+    this.editImageFileName.set(this.editImageFile?.name ?? '');
+  }
+
+  async saveSubcategoryEdits() {
+    const subcategory = this.editingSubcategory();
+
+    if (!subcategory?.id || this.editForm.invalid) {
+      this.editForm.markAllAsTouched();
+      return;
+    }
+
+    this.editFeedback.set('');
+
+    try {
+      await this.adminDataService.updateSubcategory(
+        subcategory.id,
+        this.editForm.getRawValue(),
+        this.editImageFile ?? undefined
+      );
+
+      this.feedback.set('تم تحديث التصنيف الفرعي.');
+      this.closeEditModal();
+    } catch (error: any) {
+      this.editFeedback.set(error?.message ?? 'لم يتم حفظ التعديلات.');
+    }
   }
 
   private resetForm(categoryId?: string) {
