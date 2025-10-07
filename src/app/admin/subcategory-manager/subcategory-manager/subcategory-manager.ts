@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { combineLatest, map, startWith } from 'rxjs';
 import { AdminDataService } from '../../admin-data.service';
 import { Subcategory } from '../../models/subcategory.model';
@@ -41,13 +41,41 @@ export class SubcategoryManagerComponent {
   readonly categories$ = this.adminDataService.categories$;
   readonly subcategories$ = this.adminDataService.subcategories$;
 
+  readonly searchControl = new FormControl('', { nonNullable: true });
+  private readonly searchTerm$ = this.searchControl.valueChanges.pipe(
+    startWith(this.searchControl.value)
+  );
+
   readonly filteredSubcategories$ = combineLatest([
     this.subcategories$,
-    this.form.controls.categoryId.valueChanges.pipe(startWith('')),
+    this.form.controls.categoryId.valueChanges.pipe(startWith(this.form.controls.categoryId.value)),
+    this.searchTerm$,
   ]).pipe(
-    map(([subcategories, categoryId]) =>
-      categoryId ? subcategories.filter((item) => item.categoryId === categoryId) : subcategories
-    )
+    map(([subcategories, categoryId, searchTerm]) => {
+      const filteredByCategory = categoryId
+        ? subcategories.filter((item) => item.categoryId === categoryId)
+        : subcategories;
+
+      const normalizedSearch = searchTerm.trim().toLowerCase();
+
+      if (!normalizedSearch) {
+        return filteredByCategory;
+      }
+
+      return filteredByCategory.filter((subcategory) => {
+        const fields: Array<string | undefined | null> = [
+          subcategory.name,
+          subcategory.description,
+          subcategory.id,
+        ];
+
+        return fields.some((field) =>
+          String(field ?? '')
+            .toLowerCase()
+            .includes(normalizedSearch)
+        );
+      });
+    })
   );
 
   readonly subcategoriesView$ = combineLatest([this.filteredSubcategories$, this.categories$]).pipe(
