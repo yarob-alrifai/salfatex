@@ -239,6 +239,18 @@ export class CatalogService {
     );
   }
 
+  getAllSubcategories(): Observable<Subcategory[]> {
+    if (this.firestore) {
+      const ref = collection(this.firestore, 'subcategories');
+      return collectionData(ref, { idField: 'id' }).pipe(
+        map((docs) => docs as Subcategory[]),
+        catchError(() => of(this.subcategoriesFallback))
+      );
+    }
+
+    return of(this.subcategoriesFallback);
+  }
+
   getSubcategories(categoryId: string): Observable<Subcategory[]> {
     if (this.firestore) {
       const ref = query(
@@ -251,6 +263,18 @@ export class CatalogService {
       );
     }
     return of(this.subcategoriesFallback.filter((s) => s.categoryId === categoryId));
+  }
+
+  getAllProducts(): Observable<Product[]> {
+    if (this.firestore) {
+      const ref = collection(this.firestore, 'products');
+      return collectionData(ref, { idField: 'id' }).pipe(
+        map((docs) => docs as Product[]),
+        catchError(() => of(this.productsFallback))
+      );
+    }
+
+    return of(this.productsFallback);
   }
 
   getProductById(productId: string): Observable<Product | undefined> {

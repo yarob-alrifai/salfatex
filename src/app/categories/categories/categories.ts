@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest, map } from 'rxjs';
 import { CatalogService } from '../../services/catalog.service';
 import { Category } from '../../models/catalog.models';
 
@@ -15,5 +15,27 @@ import { Category } from '../../models/catalog.models';
 export class CategoriesComponent {
   private readonly catalogService = inject(CatalogService);
 
-  readonly categories$: Observable<Category[]> = this.catalogService.getCategories();
+  readonly categories$: Observable<CategorySummary[]> = combineLatest([
+    this.catalogService.getCategories(),
+    this.catalogService.getAllSubcategories(),
+    this.catalogService.getAllProducts(),
+  ]).pipe(
+    map(([categories, subcategories, products]) =>
+      categories.map((category) => {
+        const subcategoryCount = subcategories.filter(
+          (subcategory) => subcategory.categoryId === category.id
+        ).length;
+        const productCount = products.filter(
+          (product) => product.categoryId === category.id
+        ).length;
+
+        return { ...category, subcategoryCount, productCount } satisfies CategorySummary;
+      })
+    )
+  );
 }
+
+type CategorySummary = Category & {
+  subcategoryCount: number;
+  productCount: number;
+};
