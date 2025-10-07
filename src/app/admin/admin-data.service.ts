@@ -76,6 +76,20 @@ export class AdminDataService {
     await addDoc(collection(this.firestore, 'categories'), payload);
   }
 
+  async updateCategory(
+    categoryId: string,
+    changes: Partial<Omit<Category, 'id' | 'createdAt'>>,
+    image?: File
+  ) {
+    const payload: Partial<Category> = { ...changes };
+
+    if (image) {
+      payload.imageUrl = await this.uploadFile(`categories/${this.createIdentifier()}`, image);
+    }
+
+    await updateDoc(doc(this.firestore, 'categories', categoryId), payload);
+  }
+
   async deleteCategory(categoryId: string) {
     await deleteDoc(doc(this.firestore, 'categories', categoryId));
   }
