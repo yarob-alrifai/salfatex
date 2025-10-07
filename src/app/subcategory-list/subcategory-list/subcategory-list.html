@@ -51,6 +51,11 @@
     <article
       *ngFor="let item of vm.filteredItems"
       class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-amber-400 hover:shadow-lg"
+      role="button"
+      tabindex="0"
+      (click)="openSubcategory(item.subcategory)"
+      (keydown.enter)="openSubcategory(item.subcategory)"
+      (keydown.space)="$event.preventDefault(); openSubcategory(item.subcategory)"
     >
       <!-- {{ item | json }} -->
       <div class="flex flex-col gap-6 p-6 lg:flex-row">
@@ -90,7 +95,11 @@
                 class="group flex h-full flex-col justify-between rounded-xl border border-slate-200 bg-slate-50 p-4 transition hover:border-amber-400 hover:bg-white"
               >
                 <!-- {{ product | json }} -->
-                <a class="flex flex-col gap-3" [routerLink]="['/product', product.id]">
+                <a
+                  class="flex flex-col gap-3"
+                  [routerLink]="['/product', product.id]"
+                  (click)="$event.stopPropagation()"
+                >
                   <img
                     class="h-40 w-full rounded-lg object-cover"
                     [src]="product.mainImageUrl"
@@ -116,7 +125,7 @@
 
                 <button
                   type="button"
-                  (click)="addToCart(product)"
+                  (click)="$event.stopPropagation(); addToCart(product)"
                   class="mt-4 inline-flex items-center justify-center rounded-lg bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
                 >
                   أضف إلى السلة

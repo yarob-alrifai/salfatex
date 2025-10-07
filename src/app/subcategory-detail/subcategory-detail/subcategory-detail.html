@@ -1,0 +1,58 @@
+<section class="subcategory-detail" *ngIf="viewModel$ | async as vm; else loading">
+  <header class="subcategory-detail__header">
+    <a class="subcategory-detail__back" [routerLink]="['/categories', vm.categoryId]">
+      ← عودة إلى القائمة السابقة
+    </a>
+
+    <div class="subcategory-detail__info" *ngIf="vm.subcategory as subcategory">
+      <img
+        class="subcategory-detail__image"
+        [src]="subcategory.imageUrl"
+        [alt]="subcategory.name.ar"
+      />
+
+      <div class="subcategory-detail__text">
+        <h1>{{ subcategory.name.ar }}</h1>
+        <p>{{ subcategory.description.ar }}</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="subcategory-detail__products">
+    <h2 class="subcategory-detail__products-title">المنتجات المتاحة ({{ vm.products.length }})</h2>
+
+    <div *ngIf="vm.products.length; else empty" class="subcategory-detail__product-grid">
+      <article
+        *ngFor="let product of vm.products; trackBy: trackByProductId"
+        class="subcategory-detail__product"
+      >
+        <a
+          class="subcategory-detail__product-link"
+          [routerLink]="['/product', product.id]"
+          (click)="$event.stopPropagation()"
+        >
+          <img [src]="product.mainImageUrl" [alt]="product.name.ar" />
+          <div>
+            <h3>{{ product.name.ar }}</h3>
+            <p *ngIf="product.price" class="subcategory-detail__price">
+              {{ product.price | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
+            </p>
+            <p *ngIf="product.color" class="subcategory-detail__color">
+              اللون: {{ product.color }}
+            </p>
+          </div>
+        </a>
+
+        <button type="button" (click)="addToCart($event, product)">أضف إلى السلة</button>
+      </article>
+    </div>
+  </section>
+</section>
+
+<ng-template #loading>
+  <div class="subcategory-detail__loading">جاري تحميل بيانات القسم الفرعي...</div>
+</ng-template>
+
+<ng-template #empty>
+  <div class="subcategory-detail__empty">لا توجد منتجات ضمن هذا القسم الفرعي حالياً.</div>
+</ng-template>

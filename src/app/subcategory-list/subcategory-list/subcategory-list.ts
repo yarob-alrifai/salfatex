@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest, map, of, switchMap } from 'rxjs';
 import { CatalogService } from '../../services/catalog.service';
 import { Category, Product, Subcategory } from '../../models/catalog.models';
@@ -24,6 +24,7 @@ export class SubcategoryListComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly catalog = inject(CatalogService);
   private readonly cart = inject(CartService);
+  private readonly router = inject(Router);
 
   private readonly searchTermSubject = new BehaviorSubject<string>('');
   readonly searchTerm$ = this.searchTermSubject.asObservable();
@@ -82,6 +83,14 @@ export class SubcategoryListComponent {
 
   addToCart(product: Product): void {
     this.cart.addProduct(product);
+  }
+
+  openSubcategory(subcategory: Subcategory): void {
+    if (!subcategory.id || !subcategory.categoryId) {
+      return;
+    }
+
+    this.router.navigate(['/categories', subcategory.categoryId, 'subcategories', subcategory.id]);
   }
 
   updateSearch(term: string): void {

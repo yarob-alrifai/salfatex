@@ -1,5 +1,13 @@
 import { inject, Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, query, where } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  collectionData,
+  doc,
+  docData,
+  query,
+  where,
+} from '@angular/fire/firestore';
 import { Observable, catchError, map, of } from 'rxjs';
 import { Category, Product, Subcategory } from '../models/catalog.models';
 
@@ -159,6 +167,20 @@ export class CatalogService {
     return this.getCategories().pipe(
       map((categories) => categories.find((c) => c.id === categoryId))
     );
+  }
+
+  getSubcategoryById(subcategoryId: string): Observable<Subcategory | undefined> {
+    if (this.firestore) {
+      const ref = doc(this.firestore, 'subcategories', subcategoryId);
+      return docData(ref, { idField: 'id' }).pipe(
+        map((data) => data as Subcategory),
+        catchError(() =>
+          of(this.subcategoriesFallback.find((subcategory) => subcategory.id === subcategoryId))
+        )
+      );
+    }
+
+    return of(this.subcategoriesFallback.find((subcategory) => subcategory.id === subcategoryId));
   }
 
   getAllSubcategories(): Observable<Subcategory[]> {
