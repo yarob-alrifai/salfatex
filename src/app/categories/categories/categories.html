@@ -13,6 +13,7 @@
       [routerLink]="['/categories', category.id]"
       class="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/60"
     >
+      <!-- {{ category | json }} -->
       <div class="relative aspect-[4/3] overflow-hidden">
         <img
           class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
@@ -24,15 +25,15 @@
       <div class="flex flex-1 flex-col justify-between gap-6 p-6">
         <div class="space-y-3">
           <h2 class="text-2xl font-semibold text-slate-900">
-            <span class="block">{{ category.name.ar }}</span>
-            <span class="block text-base font-medium text-slate-500" lang="ru">
+            <span class="block">{{ category.name }}</span>
+            <!-- <span class="block text-base font-medium text-slate-500" lang="ru">
               {{ category.name.ru }}
-            </span>
+            </span> -->
           </h2>
 
           <p class="text-sm leading-relaxed text-slate-600">
-            <span class="block">{{ category.description.ar }}</span>
-            <span class="block" lang="ru">{{ category.description.ru }}</span>
+            <span class="block">{{ category.description }}</span>
+            <!-- <span class="block" lang="ru">{{ category.description.ru }}</span> -->
           </p>
         </div>
 
