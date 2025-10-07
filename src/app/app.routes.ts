@@ -27,7 +27,10 @@ export const routes: Routes = [
     path: 'categories/:categoryId/subcategories/:subcategoryId',
     component: SubcategoryDetailComponent,
   },
-  { path: 'product/:productId', component: ProductDetailComponent },
+  {
+    path: 'categories/:categoryId/subcategories/:subcategoryId/products/:productId',
+    component: ProductDetailComponent,
+  },
   { path: 'search', component: SearchPageComponent },
   { path: 'about', component: AboutPageComponent },
   { path: 'contact', component: ContactPageComponent },

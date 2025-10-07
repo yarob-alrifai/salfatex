@@ -11,6 +11,7 @@ interface SubcategoryDetailViewModel {
   subcategory?: Subcategory;
   products: Product[];
   categoryId: string;
+  subcategoryId: string;
 }
 
 @Component({
@@ -42,6 +43,7 @@ export class SubcategoryDetailComponent {
           subcategory,
           products,
           categoryId,
+          subcategoryId,
         }))
       )
     )

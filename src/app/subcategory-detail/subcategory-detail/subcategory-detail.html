@@ -28,7 +28,14 @@
       >
         <a
           class="subcategory-detail__product-link"
-          [routerLink]="['/product', product.id]"
+          [routerLink]="[
+            '/categories',
+            vm.categoryId,
+            'subcategories',
+            vm.subcategory?.id ?? vm.subcategoryId,
+            'products',
+            product.id
+          ]"
           (click)="$event.stopPropagation()"
         >
           <img [src]="product.mainImageUrl" [alt]="product.name.ar" />
