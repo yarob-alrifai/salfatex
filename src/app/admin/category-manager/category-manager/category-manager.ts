@@ -1,8 +1,9 @@
 import { AsyncPipe, CommonModule, NgFor, NgIf } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdminDataService } from '../../admin-data.service';
 import { Category } from '../../models/category.model';
+import { combineLatest, map, startWith } from 'rxjs';
 
 @Component({
   selector: 'app-category-manager',
@@ -26,10 +27,37 @@ export class CategoryManagerComponent {
   });
 
   readonly categories$ = this.adminDataService.categories$;
+  readonly searchControl = new FormControl('', { nonNullable: true });
+  private readonly searchTerm$ = this.searchControl.valueChanges.pipe(
+    startWith(this.searchControl.value)
+  );
+  readonly filteredCategories$ = combineLatest([this.categories$, this.searchTerm$]).pipe(
+    map(([categories, searchTerm]) => {
+      const normalized = searchTerm.trim().toLowerCase();
+
+      if (!normalized) {
+        return categories;
+      }
+
+      return categories.filter((category) => {
+        const fields: Array<string | undefined | null> = [
+          category.name,
+          category.description,
+          category.id,
+        ];
+
+        return fields.some((field) =>
+          String(field ?? '')
+            .toLowerCase()
+            .includes(normalized)
+        );
+      });
+    })
+  );
   readonly feedback = signal('');
   readonly editFeedback = signal('');
   readonly isEditModalOpen = signal(false);
-  private readonly selectedCategory = signal<Category | null>(null);
+  readonly selectedCategory = signal<Category | null>(null);
 
   private imageFile: File | null = null;
   private editImageFile: File | null = null;
