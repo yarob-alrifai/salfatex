@@ -1,71 +1,140 @@
-<section class="cart">
-  <header class="cart__header">
-    <h1>سلة التسوق</h1>
-  </header>
+<section class="min-h-screen bg-slate-50 py-10">
+  <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
+    <header class="flex flex-col gap-3 text-center sm:text-right">
+      <p
+        class="mx-auto rounded-full border border-indigo-100 bg-indigo-50/60 px-4 py-1 text-xs font-semibold tracking-wide text-indigo-600 shadow-sm sm:ml-auto sm:mr-0"
+      >
+        إدارة مشترياتك بسهولة
+      </p>
+      <h1 class="text-3xl font-bold text-slate-900 sm:text-4xl">سلة التسوق</h1>
+      <p class="text-sm text-slate-500 sm:text-base">
+        راجع منتجاتك، حدّث الكميات، ثم تابع لإتمام عملية الدفع بكل سلاسة.
+      </p>
+    </header>
 
-  <div class="cart__content" *ngIf="items().length; else empty">
-    <table class="cart__table">
-      <thead>
-        <tr>
-          <th>المنتج</th>
-          <th>السعر</th>
-          <th>الكمية</th>
-          <th>الإجمالي</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of items(); trackBy: trackByProduct">
-          <td>
-            <div class="cart__product">
-              <img [src]="item.product.images[0]" [alt]="item.product.name" />
-              <div>
-                <strong>{{ item.product.name }}</strong>
-
-                <span class="cart__color">{{ item.product.color }}</span>
-              </div>
-            </div>
-          </td>
-          <td class="cart__price">
-            <span>{{ item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}</span>
-          </td>
-          <td class="cart__quantity">
-            <input
-              type="number"
-              min="0"
-              [value]="item.quantity"
-              (change)="updateQuantity(item.product.id, $any($event.target).value)"
-            />
-          </td>
-          <td class="cart__price">
-            <span>{{ lineTotal(item) | currency : 'USD' : 'symbol' : '1.0-0' }}</span>
-          </td>
-          <td class="cart__actions">
-            <button type="button" (click)="remove(item.product.id)">✕</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <footer class="cart__footer">
-      <div class="cart__summary">
-        <span>
-          <strong>الإجمالي</strong>
-        </span>
-        <span class="cart__total">{{ totalPrice() | currency : 'USD' : 'symbol' : '1.0-0' }}</span>
+    <div
+      class="relative overflow-hidden rounded-3xl border border-slate-100 bg-white/90 p-4 shadow-xl shadow-slate-900/5 backdrop-blur-sm sm:p-6"
+      *ngIf="items().length; else empty"
+    >
+      <div
+        class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-500 via-sky-500 to-purple-500"
+      ></div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-100 text-right">
+          <thead class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <tr class="whitespace-nowrap">
+              <th class="px-4 py-3">المنتج</th>
+              <th class="px-4 py-3">السعر</th>
+              <th class="px-4 py-3">الكمية</th>
+              <th class="px-4 py-3">الإجمالي</th>
+              <th class="px-4 py-3"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
+            <tr
+              *ngFor="let item of items(); trackBy: trackByProduct"
+              class="transition-colors hover:bg-slate-50/80"
+            >
+              <!-- {{
+                item | json
+              }} -->
+              <td class="px-4 py-4">
+                <div class="flex items-center gap-4">
+                  <img
+                    [src]="item.product.mainImageUrl"
+                    [alt]="item.product.name"
+                    class="h-20 w-20 rounded-2xl object-cover ring-1 ring-slate-200"
+                  />
+                  <div class="space-y-1 text-right">
+                    <strong class="block text-base font-semibold text-slate-900">
+                      {{ item.product.name }}
+                    </strong>
+                    <span class="block text-xs font-medium text-slate-500">
+                      اللون: {{ item.product.color || 'غير محدد' }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-4">
+                <span class="text-base font-semibold text-emerald-600">
+                  {{ item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+                </span>
+              </td>
+              <td class="px-4 py-4">
+                <input
+                  type="number"
+                  min="0"
+                  [value]="item.quantity"
+                  (change)="updateQuantity(item.product.id, $any($event.target).value)"
+                  class="w-24 rounded-xl border border-slate-200 bg-white px-3 py-2 text-center text-sm font-semibold text-slate-700 shadow-sm transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-300/70"
+                />
+              </td>
+              <td class="px-4 py-4">
+                <span class="text-base font-semibold text-slate-900">
+                  {{ lineTotal(item) | currency : 'USD' : 'symbol' : '1.0-0' }}
+                </span>
+              </td>
+              <td class="px-4 py-4">
+                <button
+                  type="button"
+                  (click)="remove(item.product.id)"
+                  class="inline-flex items-center justify-center rounded-full p-2 text-rose-500 transition hover:bg-rose-50 hover:text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-200"
+                  aria-label="إزالة المنتج"
+                >
+                  <span class="text-lg leading-none">✕</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="cart__footer-actions">
-        <button type="button" class="cart__clear" (click)="clear()">إفراغ السلة</button>
-        <a class="cart__checkout" routerLink="/checkout">إتمام الطلب</a>
-      </div>
-    </footer>
+      <footer
+        class="mt-8 flex flex-col gap-6 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div class="flex flex-col gap-1 text-right">
+          <span class="text-sm text-slate-500">إجمالي الطلب</span>
+          <span class="text-2xl font-bold text-slate-900">
+            {{ totalPrice() | currency : 'USD' : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <button
+            type="button"
+            (click)="clear()"
+            class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
+          >
+            إفراغ السلة
+          </button>
+          <a
+            routerLink="/checkout"
+            class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 via-sky-500 to-purple-500 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-200"
+          >
+            إتمام الطلب
+          </a>
+        </div>
+      </footer>
+    </div>
   </div>
 </section>
 
 <ng-template #empty>
-  <div class="cart__empty">
-    <p>السلة فارغة حالياً.</p>
-
-    <a routerLink="/categories">ابدأ التسوق</a>
+  <div
+    class="mx-auto flex max-w-xl flex-col items-center gap-4 rounded-3xl border border-dashed border-slate-200 bg-white/90 p-10 text-center shadow-lg shadow-slate-900/5"
+  >
+    <div
+      class="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-50 text-2xl text-indigo-500"
+    >
+      🛒
+    </div>
+    <p class="text-lg font-semibold text-slate-800">السلة فارغة حالياً.</p>
+    <p class="text-sm text-slate-500">
+      ابدأ بإضافة المنتجات المفضّلة لديك للاستفادة من أحدث العروض.
+    </p>
+    <a
+      routerLink="/categories"
+      class="inline-flex items-center justify-center gap-2 rounded-2xl border border-indigo-200 bg-white px-6 py-2 text-sm font-semibold text-indigo-600 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-300 hover:text-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
+    >
+      ابدأ التسوق الآن
+    </a>
   </div>
 </ng-template>
