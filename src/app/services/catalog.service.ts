@@ -65,15 +65,18 @@ export class CatalogService {
       id: 'velvet-royal-blue',
       categoryId: 'luxury-fabrics',
       subcategoryId: 'velvet',
-      mainImageUrl: 'asd',
 
       name: 'أقمشة فاخرة',
       description: 'مجموعة مختارة من الأقمشة الراقية للحفلات والمناسبات الخاصة.',
 
       price: 120,
       color: 'أزرق / Синий',
-      images: [
+      mainImageUrl:
         'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80',
+      galleryUrls: [
+        'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1606214174559-011cda8d08d5?auto=format&fit=crop&w=800&q=80',
       ],
       materials: '80% فيسكوز، 20% حرير',
       features: ['عرض القماش 140 سم', 'صنع في إيطاليا'],

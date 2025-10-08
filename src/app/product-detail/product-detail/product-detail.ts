@@ -40,4 +40,20 @@ export class ProductDetailComponent {
   getQuantity(productId: string): number {
     return this.cart.getQuantity(productId);
   }
+
+  getMainImage(product: Product): string | undefined {
+    return product.mainImageUrl ?? product.galleryUrls?.[0];
+  }
+
+  getGalleryImages(product: Product): string[] {
+    const gallery = product.galleryUrls ?? [];
+    if (!product.mainImageUrl && gallery.length) {
+      return gallery.slice(1);
+    }
+    return gallery;
+  }
+
+  trackImage(_index: number, image: string): string {
+    return image;
+  }
 }

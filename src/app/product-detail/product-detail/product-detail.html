@@ -2,30 +2,30 @@
   <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
     <div class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-start xl:grid-cols-[1.2fr_0.8fr]">
       <div class="space-y-6">
-        {{ product | json }}
-        <ng-container *ngIf="product.images?.length; else noImages">
+        <ng-container *ngIf="product.mainImageUrl || product.galleryUrls?.length; else noImages">
           <div
             class="overflow-hidden rounded-3xl bg-white p-3 shadow-xl shadow-slate-900/5 ring-1 ring-slate-100"
           >
             <img
               class="h-full w-full rounded-2xl object-cover object-center"
-              [src]="product.images[0]"
+              [src]="getMainImage(product)"
               [alt]="product.name"
             />
           </div>
 
-          <div
-            *ngIf="product.images.length > 1"
-            class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
-          >
-            <img
-              *ngFor="let image of product.images; let index = index"
-              class="h-28 w-full rounded-2xl object-cover object-center shadow-sm ring-1 ring-slate-200 transition duration-200 hover:scale-[1.02]"
-              [class.hidden]="index === 0"
-              [src]="image"
-              [alt]="product.name"
-            />
-          </div>
+          <ng-container *ngIf="getGalleryImages(product) as galleryImages">
+            <div
+              *ngIf="galleryImages.length"
+              class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+            >
+              <img
+                *ngFor="let image of galleryImages; trackBy: trackImage"
+                class="h-28 w-full rounded-2xl object-cover object-center shadow-sm ring-1 ring-slate-200 transition duration-200 hover:scale-[1.02]"
+                [src]="image"
+                [alt]="product.name"
+              />
+            </div>
+          </ng-container>
         </ng-container>
 
         <ng-template #noImages>
