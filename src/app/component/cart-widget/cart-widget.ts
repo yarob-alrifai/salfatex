@@ -69,8 +69,9 @@ export class CartWidgetComponent {
 
     try {
       const order = await this.cartService.submitOrder(this.checkoutForm.getRawValue());
+      const reference = order.orderNumber ?? order.id;
       this.successMessage.set(
-        order.id ? `تم استلام طلبك بنجاح! رقم الطلب: ${order.id}` : 'تم استلام طلبك بنجاح!'
+        reference ? `تم استلام طلبك بنجاح! رقم الطلب: ${reference}` : 'تم استلام طلبك بنجاح!'
       );
       this.checkoutForm.reset();
     } catch (error) {

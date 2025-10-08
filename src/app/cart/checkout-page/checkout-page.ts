@@ -9,6 +9,8 @@ interface CheckoutConfirmation {
   info: CustomerInfo;
   snapshot: CartSnapshot;
   createdAt: Date;
+
+  orderNumber: string | null;
 }
 
 @Component({
@@ -79,6 +81,7 @@ export class CheckoutPageComponent {
         info,
         snapshot,
         createdAt: order.createdAt.toDate(),
+        orderNumber: order.orderNumber ?? order.id ?? null,
       });
       this.form.reset();
     } catch (error) {

@@ -195,6 +195,11 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.checkout__order-number {
+  font-weight: 700;
+  color: #065f46;
+}
+
 .checkout__submit:hover {
   transform: translateY(-2px);
   box-shadow: 0 18px 35px -22px rgba(124, 58, 237, 0.6);

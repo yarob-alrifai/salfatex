@@ -1,5 +1,15 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Firestore, addDoc, collection } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  doc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  setDoc,
+  where,
+} from '@angular/fire/firestore';
 import { Timestamp } from 'firebase/firestore';
 import type { AdminOrder, OrderItem } from '../admin/admin-data.service';
 import { Product } from '../models/catalog.models';
@@ -14,6 +24,12 @@ export interface CheckoutDetails {
   customerEmail?: string;
   shippingAddress?: string;
   notes?: string;
+}
+
+interface OrderMetadata {
+  orderNumber: string;
+  orderSequence: number;
+  orderMonth: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -98,36 +114,73 @@ export class CartService {
       price: item.product.price,
     }));
 
-    const payload: Omit<AdminOrder, 'id'> = {
+    const createdAt = Timestamp.now();
+
+    const baseOrder: Omit<AdminOrder, 'id' | 'orderNumber' | 'orderSequence' | 'orderMonth'> = {
       customerName: trimmedName,
       customerEmail: details.customerEmail?.trim() || undefined,
       shippingAddress: details.shippingAddress?.trim() || undefined,
       notes: details.notes?.trim() || undefined,
       status: 'pending',
       total: this.total(),
-      createdAt: Timestamp.now(),
+      createdAt,
       items: orderItems,
     };
     if (this.firestore) {
-      const ref = await addDoc(collection(this.firestore, 'orders'), payload);
-      const order: AdminOrder = { ...payload, id: ref.id };
-
+      const metadata = await this.generateOrderMetadata(createdAt);
+      const payload: Omit<AdminOrder, 'id'> = { ...baseOrder, ...metadata };
+      const orderRef = doc(collection(this.firestore, 'orders'), metadata.orderNumber);
+      await setDoc(orderRef, payload);
+      const order: AdminOrder = { ...payload, id: metadata.orderNumber };
       console.log({ order: order });
       this.clearCart();
       return order;
     }
 
-    const fallbackOrder: AdminOrder = { ...payload, id: this.createLocalId() };
+    const metadata = this.generateLocalOrderMetadata(createdAt.toDate());
+    const fallbackOrder: AdminOrder = { ...baseOrder, ...metadata, id: metadata.orderNumber };
+
     this.localOrdersSignal.update((orders) => [fallbackOrder, ...orders]);
     this.clearCart();
     return fallbackOrder;
   }
 
-  private createLocalId(): string {
-    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-      return crypto.randomUUID();
-    }
+  private async generateOrderMetadata(createdAt: Timestamp): Promise<OrderMetadata> {
+    const date = createdAt.toDate();
+    const year = date.getFullYear();
+    const monthNumber = date.getMonth() + 1;
+    const month = monthNumber.toString().padStart(2, '0');
+    const orderMonth = `${year}${month}`;
+    const ordersRef = collection(this.firestore, 'orders');
+    const latestOrderQuery = query(
+      ordersRef,
+      where('orderMonth', '==', orderMonth),
+      orderBy('orderSequence', 'desc'),
+      limit(1)
+    );
+    const snapshot = await getDocs(latestOrderQuery);
+    const lastSequence = snapshot.empty ? 0 : Number(snapshot.docs[0].data()['orderSequence'] ?? 0);
+    const orderSequence = lastSequence + 1;
+    const orderNumber = this.composeOrderNumber(year, month, orderSequence);
 
-    return Math.random().toString(36).slice(2, 10);
+    return { orderNumber, orderSequence, orderMonth };
+  }
+
+  private generateLocalOrderMetadata(createdAt: Date): OrderMetadata {
+    const year = createdAt.getFullYear();
+    const monthNumber = createdAt.getMonth() + 1;
+    const month = monthNumber.toString().padStart(2, '0');
+    const orderMonth = `${year}${month}`;
+    const lastSequence = this.localOrdersSignal()
+      .filter((order) => order.orderMonth === orderMonth)
+      .reduce((max, order) => Math.max(max, order.orderSequence ?? 0), 0);
+    const orderSequence = lastSequence + 1;
+    const orderNumber = this.composeOrderNumber(year, month, orderSequence);
+
+    return { orderNumber, orderSequence, orderMonth };
+  }
+
+  private composeOrderNumber(year: number, month: string, sequence: number): string {
+    return `${year}-${month}-${sequence.toString().padStart(4, '0')}`;
   }
 }

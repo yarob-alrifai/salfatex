@@ -35,6 +35,9 @@ export interface AdminOrder {
   notes?: string;
   items: OrderItem[];
   shippingAddress?: string;
+  orderNumber?: string;
+  orderSequence?: number;
+  orderMonth?: string;
 }
 
 @Injectable({ providedIn: 'root' })

@@ -39,6 +39,10 @@
         <span>{{ order.total | currency : 'SAR' }}</span>
       </header>
 
+      <p class="order-number" *ngIf="order.orderNumber || order.id">
+        رقم الطلب: {{ order.orderNumber || order.id }}
+      </p>
+
       <p class="meta">
         <span>الحالة الحالية: {{ order.status }}</span>
         <span>التاريخ: {{ toDate(order.createdAt) | date : 'medium' }}</span>

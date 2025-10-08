@@ -10,6 +10,10 @@
       وسيتم التواصل معكم قريباً لتأكيد التفاصيل.
     </p>
 
+    <p *ngIf="confirmation.orderNumber" class="checkout__order-number">
+      رقم الطلب: <strong>{{ confirmation.orderNumber }}</strong>
+    </p>
+
     <div class="checkout__confirmation-details">
       <div>
         <h3>بيانات الزبون</h3>
