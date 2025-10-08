@@ -1,0 +1,11 @@
+@if (hasItems()) {
+<button
+  type="button"
+  class="floating-cart-button"
+  (click)="navigateToCart()"
+  aria-label="الانتقال إلى السلة"
+>
+  <span class="floating-cart-button__icon" aria-hidden="true">🛒</span>
+  <span class="floating-cart-button__count">{{ itemCount() }}</span>
+</button>
+}
