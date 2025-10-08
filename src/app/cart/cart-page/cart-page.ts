@@ -29,7 +29,15 @@ export class CartPageComponent {
     if (Number.isNaN(quantity)) {
       return;
     }
-    // this.cart.updateQuantity(productId, Math.max(0, Math.floor(quantity)));
+    this.cart.updateQuantity(productId, quantity);
+  }
+
+  increment(productId: string): void {
+    this.cart.increment(productId);
+  }
+
+  decrement(productId: string): void {
+    this.cart.decrement(productId);
   }
 
   remove(productId: string): void {

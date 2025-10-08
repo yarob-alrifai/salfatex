@@ -80,6 +80,30 @@ export class CartService {
     );
   }
 
+  updateQuantity(productId: string, quantity: number) {
+    if (!Number.isFinite(quantity)) {
+      return;
+    }
+
+    const normalizedQuantity = Math.max(0, Math.floor(quantity));
+
+    this.itemsSignal.update((items) => {
+      const index = items.findIndex((item) => item.product.id === productId);
+
+      if (index === -1) {
+        return items;
+      }
+
+      if (normalizedQuantity === 0) {
+        return items.filter((item) => item.product.id !== productId);
+      }
+
+      return items.map((item) =>
+        item.product.id === productId ? { ...item, quantity: normalizedQuantity } : item
+      );
+    });
+  }
+
   removeProduct(productId: string) {
     this.itemsSignal.update((items) => items.filter((item) => item.product.id !== productId));
   }
