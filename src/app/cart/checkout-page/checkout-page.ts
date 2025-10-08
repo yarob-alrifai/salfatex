@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { CartItem, CartSnapshot, CustomerInfo } from '../../models/cart.models';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface CheckoutConfirmation {
   info: CustomerInfo;
@@ -24,12 +25,15 @@ interface CheckoutConfirmation {
 export class CheckoutPageComponent {
   private readonly cart = inject(CartService);
   private readonly fb = inject(FormBuilder);
+  private readonly storage: Storage | null =
+    typeof window === 'undefined' ? null : window.localStorage;
+  private readonly customerInfoStorageKey = 'checkout.customer-info';
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly items: Signal<CartItem[]> = this.cart.items;
   readonly totalPrice = this.cart.total;
 
-  readonly form = this.fb.group({
+  readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     restaurantName: ['', Validators.required],
@@ -38,7 +42,13 @@ export class CheckoutPageComponent {
   });
 
   readonly confirmation = signal<CheckoutConfirmation | null>(null);
+  constructor() {
+    this.restoreCustomerInfo();
 
+    this.form.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      this.saveCustomerInfo(value);
+    });
+  }
   async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -46,13 +56,7 @@ export class CheckoutPageComponent {
     }
 
     const rawValue = this.form.getRawValue();
-    const info: CustomerInfo = {
-      name: rawValue.name?.trim() ?? '',
-      email: rawValue.email?.trim() ?? '',
-      restaurantName: rawValue.restaurantName?.trim() ?? '',
-      address: rawValue.address?.trim() ?? '',
-      notes: rawValue.notes?.trim() || undefined,
-    }; // const snapshot = this.cart.createSnapshot();
+    const info = this.normalizeCustomerInfo(rawValue);
 
     const itemsSnapshot = this.items().map((item) => ({ ...item }));
     const snapshot: CartSnapshot = {
@@ -83,7 +87,14 @@ export class CheckoutPageComponent {
         createdAt: order.createdAt.toDate(),
         orderNumber: order.orderNumber ?? order.id ?? null,
       });
-      this.form.reset();
+      const persisted = this.saveCustomerInfo(info) ?? info;
+      this.form.reset(
+        {
+          ...persisted,
+          notes: persisted.notes ?? '',
+        },
+        { emitEvent: false }
+      );
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'تعذر إرسال الطلب. حاول مرة أخرى لاحقاً.';
@@ -116,5 +127,84 @@ export class CheckoutPageComponent {
     }
 
     return details.join('\n');
+  }
+
+  private restoreCustomerInfo(): void {
+    const saved = this.loadCustomerInfo();
+
+    if (!saved) {
+      return;
+    }
+
+    this.form.patchValue(
+      {
+        ...saved,
+        notes: saved.notes ?? '',
+      },
+      { emitEvent: false }
+    );
+  }
+
+  private loadCustomerInfo(): CustomerInfo | null {
+    if (!this.storage) {
+      return null;
+    }
+
+    const raw = this.storage.getItem(this.customerInfoStorageKey);
+
+    if (!raw) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as Partial<CustomerInfo>;
+      return this.normalizeCustomerInfo(parsed);
+    } catch {
+      this.storage.removeItem(this.customerInfoStorageKey);
+      return null;
+    }
+  }
+
+  private saveCustomerInfo(
+    value: Partial<CustomerInfo> & { notes?: string | null }
+  ): CustomerInfo | null {
+    if (!this.storage) {
+      return null;
+    }
+
+    const normalized = this.normalizeCustomerInfo(value);
+    const hasMeaningfulData = Boolean(
+      normalized.name ||
+        normalized.email ||
+        normalized.restaurantName ||
+        normalized.address ||
+        normalized.notes
+    );
+
+    if (!hasMeaningfulData) {
+      this.storage.removeItem(this.customerInfoStorageKey);
+      return null;
+    }
+
+    this.storage.setItem(this.customerInfoStorageKey, JSON.stringify(normalized));
+    return normalized;
+  }
+
+  private normalizeCustomerInfo(
+    value: Partial<CustomerInfo> & { notes?: string | null }
+  ): CustomerInfo {
+    const name = value.name?.toString().trim() ?? '';
+    const email = value.email?.toString().trim() ?? '';
+    const restaurantName = value.restaurantName?.toString().trim() ?? '';
+    const address = value.address?.toString().trim() ?? '';
+    const notes = value.notes?.toString().trim() || undefined;
+
+    return {
+      name,
+      email,
+      restaurantName,
+      address,
+      notes,
+    };
   }
 }
