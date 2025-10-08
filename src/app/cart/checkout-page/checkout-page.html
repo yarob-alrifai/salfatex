@@ -130,7 +130,10 @@
             <textarea formControlName="notes" rows="3"></textarea>
           </label>
 
-          <button type="submit" class="checkout__submit">إرسال الطلب</button>
+          <button type="submit" class="checkout__submit" [disabled]="submitting()">
+            {{ submitting() ? 'جاري إرسال الطلب...' : 'إرسال الطلب' }}
+          </button>
+          <p class="checkout__error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
         </form>
       </section>
     </div>
