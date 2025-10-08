@@ -54,6 +54,20 @@ export class SubcategoryDetailComponent {
     this.cart.addProduct(product);
   }
 
+  increment(event: Event, product: Product): void {
+    event.stopPropagation();
+    this.cart.increment(product.id);
+  }
+
+  decrement(event: Event, product: Product): void {
+    event.stopPropagation();
+    this.cart.decrement(product.id);
+  }
+
+  getQuantity(productId: string): number {
+    return this.cart.getQuantity(productId);
+  }
+
   trackByProductId(_: number, product: Product): string {
     return product.id;
   }

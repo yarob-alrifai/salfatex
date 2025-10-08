@@ -50,7 +50,23 @@
           </div>
         </a>
 
-        <button type="button" (click)="addToCart($event, product)">أضف إلى السلة</button>
+        <div class="subcategory-detail__actions">
+          <ng-container *ngIf="getQuantity(product.id) === 0; else quantityControls">
+            <button type="button" (click)="addToCart($event, product)">أضف إلى السلة</button>
+          </ng-container>
+
+          <ng-template #quantityControls>
+            <div class="subcategory-detail__quantity">
+              <button type="button" (click)="decrement($event, product)" aria-label="إنقاص الكمية">
+                −
+              </button>
+              <span>{{ getQuantity(product.id) }}</span>
+              <button type="button" (click)="increment($event, product)" aria-label="زيادة الكمية">
+                +
+              </button>
+            </div>
+          </ng-template>
+        </div>
       </article>
     </div>
   </section>

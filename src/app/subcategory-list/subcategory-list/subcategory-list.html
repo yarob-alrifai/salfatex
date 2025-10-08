@@ -123,13 +123,37 @@
                   </div>
                 </a>
 
-                <button
-                  type="button"
-                  (click)="$event.stopPropagation(); addToCart(product)"
-                  class="mt-4 inline-flex items-center justify-center rounded-lg bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
-                >
-                  أضف إلى السلة
-                </button>
+                <div class="mt-4 flex items-center justify-center">
+                  <ng-container *ngIf="getQuantity(product.id) === 0; else quantityControls">
+                    <button
+                      type="button"
+                      (click)="$event.stopPropagation(); addToCart(product)"
+                      class="subcategory__add"
+                    >
+                      أضف إلى السلة
+                    </button>
+                  </ng-container>
+
+                  <ng-template #quantityControls>
+                    <div class="subcategory__quantity">
+                      <button
+                        type="button"
+                        (click)="decrement($event, product)"
+                        aria-label="إنقاص الكمية"
+                      >
+                        −
+                      </button>
+                      <span>{{ getQuantity(product.id) }}</span>
+                      <button
+                        type="button"
+                        (click)="increment($event, product)"
+                        aria-label="زيادة الكمية"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </ng-template>
+                </div>
               </div>
             </div>
           </div>
