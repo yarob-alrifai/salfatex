@@ -95,6 +95,24 @@
       />
     </label>
 
+    <div class="md:col-span-2 flex justify-end" *ngIf="mainImagePreview">
+      <div class="relative w-32 h-32">
+        <img
+          [src]="mainImagePreview"
+          alt="معاينة الصورة الرئيسية"
+          class="w-full h-full object-cover rounded-xl border border-gray-200 shadow-sm"
+        />
+        <button
+          type="button"
+          (click)="resetMainImage()"
+          class="absolute -top-2 -left-2 bg-red-500 text-white w-7 h-7 rounded-full flex items-center justify-center shadow"
+          aria-label="حذف الصورة الرئيسية"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+
     <!-- Gallery -->
     <label class="flex flex-col text-right">
       <span class="mb-1 font-medium text-gray-700">معرض الصور</span>
@@ -106,6 +124,29 @@
         class="border border-gray-300 rounded-lg p-2 bg-gray-50"
       />
     </label>
+
+    <div class="md:col-span-2" *ngIf="galleryImagePreviews.length">
+      <span class="block text-right text-sm font-medium text-gray-600 mb-2">الصور المختارة</span>
+      <div class="flex flex-wrap justify-end gap-4">
+        <ng-container *ngFor="let preview of galleryImagePreviews; let i = index">
+          <div class="relative w-24 h-24">
+            <img
+              [src]="preview"
+              class="w-full h-full object-cover rounded-xl border border-gray-200 shadow-sm"
+              [alt]="'صورة للمعرض رقم ' + (i + 1)"
+            />
+            <button
+              type="button"
+              (click)="removeGalleryImage(i)"
+              class="absolute -top-2 -left-2 bg-red-500 text-white w-7 h-7 rounded-full flex items-center justify-center shadow"
+              [attr.aria-label]="'حذف صورة المعرض رقم ' + (i + 1)"
+            >
+              ✕
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
 
     <!-- Submit -->
     <button
@@ -119,6 +160,117 @@
       {{ feedback() }}
     </p>
   </form>
+
+  <div
+    *ngIf="showMainCropper"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+  >
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-6 space-y-4">
+      <header class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-800">قص الصورة الرئيسية</h3>
+        <button
+          type="button"
+          (click)="cancelMainCrop()"
+          class="text-gray-500 hover:text-gray-700 text-xl"
+          aria-label="إغلاق أداة القص"
+        >
+          ✕
+        </button>
+      </header>
+      <image-cropper
+        [imageChangedEvent]="mainImageChangedEvent"
+        [maintainAspectRatio]="true"
+        [aspectRatio]="1"
+        [resizeToWidth]="800"
+        format="png"
+        [cropperMinWidth]="200"
+        [cropperMinHeight]="200"
+        (imageCropped)="onMainImageCropped($event)"
+        (imageLoaded)="onMainImageLoaded($event)"
+        (loadImageFailed)="onMainImageLoadFailed()"
+        class="block h-96"
+      ></image-cropper>
+      <div class="flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="cancelMainCrop()"
+          class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+        >
+          إلغاء
+        </button>
+        <button
+          type="button"
+          [disabled]="!mainCropReady"
+          (click)="confirmMainCrop()"
+          class="px-4 py-2 rounded-lg bg-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          اعتماد القص
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="showGalleryCropper && currentGalleryFile"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+  >
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-6 space-y-4">
+      <header class="flex flex-col gap-1 text-right">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-gray-800">قص صور المعرض</h3>
+          <button
+            type="button"
+            (click)="cancelGalleryCropping()"
+            class="text-gray-500 hover:text-gray-700 text-xl"
+            aria-label="إغلاق أداة قص المعرض"
+          >
+            ✕
+          </button>
+        </div>
+        <span class="text-sm text-gray-500">
+          الصورة {{ galleryImagePreviews.length + 1 }} من {{ totalGalleryToCrop }} —
+          {{ currentGalleryFile.name }}
+        </span>
+      </header>
+      <image-cropper
+        [imageFile]="currentGalleryFile"
+        [maintainAspectRatio]="true"
+        [aspectRatio]="1"
+        [resizeToWidth]="800"
+        format="png"
+        [cropperMinWidth]="200"
+        [cropperMinHeight]="200"
+        (imageCropped)="onGalleryImageCropped($event)"
+        (imageLoaded)="onGalleryImageLoaded($event)"
+        (loadImageFailed)="onGalleryImageLoadFailed()"
+        class="block h-96"
+      ></image-cropper>
+      <div class="flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="skipCurrentGalleryImage()"
+          class="px-4 py-2 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200"
+        >
+          تخطي
+        </button>
+        <button
+          type="button"
+          (click)="cancelGalleryCropping()"
+          class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+        >
+          إلغاء
+        </button>
+        <button
+          type="button"
+          [disabled]="!currentGalleryCropReady"
+          (click)="confirmGalleryCrop()"
+          class="px-4 py-2 rounded-lg bg-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          حفظ الصورة
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Product list -->
   <section class="mt-10 space-y-6" *ngIf="productsView$ | async as view">
