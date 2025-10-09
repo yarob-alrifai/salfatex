@@ -1,7 +1,8 @@
 import { AsyncPipe, CommonModule, DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { map } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { combineLatest, map, startWith } from 'rxjs';
 import { AdminDataService, AdminOrder } from '../../admin-data.service';
 
 interface AdminCustomer {
@@ -35,6 +36,31 @@ export class CustomerManagerComponent {
     map((orders) => this.aggregateCustomers(orders))
   );
 
+  readonly searchControl = this.fb.nonNullable.control('');
+  readonly sortDirection = signal<'asc' | 'desc'>('asc');
+
+  readonly viewModel$ = combineLatest([
+    this.customers$,
+    this.searchControl.valueChanges.pipe(startWith('')),
+    toObservable(this.sortDirection),
+  ]).pipe(
+    map(([customers, searchTerm, direction]) => {
+      const normalized = searchTerm.trim().toLocaleLowerCase();
+      const filtered = normalized
+        ? customers.filter((customer) => this.matchesSearch(customer, normalized))
+        : customers;
+
+      const sorted = [...filtered].sort((a, b) => this.compareCustomers(a, b, direction));
+
+      return {
+        customers: sorted,
+        total: customers.length,
+        filteredCount: sorted.length,
+        hasSearch: normalized.length > 0,
+      };
+    })
+  );
+
   readonly selectedCustomer = signal<AdminCustomer | null>(null);
   readonly editingCustomer = signal<AdminCustomer | null>(null);
   readonly feedback = signal('');
@@ -48,6 +74,10 @@ export class CustomerManagerComponent {
     customerPhone: [''],
     shippingAddress: [''],
   });
+
+  toggleSortDirection() {
+    this.sortDirection.update((dir) => (dir === 'asc' ? 'desc' : 'asc'));
+  }
 
   selectCustomer(customer: AdminCustomer) {
     this.selectedCustomer.set(customer);
@@ -217,21 +247,34 @@ export class CustomerManagerComponent {
         }
       }
     }
+    return Array.from(groups.values()).map((group) => ({
+      ...group,
+      customerEmail: group.customerEmail,
+      customerPhone: group.customerPhone,
+      shippingAddress: group.shippingAddress,
+    }));
+  }
 
-    return Array.from(groups.values())
-      .map((group) => ({
-        ...group,
-        customerEmail: group.customerEmail,
-        customerPhone: group.customerPhone,
-        shippingAddress: group.shippingAddress,
-      }))
-      .sort((a, b) => {
-        const restaurantCompare = a.restaurantName.localeCompare(b.restaurantName, 'ar');
-        if (restaurantCompare !== 0) {
-          return restaurantCompare;
-        }
-        return a.customerName.localeCompare(b.customerName, 'ar');
-      });
+  private matchesSearch(customer: AdminCustomer, searchTerm: string): boolean {
+    const haystacks = [
+      customer.customerName,
+      customer.restaurantName,
+      customer.customerEmail ?? '',
+      customer.customerPhone ?? '',
+      customer.shippingAddress ?? '',
+      String(customer.orderCount ?? ''),
+    ].map((value) => value.toLocaleLowerCase());
+
+    return haystacks.some((value) => value.includes(searchTerm));
+  }
+
+  private compareCustomers(a: AdminCustomer, b: AdminCustomer, direction: 'asc' | 'desc'): number {
+    const multiplier = direction === 'asc' ? 1 : -1;
+    const restaurantCompare = a.restaurantName.localeCompare(b.restaurantName, 'ar');
+    if (restaurantCompare !== 0) {
+      return restaurantCompare * multiplier;
+    }
+    return a.customerName.localeCompare(b.customerName, 'ar') * multiplier;
   }
 
   private extractRestaurantName(order: AdminOrder): string {
