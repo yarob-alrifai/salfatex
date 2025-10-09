@@ -56,4 +56,12 @@ export class ProductDetailComponent {
   trackImage(_index: number, image: string): string {
     return image;
   }
+
+  getProductNumber(product: Product): string {
+    if (typeof product.sequence === 'number') {
+      return product.sequence.toString().padStart(6, '0');
+    }
+
+    return product.id;
+  }
 }

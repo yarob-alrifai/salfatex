@@ -25,4 +25,5 @@ export interface Product {
   galleryUrls?: string[];
   materials?: string;
   features?: string[];
+  sequence?: number;
 }

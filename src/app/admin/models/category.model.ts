@@ -6,4 +6,5 @@ export interface Category {
   description?: string;
   imageUrl?: string;
   createdAt?: Timestamp;
+  sequence?: number;
 }

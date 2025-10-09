@@ -7,4 +7,5 @@ export interface Subcategory {
   categoryId: string;
   imageUrl?: string;
   createdAt?: Timestamp;
+  sequence?: number;
 }

@@ -11,4 +11,5 @@ export interface Product {
   mainImageUrl?: string;
   galleryUrls?: string[];
   createdAt?: Timestamp;
+  sequence?: number;
 }

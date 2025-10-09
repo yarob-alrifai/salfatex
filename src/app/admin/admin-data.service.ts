@@ -2,13 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import {
   Firestore,
   Timestamp,
-  addDoc,
   collection,
   collectionData,
   deleteDoc,
   doc,
+  getDocs,
+  limit,
   orderBy,
   query,
+  setDoc,
   updateDoc,
   where,
 } from '@angular/fire/firestore';
@@ -67,16 +69,19 @@ export class AdminDataService {
 
   // RED ================================================ CREATE CATEGORY ====================================
   async createCategory(category: Omit<Category, 'id' | 'createdAt' | 'imageUrl'>, image?: File) {
+    const { id, sequence } = await this.generateSequentialIdentifier('categories', 'CAT');
+
     const payload: Category = {
       ...category,
       createdAt: Timestamp.now(),
+      sequence,
     };
 
     if (image) {
       payload.imageUrl = await this.uploadFile(`categories/${this.createIdentifier()}`, image);
     }
 
-    await addDoc(collection(this.firestore, 'categories'), payload);
+    await setDoc(doc(this.firestore, 'categories', id), payload);
   }
 
   async updateCategory(
@@ -103,16 +108,19 @@ export class AdminDataService {
     subcategory: Omit<Subcategory, 'id' | 'createdAt' | 'imageUrl'>,
     image?: File
   ) {
+    const { id, sequence } = await this.generateSequentialIdentifier('subcategories', 'SUB');
+
     const payload: Subcategory = {
       ...subcategory,
       createdAt: Timestamp.now(),
+      sequence,
     };
 
     if (image) {
       payload.imageUrl = await this.uploadFile(`subcategories/${this.createIdentifier()}`, image);
     }
 
-    await addDoc(collection(this.firestore, 'subcategories'), payload);
+    await setDoc(doc(this.firestore, 'subcategories', id), payload);
   }
 
   async updateSubcategory(
@@ -139,9 +147,12 @@ export class AdminDataService {
     mainImage?: File,
     galleryImages: File[] = []
   ) {
+    const { id, sequence } = await this.generateSequentialIdentifier('products', 'PROD');
+
     const payload: Product = {
       ...product,
       createdAt: Timestamp.now(),
+      sequence,
     };
 
     if (mainImage) {
@@ -160,7 +171,7 @@ export class AdminDataService {
       }
     }
 
-    await addDoc(collection(this.firestore, 'products'), payload);
+    await setDoc(doc(this.firestore, 'products', id), payload);
   }
 
   async deleteProduct(productId: string) {
@@ -220,6 +231,20 @@ export class AdminDataService {
     return firstValueFrom(
       collectionData(subcategoryQuery, { idField: 'id' }) as Observable<Subcategory[]>
     );
+  }
+
+  private async generateSequentialIdentifier(
+    collectionName: 'categories' | 'subcategories' | 'products',
+    prefix: string
+  ): Promise<{ id: string; sequence: number }> {
+    const collectionRef = collection(this.firestore, collectionName);
+    const latestDocQuery = query(collectionRef, orderBy('sequence', 'desc'), limit(1));
+    const snapshot = await getDocs(latestDocQuery);
+    const lastSequence = snapshot.empty ? 0 : Number(snapshot.docs[0].data()['sequence'] ?? 0) || 0;
+    const sequence = lastSequence + 1;
+    const id = `${prefix}-${sequence.toString().padStart(6, '0')}`;
+
+    return { id, sequence };
   }
 
   private createIdentifier(): string {
