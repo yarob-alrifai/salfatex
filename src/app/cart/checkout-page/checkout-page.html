@@ -40,6 +40,12 @@
                 <dt class="font-semibold text-slate-800">اسم المطعم</dt>
                 <dd>{{ confirmation.info.restaurantName }}</dd>
               </div>
+
+              <div>
+                <dt class="font-semibold text-slate-800">رقم الهاتف</dt>
+                <dd>{{ confirmation.info.phone }}</dd>
+              </div>
+
               <div>
                 <dt class="font-semibold text-slate-800">العنوان</dt>
                 <dd>{{ confirmation.info.address }}</dd>
@@ -153,6 +159,22 @@
               *ngIf="form.controls.email.invalid && form.controls.email.touched"
             >
               الرجاء إدخال بريد إلكتروني صالح.
+            </div>
+
+            <label class="flex flex-col gap-2 text-right text-sm font-medium text-slate-800">
+              <span>رقم الهاتف</span>
+              <input
+                type="tel"
+                formControlName="phone"
+                required
+                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              />
+            </label>
+            <div
+              class="text-right text-sm text-rose-600"
+              *ngIf="form.controls.phone.invalid && form.controls.phone.touched"
+            >
+              الرجاء إدخال رقم هاتف صالح.
             </div>
 
             <label class="flex flex-col gap-2 text-right text-sm font-medium text-slate-800">

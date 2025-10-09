@@ -22,6 +22,8 @@ export interface CartItem {
 export interface CheckoutDetails {
   customerName: string;
   customerEmail?: string;
+  customerPhone?: string;
+  restaurantName?: string;
   shippingAddress?: string;
   notes?: string;
 }
@@ -139,12 +141,22 @@ export class CartService {
     }));
 
     const createdAt = Timestamp.now();
+    const trimmedRestaurant = details.restaurantName?.trim();
+    const trimmedPhone = details.customerPhone?.trim();
+
+    const normalizedNotes = this.composeNotesWithDetails(
+      trimmedRestaurant,
+      trimmedPhone,
+      details.notes
+    );
 
     const baseOrder: Omit<AdminOrder, 'id' | 'orderNumber' | 'orderSequence' | 'orderMonth'> = {
       customerName: trimmedName,
       customerEmail: details.customerEmail?.trim() || undefined,
+      customerPhone: trimmedPhone || undefined,
+      restaurantName: trimmedRestaurant || undefined,
       shippingAddress: details.shippingAddress?.trim() || undefined,
-      notes: details.notes?.trim() || undefined,
+      notes: normalizedNotes,
       status: 'pending',
       total: this.total(),
       createdAt,
@@ -206,5 +218,33 @@ export class CartService {
 
   private composeOrderNumber(year: number, month: string, sequence: number): string {
     return `${year}-${month}-${sequence.toString().padStart(4, '0')}`;
+  }
+
+  private composeNotesWithDetails(
+    restaurantName?: string,
+    phone?: string,
+    notes?: string | null
+  ): string | undefined {
+    const parts: string[] = [];
+    const trimmedNotes = notes?.toString().trim() ?? '';
+    const includesRestaurant = /اسم\s+المطعم/i.test(trimmedNotes);
+    const includesPhone = /رقم\s+الهاتف|phone|tel/i.test(trimmedNotes);
+
+    const trimmedRestaurant = restaurantName?.trim();
+    const trimmedPhone = phone?.trim();
+
+    if (trimmedRestaurant && !includesRestaurant) {
+      parts.push(`اسم المطعم: ${trimmedRestaurant}`);
+    }
+
+    if (trimmedPhone && !includesPhone) {
+      parts.push(`رقم الهاتف: ${trimmedPhone}`);
+    }
+
+    if (trimmedNotes) {
+      parts.push(trimmedNotes);
+    }
+
+    return parts.length ? parts.join('\n') : undefined;
   }
 }

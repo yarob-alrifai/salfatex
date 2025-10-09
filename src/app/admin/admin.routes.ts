@@ -35,6 +35,15 @@ export const ADMIN_ROUTES: Routes = [
             (m) => m.ProductManagerComponent
           ),
       },
+
+      {
+        path: 'customers',
+        loadComponent: () =>
+          import('./customer-manager/customer-manager/customer-manager').then(
+            (m) => m.CustomerManagerComponent
+          ),
+      },
+
       {
         path: 'orders',
         loadComponent: () =>

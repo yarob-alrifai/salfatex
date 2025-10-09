@@ -31,6 +31,8 @@ export interface AdminOrder {
   id?: string;
   customerName: string;
   customerEmail?: string;
+  customerPhone?: string;
+  restaurantName?: string;
   status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
   total: number;
   createdAt: Timestamp;
@@ -82,6 +84,30 @@ export class AdminDataService {
     }
 
     await setDoc(doc(this.firestore, 'categories', id), payload);
+  }
+
+  async updateCustomerOrders(
+    orderIds: string[],
+    changes: Partial<
+      Pick<
+        AdminOrder,
+        'customerName' | 'customerEmail' | 'customerPhone' | 'shippingAddress' | 'restaurantName'
+      >
+    >
+  ) {
+    const updates = orderIds
+      .filter((id): id is string => Boolean(id))
+      .map((orderId) => updateDoc(doc(this.firestore, 'orders', orderId), changes));
+
+    await Promise.all(updates);
+  }
+
+  async deleteCustomerOrders(orderIds: string[]) {
+    const deletions = orderIds
+      .filter((id): id is string => Boolean(id))
+      .map((orderId) => deleteDoc(doc(this.firestore, 'orders', orderId)));
+
+    await Promise.all(deletions);
   }
 
   async updateCategory(

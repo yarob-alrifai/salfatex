@@ -38,6 +38,8 @@ export class CheckoutPageComponent {
     email: ['', [Validators.required, Validators.email]],
     restaurantName: ['', Validators.required],
     address: ['', Validators.required],
+    phone: ['', [Validators.required, Validators.minLength(8)]],
+
     notes: [''],
   });
 
@@ -73,10 +75,12 @@ export class CheckoutPageComponent {
     this.errorMessage.set(null);
 
     try {
-      const notes = this.composeNotes(info.restaurantName, info.notes);
+      const notes = this.composeNotes(info.restaurantName, info.phone, info.notes);
       const order = await this.cart.submitOrder({
         customerName: info.name,
         customerEmail: info.email || undefined,
+        customerPhone: info.phone || undefined,
+        restaurantName: info.restaurantName || undefined,
         shippingAddress: info.address,
         notes,
       });
@@ -108,14 +112,20 @@ export class CheckoutPageComponent {
     return item.product.id;
   }
 
-  private composeNotes(restaurantName: string, notes?: string): string | undefined {
+  private composeNotes(restaurantName: string, phone?: string, notes?: string): string | undefined {
     const details: string[] = [];
 
     const trimmedRestaurant = restaurantName?.trim();
+    const trimmedPhone = phone?.trim();
+
     const trimmedNotes = notes?.trim();
 
     if (trimmedRestaurant) {
       details.push(`اسم المطعم: ${trimmedRestaurant}`);
+    }
+
+    if (trimmedPhone) {
+      details.push(`رقم الهاتف: ${trimmedPhone}`);
     }
 
     if (trimmedNotes) {
@@ -177,6 +187,7 @@ export class CheckoutPageComponent {
       normalized.name ||
         normalized.email ||
         normalized.restaurantName ||
+        normalized.phone ||
         normalized.address ||
         normalized.notes
     );
@@ -196,6 +207,8 @@ export class CheckoutPageComponent {
     const name = value.name?.toString().trim() ?? '';
     const email = value.email?.toString().trim() ?? '';
     const restaurantName = value.restaurantName?.toString().trim() ?? '';
+    const phone = value.phone?.toString().trim() ?? '';
+
     const address = value.address?.toString().trim() ?? '';
     const notes = value.notes?.toString().trim() || undefined;
 
@@ -203,6 +216,8 @@ export class CheckoutPageComponent {
       name,
       email,
       restaurantName,
+      phone,
+
       address,
       notes,
     };

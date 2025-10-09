@@ -14,6 +14,8 @@ export interface CustomerInfo {
   name: string;
   email: string;
   restaurantName: string;
+  phone: string;
+
   address: string;
   notes?: string;
 }

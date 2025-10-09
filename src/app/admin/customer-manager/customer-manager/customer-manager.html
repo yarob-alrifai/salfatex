@@ -1,0 +1,133 @@
+<section class="customer-manager">
+  <header class="customer-manager__header">
+    <h2>الزبائن</h2>
+    <p>عرض وإدارة بيانات الزبائن الذين قاموا بالطلب عبر المنصة.</p>
+  </header>
+
+  <section class="customer-manager__messages">
+    <p *ngIf="feedback()" class="customer-manager__feedback">{{ feedback() }}</p>
+    <p *ngIf="error()" class="customer-manager__error">{{ error() }}</p>
+  </section>
+
+  <section class="customer-manager__list" *ngIf="customers$ | async as customers; else loading">
+    <div class="customer-manager__table" *ngIf="customers.length; else empty">
+      <div class="customer-manager__table-head">
+        <span>الاسم الكامل</span>
+        <span>اسم المطعم</span>
+        <span>رقم الهاتف</span>
+        <span class="customer-manager__actions-label">الإجراءات</span>
+      </div>
+
+      <div class="customer-manager__table-body">
+        <button
+          type="button"
+          class="customer-manager__row"
+          *ngFor="let customer of customers; trackBy: trackByCustomer"
+          (click)="selectCustomer(customer)"
+        >
+          <span class="customer-manager__cell customer-manager__name">{{
+            customer.customerName
+          }}</span>
+          <span class="customer-manager__cell">{{ customer.restaurantName }}</span>
+          <span class="customer-manager__cell">{{ customer.customerPhone || 'غير متوفر' }}</span>
+
+          <span class="customer-manager__actions">
+            <button
+              type="button"
+              class="customer-manager__edit"
+              (click)="$event.stopPropagation(); startEdit(customer)"
+            >
+              تعديل
+            </button>
+            <button
+              type="button"
+              class="customer-manager__delete"
+              [disabled]="processing()"
+              (click)="$event.stopPropagation(); deleteCustomer(customer)"
+            >
+              حذف
+            </button>
+          </span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="customer-manager__editor" *ngIf="editingCustomer() as editing">
+    <h3>تعديل بيانات الزبون</h3>
+    <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
+      <div class="customer-manager__form-grid">
+        <label>
+          <span>الاسم الكامل</span>
+          <input type="text" formControlName="customerName" />
+        </label>
+        <label>
+          <span>اسم المطعم</span>
+          <input type="text" formControlName="restaurantName" />
+        </label>
+        <label>
+          <span>البريد الإلكتروني</span>
+          <input type="email" formControlName="customerEmail" />
+        </label>
+        <label>
+          <span>رقم الهاتف</span>
+          <input type="tel" formControlName="customerPhone" />
+        </label>
+        <label class="customer-manager__address">
+          <span>عنوان التوصيل</span>
+          <textarea rows="3" formControlName="shippingAddress"></textarea>
+        </label>
+      </div>
+
+      <div class="customer-manager__editor-actions">
+        <button type="submit" [disabled]="processing()">حفظ التعديلات</button>
+        <button type="button" (click)="cancelEdit()">إلغاء</button>
+      </div>
+    </form>
+  </section>
+</section>
+
+<ng-template #loading>
+  <p class="customer-manager__loading">جاري تحميل بيانات الزبائن...</p>
+</ng-template>
+
+<ng-template #empty>
+  <p class="customer-manager__empty">لم يتم العثور على زبائن لديهم طلبات حتى الآن.</p>
+</ng-template>
+
+<div class="customer-manager__modal" *ngIf="selectedCustomer() as customer">
+  <div class="customer-manager__modal-backdrop" (click)="closeModal()"></div>
+  <article class="customer-manager__modal-content">
+    <header>
+      <h3>{{ customer.customerName }}</h3>
+      <button type="button" (click)="closeModal()" aria-label="إغلاق">×</button>
+    </header>
+
+    <dl>
+      <div>
+        <dt>اسم المطعم</dt>
+        <dd>{{ customer.restaurantName }}</dd>
+      </div>
+      <div>
+        <dt>رقم الهاتف</dt>
+        <dd>{{ customer.customerPhone || 'غير متوفر' }}</dd>
+      </div>
+      <div>
+        <dt>البريد الإلكتروني</dt>
+        <dd>{{ customer.customerEmail || 'غير متوفر' }}</dd>
+      </div>
+      <div>
+        <dt>عنوان التوصيل</dt>
+        <dd>{{ customer.shippingAddress || 'غير متوفر' }}</dd>
+      </div>
+      <div>
+        <dt>عدد الطلبات</dt>
+        <dd>{{ customer.orderCount }}</dd>
+      </div>
+      <div *ngIf="customer.lastOrderDate">
+        <dt>آخر طلب</dt>
+        <dd>{{ customer.lastOrderDate | date : 'medium' }}</dd>
+      </div>
+    </dl>
+  </article>
+</div>
