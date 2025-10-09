@@ -51,7 +51,15 @@
         (change)="onImageChange($event)"
         class="border border-dashed border-indigo-300 rounded-lg p-3 bg-indigo-50 text-indigo-700"
       />
-      <span *ngIf="imageFileName()" class="text-sm text-gray-500">{{ imageFileName() }}</span>
+
+      <ng-container *ngIf="createPreviewUrl as preview">
+        <span class="text-sm text-gray-500">معاينة الصورة بعد القص</span>
+        <img
+          [src]="preview"
+          alt="معاينة صورة التصنيف الفرعي"
+          class="mt-2 w-32 h-32 rounded-lg object-cover self-end border border-gray-200"
+        />
+      </ng-container>
     </label>
 
     <div class="md:col-span-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-end">
@@ -67,6 +75,103 @@
       {{ feedback() }}
     </p>
   </form>
+
+  <div
+    *ngIf="showCreateCropper"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+  >
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-6 space-y-4">
+      <header class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-800">قص صورة التصنيف الفرعي</h3>
+        <button
+          type="button"
+          (click)="cancelCreateCrop()"
+          class="text-gray-500 hover:text-gray-700 text-xl"
+          aria-label="إغلاق أداة القص"
+        >
+          ✕
+        </button>
+      </header>
+      <image-cropper
+        [imageChangedEvent]="createImageChangedEvent"
+        [maintainAspectRatio]="true"
+        [aspectRatio]="1"
+        [resizeToWidth]="800"
+        format="png"
+        [cropperMinWidth]="200"
+        [cropperMinHeight]="200"
+        (imageCropped)="onCreateImageCropped($event)"
+        (imageLoaded)="onCreateImageLoaded()"
+        (loadImageFailed)="onCreateImageLoadFailed()"
+        class="block h-96"
+      ></image-cropper>
+      <div class="flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="cancelCreateCrop()"
+          class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+        >
+          إلغاء
+        </button>
+        <button
+          type="button"
+          [disabled]="!createCropReady"
+          (click)="confirmCreateCrop()"
+          class="px-4 py-2 rounded-lg bg-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          اعتماد القص
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    *ngIf="showCreateCropper"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+  >
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-6 space-y-4">
+      <header class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-800">قص صورة التصنيف الفرعي</h3>
+        <button
+          type="button"
+          (click)="cancelCreateCrop()"
+          class="text-gray-500 hover:text-gray-700 text-xl"
+          aria-label="إغلاق أداة القص"
+        >
+          ✕
+        </button>
+      </header>
+      <image-cropper
+        [imageChangedEvent]="createImageChangedEvent"
+        [maintainAspectRatio]="true"
+        [aspectRatio]="1"
+        [resizeToWidth]="800"
+        format="png"
+        [cropperMinWidth]="200"
+        [cropperMinHeight]="200"
+        (imageCropped)="onCreateImageCropped($event)"
+        (imageLoaded)="onCreateImageLoaded()"
+        (loadImageFailed)="onCreateImageLoadFailed()"
+        class="block h-96"
+      ></image-cropper>
+      <div class="flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="cancelCreateCrop()"
+          class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+        >
+          إلغاء
+        </button>
+        <button
+          type="button"
+          [disabled]="!createCropReady"
+          (click)="confirmCreateCrop()"
+          class="px-4 py-2 rounded-lg bg-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          اعتماد القص
+        </button>
+      </div>
+    </div>
+  </div>
 
   <section class="mt-10 space-y-6" *ngIf="subcategoriesView$ | async as subcategories">
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between text-right">
@@ -223,12 +328,19 @@
             (change)="onEditImageChange($event)"
             class="border border-dashed border-indigo-300 rounded-lg p-3 bg-indigo-50 text-sm"
           />
-          <span *ngIf="editImageFileName()" class="text-xs text-gray-500 mt-1">
-            {{ editImageFileName() }}
-          </span>
+
           <span class="text-xs text-gray-500 mt-1"
             >اترك الحقل فارغًا للاحتفاظ بالصورة الحالية.</span
           >
+
+          <ng-container *ngIf="editPreviewUrl as preview">
+            <span class="text-sm text-gray-500 mt-2">معاينة الصورة بعد القص</span>
+            <img
+              [src]="preview"
+              alt="معاينة الصورة الجديدة"
+              class="mt-2 w-32 h-32 rounded-lg object-cover self-end border border-gray-200"
+            />
+          </ng-container>
         </label>
 
         <div class="md:col-span-2 flex items-center justify-end gap-2">
@@ -251,6 +363,55 @@
           {{ editFeedback() }}
         </p>
       </form>
+    </div>
+  </div>
+
+  <div
+    *ngIf="showEditCropper"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+  >
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-6 space-y-4">
+      <header class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-800">قص صورة التصنيف الفرعي</h3>
+        <button
+          type="button"
+          (click)="cancelEditCrop()"
+          class="text-gray-500 hover:text-gray-700 text-xl"
+          aria-label="إغلاق أداة القص"
+        >
+          ✕
+        </button>
+      </header>
+      <image-cropper
+        [imageChangedEvent]="editImageChangedEvent"
+        [maintainAspectRatio]="true"
+        [aspectRatio]="1"
+        [resizeToWidth]="800"
+        format="png"
+        [cropperMinWidth]="200"
+        [cropperMinHeight]="200"
+        (imageCropped)="onEditImageCropped($event)"
+        (imageLoaded)="onEditImageLoaded()"
+        (loadImageFailed)="onEditImageLoadFailed()"
+        class="block h-96"
+      ></image-cropper>
+      <div class="flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="cancelEditCrop()"
+          class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+        >
+          إلغاء
+        </button>
+        <button
+          type="button"
+          [disabled]="!editCropReady"
+          (click)="confirmEditCrop()"
+          class="px-4 py-2 rounded-lg bg-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          اعتماد القص
+        </button>
+      </div>
     </div>
   </div>
 </section>

@@ -68,16 +68,22 @@ export class CategoryManagerComponent {
   showMainCropper = false;
   mainImageChangedEvent: Event | null = null;
   mainCropReady = false;
-  private mainCroppedFile: File | null = null;
+  private mainCropBlob: Blob | null = null;
+  private mainCropBase64: string | null = null;
+  private mainCropObjectUrl: string | null = null;
   private mainImageName = '';
   mainPreviewUrl: SafeUrl | null = null;
+  private mainPreviewObjectUrl: string | null = null;
 
   showEditCropper = false;
   editImageChangedEvent: Event | null = null;
   editCropReady = false;
-  private editCroppedFile: File | null = null;
+  private editCropBlob: Blob | null = null;
+  private editCropBase64: string | null = null;
+  private editCropObjectUrl: string | null = null;
   private editImageName = '';
   editPreviewUrl: SafeUrl | null = null;
+  private editPreviewObjectUrl: string | null = null;
 
   onImageChange(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -92,7 +98,12 @@ export class CategoryManagerComponent {
     this.mainImageName = file.name;
     this.showMainCropper = true;
     this.mainCropReady = false;
-    this.mainCroppedFile = null;
+    this.mainCropBlob = null;
+    this.mainCropBase64 = null;
+    if (this.mainCropObjectUrl) {
+      URL.revokeObjectURL(this.mainCropObjectUrl);
+      this.mainCropObjectUrl = null;
+    }
   }
 
   cancelMainCrop() {
@@ -101,16 +112,23 @@ export class CategoryManagerComponent {
   }
 
   onMainImageCropped(event: ImageCroppedEvent) {
-    if (!event.base64) {
-      this.mainCropReady = false;
-      this.mainCroppedFile = null;
-      this.mainPreviewUrl = null;
-      return;
+    this.mainCropBlob = event.blob ?? null;
+    this.mainCropBase64 = event.base64 ?? null;
+    this.mainCropReady = !!(this.mainCropBlob || this.mainCropBase64);
+
+    if (this.mainCropObjectUrl) {
+      URL.revokeObjectURL(this.mainCropObjectUrl);
+      this.mainCropObjectUrl = null;
     }
 
-    this.mainCroppedFile = this.createFileFromBase64(event.base64, this.mainImageName);
-    this.mainPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(event.base64);
-    this.mainCropReady = true;
+    if (event.objectUrl) {
+      this.mainCropObjectUrl = event.objectUrl;
+      this.mainPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl);
+    } else if (event.base64) {
+      this.mainPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(event.base64);
+    } else {
+      this.mainPreviewUrl = null;
+    }
   }
 
   onMainImageLoaded() {
@@ -123,15 +141,45 @@ export class CategoryManagerComponent {
   }
 
   confirmMainCrop() {
-    if (!this.mainCroppedFile) {
+    if (!this.mainCropReady) {
       return;
     }
 
-    this.imageFile = this.mainCroppedFile;
+    this.revokeMainPreviewObjectUrl();
+
+    let file: File | null = null;
+
+    if (this.mainCropBlob) {
+      const mime = this.mainCropBlob.type || 'image/png';
+      file = new File([this.mainCropBlob], this.mainImageName || 'cropped-image.png', {
+        type: mime,
+      });
+    } else if (this.mainCropBase64) {
+      file = this.createFileFromBase64(
+        this.mainCropBase64,
+        this.mainImageName || 'cropped-image.png'
+      );
+    }
+
+    if (!file) {
+      return;
+    }
+
+    this.imageFile = file;
+
+    const previewUrl = URL.createObjectURL(file);
+    this.mainPreviewObjectUrl = previewUrl;
+    this.mainPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(previewUrl);
+
     this.showMainCropper = false;
     this.mainCropReady = false;
     this.mainImageChangedEvent = null;
-    this.mainCroppedFile = null;
+    this.mainCropBlob = null;
+    this.mainCropBase64 = null;
+    if (this.mainCropObjectUrl) {
+      URL.revokeObjectURL(this.mainCropObjectUrl);
+      this.mainCropObjectUrl = null;
+    }
     this.mainImageName = '';
   }
 
@@ -200,7 +248,12 @@ export class CategoryManagerComponent {
     this.editImageName = file.name;
     this.showEditCropper = true;
     this.editCropReady = false;
-    this.editCroppedFile = null;
+    this.editCropBlob = null;
+    this.editCropBase64 = null;
+    if (this.editCropObjectUrl) {
+      URL.revokeObjectURL(this.editCropObjectUrl);
+      this.editCropObjectUrl = null;
+    }
   }
 
   cancelEditCrop() {
@@ -209,16 +262,23 @@ export class CategoryManagerComponent {
   }
 
   onEditImageCropped(event: ImageCroppedEvent) {
-    if (!event.base64) {
-      this.editCropReady = false;
-      this.editCroppedFile = null;
-      this.editPreviewUrl = null;
-      return;
+    this.editCropBlob = event.blob ?? null;
+    this.editCropBase64 = event.base64 ?? null;
+    this.editCropReady = !!(this.editCropBlob || this.editCropBase64);
+
+    if (this.editCropObjectUrl) {
+      URL.revokeObjectURL(this.editCropObjectUrl);
+      this.editCropObjectUrl = null;
     }
 
-    this.editCroppedFile = this.createFileFromBase64(event.base64, this.editImageName);
-    this.editPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(event.base64);
-    this.editCropReady = true;
+    if (event.objectUrl) {
+      this.editCropObjectUrl = event.objectUrl;
+      this.editPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl);
+    } else if (event.base64) {
+      this.editPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(event.base64);
+    } else {
+      this.editPreviewUrl = null;
+    }
   }
 
   onEditImageLoaded() {
@@ -231,15 +291,45 @@ export class CategoryManagerComponent {
   }
 
   confirmEditCrop() {
-    if (!this.editCroppedFile) {
+    if (!this.editCropReady) {
       return;
     }
 
-    this.editImageFile = this.editCroppedFile;
+    this.revokeEditPreviewObjectUrl();
+
+    let file: File | null = null;
+
+    if (this.editCropBlob) {
+      const mime = this.editCropBlob.type || 'image/png';
+      file = new File([this.editCropBlob], this.editImageName || 'cropped-image.png', {
+        type: mime,
+      });
+    } else if (this.editCropBase64) {
+      file = this.createFileFromBase64(
+        this.editCropBase64,
+        this.editImageName || 'cropped-image.png'
+      );
+    }
+
+    if (!file) {
+      return;
+    }
+
+    this.editImageFile = file;
+
+    const previewUrl = URL.createObjectURL(file);
+    this.editPreviewObjectUrl = previewUrl;
+    this.editPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(previewUrl);
+
     this.showEditCropper = false;
     this.editCropReady = false;
     this.editImageChangedEvent = null;
-    this.editCroppedFile = null;
+    this.editCropBlob = null;
+    this.editCropBase64 = null;
+    if (this.editCropObjectUrl) {
+      URL.revokeObjectURL(this.editCropObjectUrl);
+      this.editCropObjectUrl = null;
+    }
     this.editImageName = '';
   }
 
@@ -271,24 +361,36 @@ export class CategoryManagerComponent {
     this.imageFile = null;
     this.mainImageChangedEvent = null;
     this.mainCropReady = false;
-    this.mainCroppedFile = null;
+    this.mainCropBlob = null;
+    this.mainCropBase64 = null;
+    if (this.mainCropObjectUrl) {
+      URL.revokeObjectURL(this.mainCropObjectUrl);
+      this.mainCropObjectUrl = null;
+    }
     this.mainImageName = '';
     this.mainPreviewUrl = null;
+    this.revokeMainPreviewObjectUrl();
   }
 
   private resetEditImageSelection() {
     this.editImageChangedEvent = null;
     this.editCropReady = false;
-    this.editCroppedFile = null;
+    this.editCropBlob = null;
+    this.editCropBase64 = null;
+    if (this.editCropObjectUrl) {
+      URL.revokeObjectURL(this.editCropObjectUrl);
+      this.editCropObjectUrl = null;
+    }
     this.editImageName = '';
     this.editPreviewUrl = null;
+    this.revokeEditPreviewObjectUrl();
   }
 
   private createFileFromBase64(base64: string, fileName: string) {
     const [metadata, data] = base64.split(',');
     const mimeMatch = metadata?.match(/data:(.*?);/);
     const mimeType = mimeMatch?.[1] ?? 'image/png';
-    const binary = atob(data ?? '');
+    const binary = atob(data ?? base64);
     const array = new Uint8Array(binary.length);
 
     for (let i = 0; i < binary.length; i++) {
@@ -297,5 +399,19 @@ export class CategoryManagerComponent {
 
     const name = fileName || `cropped-${Date.now()}.png`;
     return new File([array], name, { type: mimeType });
+  }
+
+  private revokeMainPreviewObjectUrl() {
+    if (this.mainPreviewObjectUrl) {
+      URL.revokeObjectURL(this.mainPreviewObjectUrl);
+      this.mainPreviewObjectUrl = null;
+    }
+  }
+
+  private revokeEditPreviewObjectUrl() {
+    if (this.editPreviewObjectUrl) {
+      URL.revokeObjectURL(this.editPreviewObjectUrl);
+      this.editPreviewObjectUrl = null;
+    }
   }
 }
