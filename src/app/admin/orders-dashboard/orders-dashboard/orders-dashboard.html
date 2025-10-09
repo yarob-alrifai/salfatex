@@ -1,103 +1,369 @@
-{{ orders$ | json }}
-
-<section class="dashboard">
-  <header>
-    <h2>الطلبات</h2>
-    <p>تتبع الطلبات وقم بتحديث حالتها أو تعديل بيانات العميل بسهولة.</p>
+<section class="space-y-8">
+  <header class="rounded-3xl bg-white px-8 py-6 shadow-lg shadow-slate-900/5">
+    <h2 class="text-3xl font-semibold text-slate-900">لوحة التحكم بالطلبات</h2>
+    <p class="mt-2 text-sm text-slate-500">
+      راقب حالة الطلبات، حدث بياناتها، وتابع أداء المبيعات حسب المدة الزمنية المحددة.
+    </p>
   </header>
 
-  <form [formGroup]="filterForm" class="filters">
-    <label>
+  <section class="grid gap-4 md:grid-cols-3">
+    <div class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5">
+      <p class="text-sm font-medium text-slate-500">إجمالي عدد الطلبات</p>
+      <h3 class="mt-3 text-3xl font-semibold text-slate-900">
+        {{ (overallStats$ | async)?.count ?? 0 | number }}
+      </h3>
+      <p class="mt-1 text-xs text-slate-400">يشمل جميع الطلبات المسجلة في النظام</p>
+    </div>
+
+    <div class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5">
+      <p class="text-sm font-medium text-slate-500">إجمالي المبيعات</p>
+      <h3 class="mt-3 text-3xl font-semibold text-emerald-600">
+        {{ (overallStats$ | async)?.total ?? 0 | currency : 'SAR' : 'symbol' : '1.0-0' }}
+      </h3>
+      <p class="mt-1 text-xs text-slate-400">المجموع الكلي لقيمة كل الطلبات</p>
+    </div>
+
+    <div
+      class="rounded-3xl bg-gradient-to-br from-indigo-500 via-indigo-500 to-indigo-600 p-[1px] shadow-lg shadow-indigo-500/30"
+    >
+      <div class="h-full rounded-[calc(1.5rem-1px)] bg-white p-6">
+        <p class="text-sm font-medium text-indigo-500">مبيعات المدة المحددة</p>
+        <h3 class="mt-3 text-3xl font-semibold text-indigo-600">
+          {{ (filteredStats$ | async)?.total ?? 0 | currency : 'SAR' : 'symbol' : '1.0-0' }}
+        </h3>
+        <p class="mt-1 text-xs text-slate-400">
+          {{ (filteredStats$ | async)?.count ?? 0 | number }} طلب ضمن نطاق الفلترة الحالي
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <form
+    [formGroup]="filterForm"
+    class="grid gap-4 rounded-3xl bg-white p-6 shadow-lg shadow-slate-900/5 md:grid-cols-3"
+  >
+    <label class="flex flex-col gap-2 text-sm font-medium text-slate-600">
       الحالة
-      <select formControlName="status">
+      <select
+        formControlName="status"
+        class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400/30"
+      >
         <option value="">الكل</option>
         <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
       </select>
     </label>
 
-    <label>
+    <label class="flex flex-col gap-2 text-sm font-medium text-slate-600">
       من تاريخ
-      <input type="date" formControlName="startDate" />
+      <input
+        type="date"
+        formControlName="startDate"
+        class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400/30"
+      />
     </label>
 
-    <label>
+    <label class="flex flex-col gap-2 text-sm font-medium text-slate-600">
       إلى تاريخ
-      <input type="date" formControlName="endDate" />
+      <input
+        type="date"
+        formControlName="endDate"
+        class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400/30"
+      />
     </label>
   </form>
 
-  <section class="feedback">
-    <p *ngIf="feedback()" class="success">{{ feedback() }}</p>
-    <p *ngIf="error()" class="error">{{ error() }}</p>
-  </section>
+  <div class="space-y-2">
+    <p *ngIf="feedback()" class="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+      {{ feedback() }}
+    </p>
+    <p *ngIf="error()" class="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600">
+      {{ error() }}
+    </p>
+  </div>
 
-  <section class="orders">
-    <article *ngFor="let order of filteredOrders$ | async" class="order-card">
-      {{ order | json }}
-      <header>
-        <h3>{{ order.customerName }}</h3>
-        <span>{{ order.total | currency : 'SAR' }}</span>
-      </header>
-
-      <p class="order-number" *ngIf="order.orderNumber || order.id">
-        رقم الطلب: {{ order.orderNumber || order.id }}
-      </p>
-
-      <p class="meta">
-        <span>الحالة الحالية: {{ order.status }}</span>
-        <span>التاريخ: {{ toDate(order.createdAt) | date : 'medium' }}</span>
-      </p>
-
-      <section class="items">
-        <h4>المنتجات</h4>
-        <ul>
-          <li *ngFor="let item of order.items">
-            {{ item.name }} ({{ item.quantity }}) - {{ item.price | currency : 'SAR' }}
-          </li>
-        </ul>
-      </section>
-
-      <section class="actions">
-        <label>تغيير الحالة</label>
-        <div class="status-buttons">
-          <button
-            type="button"
-            *ngFor="let status of statuses"
-            (click)="confirmStatus(order, status)"
-          >
-            {{ status }}
-          </button>
+  <section class="space-y-4">
+    <div class="rounded-3xl border border-slate-100 bg-white p-4 shadow-lg shadow-slate-900/5">
+      <div class="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900">قائمة الطلبات</h3>
+          <p class="text-sm text-slate-500">اضغط على أي صف لعرض تفاصيل الطلب في نافذة منبثقة.</p>
         </div>
 
-        <button type="button" class="edit" (click)="editOrder(order)">تعديل</button>
-        <button type="button" class="delete" (click)="deleteOrder(order)">حذف</button>
-      </section>
+        <span class="rounded-full bg-slate-100 px-4 py-1 text-sm font-medium text-slate-600">
+          {{ (filteredStats$ | async)?.count ?? 0 | number }} طلب
+        </span>
+      </div>
 
-      <section class="edit-form" *ngIf="editingOrderId() === order.id">
-        <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
-          <label>
-            الحالة
-            <select formControlName="status">
-              <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
-            </select>
-          </label>
-
-          <label>
-            ملاحظات
-            <textarea formControlName="notes" rows="3"></textarea>
-          </label>
-
-          <label>
-            عنوان الشحن
-            <textarea formControlName="shippingAddress" rows="3"></textarea>
-          </label>
-
-          <div class="edit-actions">
-            <button type="submit">حفظ</button>
-            <button type="button" (click)="cancelEdit()">إلغاء</button>
-          </div>
-        </form>
-      </section>
-    </article>
+      <div class="mt-4 overflow-x-auto">
+        <ng-container *ngIf="filteredOrders$ | async as filteredOrders; else loading">
+          <table class="min-w-full divide-y divide-slate-100 text-right text-sm">
+            <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <tr>
+                <th scope="col" class="px-4 py-3">رقم الطلب</th>
+                <th scope="col" class="px-4 py-3">العميل</th>
+                <th scope="col" class="px-4 py-3">التاريخ</th>
+                <th scope="col" class="px-4 py-3">الحالة</th>
+                <th scope="col" class="px-4 py-3">الإجمالي</th>
+                <th scope="col" class="px-4 py-3 text-center">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              <ng-container *ngIf="filteredOrders.length; else emptyState">
+                <tr
+                  *ngFor="let order of filteredOrders; trackBy: trackByOrder"
+                  class="cursor-pointer transition hover:bg-indigo-50/60"
+                  (click)="openOrderDetails(order)"
+                >
+                  <td class="px-4 py-4 font-semibold text-slate-900">
+                    {{ order.orderNumber || order.id || 'غير متوفر' }}
+                  </td>
+                  <td class="px-4 py-4">
+                    <div class="flex flex-col">
+                      <span class="font-medium">{{ order.customerName || 'عميل بدون اسم' }}</span>
+                      <span class="text-xs text-slate-400">{{ order.customerEmail || '—' }}</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-500">
+                    {{ toDate(order.createdAt) | date : 'mediumDate' }}
+                  </td>
+                  <td class="px-4 py-4">
+                    <span
+                      class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+                      [ngClass]="statusStyles[order.status]"
+                    >
+                      {{ order.status }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 font-semibold text-slate-900">
+                    {{ getOrderTotal(order) | currency : 'SAR' : 'symbol' : '1.0-0' }}
+                  </td>
+                  <td class="px-4 py-4 text-center">
+                    <div class="flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        (click)="editOrder(order, $event)"
+                        class="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
+                      >
+                        تعديل
+                      </button>
+                      <button
+                        type="button"
+                        (click)="deleteOrder(order, $event)"
+                        class="inline-flex items-center gap-2 rounded-full bg-rose-500/10 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-500/20 focus:outline-none focus:ring-2 focus:ring-rose-400/40"
+                      >
+                        حذف
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </ng-container>
+      </div>
+    </div>
   </section>
 </section>
+
+<ng-template #loading>
+  <div class="flex justify-center py-12">
+    <div
+      class="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent"
+    ></div>
+  </div>
+</ng-template>
+
+<ng-template #emptyState>
+  <tr>
+    <td colspan="6" class="px-4 py-10 text-center text-sm text-slate-400">
+      لا توجد طلبات مطابقة لمعايير البحث الحالية.
+    </td>
+  </tr>
+</ng-template>
+
+<ng-container *ngIf="isModalOpen() && selectedOrder() as selectedOrder">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
+    <div class="relative w-full max-w-4xl rounded-3xl bg-white p-8 shadow-2xl">
+      <button
+        type="button"
+        class="absolute left-6 top-6 rounded-full bg-slate-100 p-2 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
+        (click)="closeOrderDetails()"
+      >
+        ✕
+      </button>
+
+      <div class="space-y-6">
+        <header class="flex flex-col gap-2 text-right">
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            رقم الطلب {{ selectedOrder.orderNumber || selectedOrder.id || 'غير متوفر' }}
+          </span>
+          <h3 class="text-2xl font-semibold text-slate-900">{{ selectedOrder.customerName }}</h3>
+          <p class="text-sm text-slate-500">{{ selectedOrder.customerEmail || '—' }}</p>
+        </header>
+
+        <section class="grid gap-4 rounded-2xl bg-slate-50 p-6 sm:grid-cols-3">
+          <div>
+            <p class="text-xs font-medium text-slate-500">إجمالي الفاتورة</p>
+            <p class="mt-1 text-xl font-semibold text-emerald-600">
+              {{ getOrderTotal(selectedOrder) | currency : 'SAR' : 'symbol' : '1.0-0' }}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500">الحالة الحالية</p>
+            <span
+              class="mt-1 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold"
+              [ngClass]="statusStyles[selectedOrder.status]"
+            >
+              {{ selectedOrder.status }}
+            </span>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500">تاريخ الإنشاء</p>
+            <p class="mt-1 text-sm text-slate-600">
+              {{ toDate(selectedOrder.createdAt) | date : 'medium' }}
+            </p>
+          </div>
+        </section>
+
+        <section class="grid gap-6 lg:grid-cols-2">
+          <div class="rounded-2xl border border-slate-100 p-6">
+            <h4 class="text-lg font-semibold text-slate-900">المنتجات</h4>
+            <ul class="mt-4 space-y-3 text-sm text-slate-600">
+              <li
+                *ngFor="let item of selectedOrder.items; trackBy: trackByItem"
+                class="flex items-start justify-between rounded-xl bg-slate-50 px-4 py-3"
+              >
+                <div>
+                  <p class="font-medium text-slate-900">{{ item.name }}</p>
+                  <p class="text-xs text-slate-400">الكمية: {{ item.quantity }}</p>
+                </div>
+                <span class="text-sm font-semibold text-slate-700">
+                  {{ item.price | currency : 'SAR' : 'symbol' : '1.0-0' }}
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="space-y-6">
+            <div class="rounded-2xl border border-slate-100 p-6">
+              <h4 class="text-lg font-semibold text-slate-900">عنوان الشحن</h4>
+              <p class="mt-3 text-sm text-slate-600">
+                {{ selectedOrder.shippingAddress || 'لا يوجد عنوان مسجل' }}
+              </p>
+            </div>
+
+            <div class="rounded-2xl border border-slate-100 p-6">
+              <h4 class="text-lg font-semibold text-slate-900">ملاحظات</h4>
+              <p class="mt-3 text-sm text-slate-600">
+                {{ selectedOrder.notes || 'لا توجد ملاحظات' }}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-2xl border border-slate-100 p-6">
+          <h4 class="text-lg font-semibold text-slate-900">تعديل الطلب</h4>
+          <div class="mt-4 space-y-4">
+            <ng-container *ngIf="editingOrderId() === selectedOrder.id; else editActions">
+              <form
+                [formGroup]="editForm"
+                (ngSubmit)="saveEdit()"
+                class="grid gap-4 md:grid-cols-2"
+              >
+                <label class="flex flex-col gap-2 text-sm font-medium text-slate-600">
+                  الحالة
+                  <select
+                    formControlName="status"
+                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400/30"
+                  >
+                    <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+                  </select>
+                </label>
+
+                <label class="flex flex-col gap-2 text-sm font-medium text-slate-600 md:col-span-2">
+                  ملاحظات
+                  <textarea
+                    formControlName="notes"
+                    rows="3"
+                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400/30"
+                  ></textarea>
+                </label>
+
+                <label class="flex flex-col gap-2 text-sm font-medium text-slate-600 md:col-span-2">
+                  عنوان الشحن
+                  <textarea
+                    formControlName="shippingAddress"
+                    rows="3"
+                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400/30"
+                  ></textarea>
+                </label>
+
+                <div class="flex items-center justify-end gap-3 md:col-span-2">
+                  <button
+                    type="button"
+                    (click)="cancelEdit()"
+                    class="rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="submit"
+                    class="rounded-full bg-indigo-500 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
+                  >
+                    حفظ التغييرات
+                  </button>
+                </div>
+              </form>
+            </ng-container>
+
+            <ng-template #editActions>
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    class="rounded-full bg-indigo-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
+                    (click)="editOrder(selectedOrder)"
+                  >
+                    تعديل الطلب
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-full bg-rose-500/10 px-5 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-500/20 focus:outline-none focus:ring-2 focus:ring-rose-400/40"
+                    (click)="deleteOrder(selectedOrder)"
+                  >
+                    حذف الطلب
+                  </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                  <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    تغيير الحالة السريع
+                  </span>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      *ngFor="let status of statuses"
+                      type="button"
+                      class="rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 transition hover:border-indigo-400 hover:text-indigo-500"
+                      (click)="confirmStatus(selectedOrder, status)"
+                    >
+                      {{ status }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </div>
+        </section>
+
+        <section class="rounded-2xl border border-slate-100 bg-slate-50 p-6 text-sm text-slate-500">
+          <p class="font-medium text-slate-600">رسائل النظام</p>
+          <p *ngIf="feedback()" class="mt-2 text-sm text-emerald-600">{{ feedback() }}</p>
+          <p *ngIf="error()" class="mt-2 text-sm text-rose-600">{{ error() }}</p>
+          <p *ngIf="!feedback() && !error()" class="mt-2 text-xs text-slate-400">
+            لا توجد رسائل حالية.
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
+</ng-container>

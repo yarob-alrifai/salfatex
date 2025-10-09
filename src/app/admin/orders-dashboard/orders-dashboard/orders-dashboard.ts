@@ -1,5 +1,5 @@
 import { AsyncPipe, CommonModule, CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { combineLatest, map, startWith } from 'rxjs';
 import { AdminDataService, AdminOrder } from '../../admin-data.service';
@@ -29,6 +29,12 @@ export class OrdersDashboardComponent {
   });
 
   readonly orders$ = this.adminDataService.orders$;
+  readonly overallStats$ = this.orders$.pipe(
+    map((orders) => ({
+      count: orders.length,
+      total: orders.reduce((sum, order) => sum + (order.total ?? 0), 0),
+    }))
+  );
 
   readonly filteredOrders$ = combineLatest([
     this.orders$,
@@ -47,6 +53,13 @@ export class OrdersDashboardComponent {
     })
   );
 
+  readonly filteredStats$ = this.filteredOrders$.pipe(
+    map((orders) => ({
+      count: orders.length,
+      total: orders.reduce((sum, order) => sum + (order.total ?? 0), 0),
+    }))
+  );
+
   readonly statuses: AdminOrder['status'][] = [
     'pending',
     'confirmed',
@@ -58,7 +71,23 @@ export class OrdersDashboardComponent {
   readonly feedback = signal('');
   readonly error = signal('');
   readonly editingOrderId = signal<string | null>(null);
+  readonly selectedOrder = signal<AdminOrder | null>(null);
+  readonly isModalOpen = computed(() => this.selectedOrder() !== null);
   readonly toDate = (value: unknown) => this.parseDate(value);
+
+  readonly statusStyles: Record<AdminOrder['status'], string> = {
+    pending: 'bg-amber-100 text-amber-800 ring-1 ring-inset ring-amber-200',
+    confirmed: 'bg-blue-100 text-blue-800 ring-1 ring-inset ring-blue-200',
+    shipped: 'bg-indigo-100 text-indigo-800 ring-1 ring-inset ring-indigo-200',
+    delivered: 'bg-emerald-100 text-emerald-800 ring-1 ring-inset ring-emerald-200',
+    cancelled: 'bg-rose-100 text-rose-800 ring-1 ring-inset ring-rose-200',
+  };
+
+  readonly trackByOrder = (_: number, order: AdminOrder) =>
+    order.id ?? order.orderNumber ?? String(_);
+  readonly trackByItem = (_: number, item: AdminOrder['items'][number]) =>
+    item.productId ?? item.name ?? String(_);
+  readonly getOrderTotal = (order?: AdminOrder | null) => order?.total ?? 0;
 
   async confirmStatus(order: AdminOrder, status: AdminOrder['status']) {
     if (!order.id) {
@@ -70,7 +99,20 @@ export class OrdersDashboardComponent {
     this.error.set('');
   }
 
-  editOrder(order: AdminOrder) {
+  openOrderDetails(order: AdminOrder) {
+    this.selectedOrder.set(order);
+    this.editingOrderId.set(null);
+    this.editForm.reset();
+  }
+
+  closeOrderDetails() {
+    this.selectedOrder.set(null);
+    this.cancelEdit();
+  }
+
+  editOrder(order: AdminOrder, event?: Event) {
+    event?.stopPropagation();
+    this.openOrderDetails(order);
     this.editingOrderId.set(order.id ?? null);
     this.editForm.patchValue({
       id: order.id ?? '',
@@ -104,7 +146,8 @@ export class OrdersDashboardComponent {
     }
   }
 
-  async deleteOrder(order: AdminOrder) {
+  async deleteOrder(order: AdminOrder, event?: Event) {
+    event?.stopPropagation();
     if (!order.id) {
       return;
     }
@@ -112,6 +155,7 @@ export class OrdersDashboardComponent {
     await this.adminDataService.deleteOrder(order.id);
     this.feedback.set('تم حذف الطلب.');
     this.error.set('');
+    this.closeOrderDetails();
   }
 
   private parseDate(value: unknown): Date {
