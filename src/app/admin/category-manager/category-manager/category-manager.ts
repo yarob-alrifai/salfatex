@@ -4,17 +4,20 @@ import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angu
 import { AdminDataService } from '../../admin-data.service';
 import { Category } from '../../models/category.model';
 import { combineLatest, map, startWith } from 'rxjs';
+import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-category-manager',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, NgFor, AsyncPipe, CommonModule],
+  imports: [ReactiveFormsModule, NgIf, NgFor, AsyncPipe, CommonModule, ImageCropperComponent],
   templateUrl: './category-manager.html',
   styleUrls: ['./category-manager.scss'],
 })
 export class CategoryManagerComponent {
   private readonly fb = inject(FormBuilder);
   private readonly adminDataService = inject(AdminDataService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -62,9 +65,74 @@ export class CategoryManagerComponent {
   private imageFile: File | null = null;
   private editImageFile: File | null = null;
 
+  showMainCropper = false;
+  mainImageChangedEvent: Event | null = null;
+  mainCropReady = false;
+  private mainCroppedFile: File | null = null;
+  private mainImageName = '';
+  mainPreviewUrl: SafeUrl | null = null;
+
+  showEditCropper = false;
+  editImageChangedEvent: Event | null = null;
+  editCropReady = false;
+  private editCroppedFile: File | null = null;
+  private editImageName = '';
+  editPreviewUrl: SafeUrl | null = null;
+
   onImageChange(event: Event) {
     const input = event.target as HTMLInputElement;
-    this.imageFile = input.files?.[0] ?? null;
+    const file = input.files?.[0];
+
+    if (!file) {
+      this.resetMainImageSelection();
+      return;
+    }
+
+    this.mainImageChangedEvent = event;
+    this.mainImageName = file.name;
+    this.showMainCropper = true;
+    this.mainCropReady = false;
+    this.mainCroppedFile = null;
+  }
+
+  cancelMainCrop() {
+    this.showMainCropper = false;
+    this.resetMainImageSelection();
+  }
+
+  onMainImageCropped(event: ImageCroppedEvent) {
+    if (!event.base64) {
+      this.mainCropReady = false;
+      this.mainCroppedFile = null;
+      this.mainPreviewUrl = null;
+      return;
+    }
+
+    this.mainCroppedFile = this.createFileFromBase64(event.base64, this.mainImageName);
+    this.mainPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(event.base64);
+    this.mainCropReady = true;
+  }
+
+  onMainImageLoaded() {
+    this.mainCropReady = false;
+  }
+
+  onMainImageLoadFailed() {
+    this.feedback.set('تعذر تحميل الصورة المختارة.');
+    this.cancelMainCrop();
+  }
+
+  confirmMainCrop() {
+    if (!this.mainCroppedFile) {
+      return;
+    }
+
+    this.imageFile = this.mainCroppedFile;
+    this.showMainCropper = false;
+    this.mainCropReady = false;
+    this.mainImageChangedEvent = null;
+    this.mainCroppedFile = null;
+    this.mainImageName = '';
   }
 
   async createCategory() {
@@ -81,7 +149,7 @@ export class CategoryManagerComponent {
         this.imageFile ?? undefined
       );
       this.form.reset({ name: '', description: '' });
-      this.imageFile = null;
+      this.resetMainImageSelection();
       this.feedback.set('تم حفظ التصنيف بنجاح.');
     } catch (error: any) {
       this.feedback.set(error?.message ?? 'تعذر حفظ التصنيف.');
@@ -107,7 +175,7 @@ export class CategoryManagerComponent {
       description: category.description ?? '',
     });
     this.editFeedback.set('');
-    this.editImageFile = null;
+    this.resetEditImageSelection();
     this.isEditModalOpen.set(true);
   }
 
@@ -115,13 +183,64 @@ export class CategoryManagerComponent {
     this.isEditModalOpen.set(false);
     this.selectedCategory.set(null);
     this.editForm.reset({ name: '', description: '' });
-    this.editImageFile = null;
+    this.resetEditImageSelection();
     this.editFeedback.set('');
   }
 
   onEditImageChange(event: Event) {
     const input = event.target as HTMLInputElement;
-    this.editImageFile = input.files?.[0] ?? null;
+    const file = input.files?.[0];
+
+    if (!file) {
+      this.resetEditImageSelection();
+      return;
+    }
+
+    this.editImageChangedEvent = event;
+    this.editImageName = file.name;
+    this.showEditCropper = true;
+    this.editCropReady = false;
+    this.editCroppedFile = null;
+  }
+
+  cancelEditCrop() {
+    this.showEditCropper = false;
+    this.resetEditImageSelection();
+  }
+
+  onEditImageCropped(event: ImageCroppedEvent) {
+    if (!event.base64) {
+      this.editCropReady = false;
+      this.editCroppedFile = null;
+      this.editPreviewUrl = null;
+      return;
+    }
+
+    this.editCroppedFile = this.createFileFromBase64(event.base64, this.editImageName);
+    this.editPreviewUrl = this.sanitizer.bypassSecurityTrustUrl(event.base64);
+    this.editCropReady = true;
+  }
+
+  onEditImageLoaded() {
+    this.editCropReady = false;
+  }
+
+  onEditImageLoadFailed() {
+    this.editFeedback.set('تعذر تحميل الصورة المختارة.');
+    this.cancelEditCrop();
+  }
+
+  confirmEditCrop() {
+    if (!this.editCroppedFile) {
+      return;
+    }
+
+    this.editImageFile = this.editCroppedFile;
+    this.showEditCropper = false;
+    this.editCropReady = false;
+    this.editImageChangedEvent = null;
+    this.editCroppedFile = null;
+    this.editImageName = '';
   }
 
   async saveCategoryEdits() {
@@ -146,5 +265,37 @@ export class CategoryManagerComponent {
     } catch (error: any) {
       this.editFeedback.set(error?.message ?? 'تعذر حفظ التعديلات.');
     }
+  }
+
+  private resetMainImageSelection() {
+    this.imageFile = null;
+    this.mainImageChangedEvent = null;
+    this.mainCropReady = false;
+    this.mainCroppedFile = null;
+    this.mainImageName = '';
+    this.mainPreviewUrl = null;
+  }
+
+  private resetEditImageSelection() {
+    this.editImageChangedEvent = null;
+    this.editCropReady = false;
+    this.editCroppedFile = null;
+    this.editImageName = '';
+    this.editPreviewUrl = null;
+  }
+
+  private createFileFromBase64(base64: string, fileName: string) {
+    const [metadata, data] = base64.split(',');
+    const mimeMatch = metadata?.match(/data:(.*?);/);
+    const mimeType = mimeMatch?.[1] ?? 'image/png';
+    const binary = atob(data ?? '');
+    const array = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i++) {
+      array[i] = binary.charCodeAt(i);
+    }
+
+    const name = fileName || `cropped-${Date.now()}.png`;
+    return new File([array], name, { type: mimeType });
   }
 }
