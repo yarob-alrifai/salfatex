@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { CartItem } from '../../models/cart.models';
+import { BackButtonComponent } from 'src/app/component/back-button/back-button';
 
 @Component({
   selector: 'app-cart-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, BackButtonComponent],
   templateUrl: './cart-page.html',
   styleUrls: ['./cart-page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,9 +52,5 @@ export class CartPageComponent {
 
   lineTotal(item: CartItem): number {
     return item.product.price * item.quantity;
-  }
-
-  goBack(): void {
-    this.location.back();
   }
 }

@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { CartItem, CartSnapshot, CustomerInfo } from '../../models/cart.models';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BackButtonComponent } from 'src/app/component/back-button/back-button';
 
 interface CheckoutConfirmation {
   info: CustomerInfo;
@@ -17,7 +18,7 @@ interface CheckoutConfirmation {
 @Component({
   selector: 'app-checkout-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, BackButtonComponent],
   templateUrl: './checkout-page.html',
   styleUrls: ['./checkout-page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,7 +26,6 @@ interface CheckoutConfirmation {
 export class CheckoutPageComponent {
   private readonly cart = inject(CartService);
   private readonly fb = inject(FormBuilder);
-  private readonly location = inject(Location);
 
   private readonly storage: Storage | null =
     typeof window === 'undefined' ? null : window.localStorage;
@@ -52,10 +52,6 @@ export class CheckoutPageComponent {
     this.form.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.saveCustomerInfo(value);
     });
-  }
-
-  goBack(): void {
-    this.location.back();
   }
 
   async submit(): Promise<void> {

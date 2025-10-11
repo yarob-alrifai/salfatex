@@ -1,4 +1,10 @@
-<button type="button" class="back-button" (click)="goBack()" [attr.aria-label]="label">
+<button
+  type="button"
+  class="back-button"
+  (click)="goBack()"
+  [attr.aria-label]="displayLabel()"
+  [attr.data-uses-fallback]="canGoBack() ? null : ''"
+>
   <span class="back-button__icon" aria-hidden="true">{{ icon }}</span>
-  <span class="back-button__label">{{ label }}</span>
+  <span class="back-button__label">{{ displayLabel() }}</span>
 </button>

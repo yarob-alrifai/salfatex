@@ -24,6 +24,15 @@
   transform: translateY(-1px);
 }
 
+.back-button[data-uses-fallback] {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 64, 175, 0.92));
+}
+
+.back-button[data-uses-fallback]:hover,
+.back-button[data-uses-fallback]:focus-visible {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 64, 175, 0.96));
+}
+
 .back-button:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(191, 219, 254, 0.7);

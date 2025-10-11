@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
-import { Location } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Input, computed, inject } from '@angular/core';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-back-button',
@@ -12,11 +12,20 @@ import { Location } from '@angular/common';
 })
 export class BackButtonComponent {
   @Input() label = 'العودة';
+  @Input() fallbackLabel = 'العودة إلى الرئيسية';
+  @Input() fallbackUrl = '/';
+
   @Input() icon = '↩︎';
 
-  private readonly location = inject(Location);
+  private readonly navigation = inject(NavigationService);
 
-  goBack(): void {
-    this.location.back();
+  readonly canGoBack = this.navigation.canGoBack;
+
+  readonly displayLabel = computed(() =>
+    this.canGoBack() ? this.label : this.fallbackLabel || this.label
+  );
+
+  async goBack(): Promise<void> {
+    await this.navigation.goBack(this.fallbackUrl);
   }
 }
