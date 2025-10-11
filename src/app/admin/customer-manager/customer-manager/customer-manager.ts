@@ -5,6 +5,8 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { combineLatest, map, startWith } from 'rxjs';
 import { AdminDataService, AdminOrder } from '../../admin-data.service';
 
+type SortField = 'customerName' | 'restaurantName' | 'orderCount' | 'lastOrderDate';
+
 interface AdminCustomer {
   id: string;
   customerName: string;
@@ -38,20 +40,21 @@ export class CustomerManagerComponent {
 
   readonly searchControl = this.fb.nonNullable.control('');
   readonly sortDirection = signal<'asc' | 'desc'>('asc');
+  readonly sortField = signal<SortField>('customerName');
 
   readonly viewModel$ = combineLatest([
     this.customers$,
     this.searchControl.valueChanges.pipe(startWith('')),
     toObservable(this.sortDirection),
+    toObservable(this.sortField),
   ]).pipe(
-    map(([customers, searchTerm, direction]) => {
+    map(([customers, searchTerm, direction, field]) => {
       const normalized = searchTerm.trim().toLocaleLowerCase();
       const filtered = normalized
         ? customers.filter((customer) => this.matchesSearch(customer, normalized))
         : customers;
 
-      const sorted = [...filtered].sort((a, b) => this.compareCustomers(a, b, direction));
-
+      const sorted = [...filtered].sort((a, b) => this.compareCustomers(a, b, direction, field));
       return {
         customers: sorted,
         total: customers.length,
@@ -77,6 +80,10 @@ export class CustomerManagerComponent {
 
   toggleSortDirection() {
     this.sortDirection.update((dir) => (dir === 'asc' ? 'desc' : 'asc'));
+  }
+
+  setSortField(field: SortField) {
+    this.sortField.set(field);
   }
 
   selectCustomer(customer: AdminCustomer) {
@@ -268,13 +275,35 @@ export class CustomerManagerComponent {
     return haystacks.some((value) => value.includes(searchTerm));
   }
 
-  private compareCustomers(a: AdminCustomer, b: AdminCustomer, direction: 'asc' | 'desc'): number {
+  private compareCustomers(
+    a: AdminCustomer,
+    b: AdminCustomer,
+    direction: 'asc' | 'desc',
+    field: SortField
+  ): number {
     const multiplier = direction === 'asc' ? 1 : -1;
-    const restaurantCompare = a.restaurantName.localeCompare(b.restaurantName, 'ar');
-    if (restaurantCompare !== 0) {
-      return restaurantCompare * multiplier;
+    let comparison = 0;
+
+    switch (field) {
+      case 'restaurantName':
+        comparison = a.restaurantName.localeCompare(b.restaurantName, 'ar');
+        break;
+      case 'orderCount':
+        comparison = a.orderCount - b.orderCount;
+        break;
+      case 'lastOrderDate':
+        comparison = (a.lastOrderDate?.getTime() ?? 0) - (b.lastOrderDate?.getTime() ?? 0);
+        break;
+      case 'customerName':
+      default:
+        comparison = a.customerName.localeCompare(b.customerName, 'ar');
+        break;
     }
-    return a.customerName.localeCompare(b.customerName, 'ar') * multiplier;
+    if (comparison === 0) {
+      comparison = a.customerName.localeCompare(b.customerName, 'ar');
+    }
+
+    return comparison * multiplier;
   }
 
   private extractRestaurantName(order: AdminOrder): string {

@@ -25,6 +25,47 @@
             placeholder="ابحث بالاسم، المطعم، البريد، الهاتف أو العنوان"
           />
         </label>
+
+        <fieldset class="customer-manager__sort-fields">
+          <legend>ترتيب حسب</legend>
+          <label>
+            <input
+              type="radio"
+              name="sortField"
+              [checked]="sortField() === 'customerName'"
+              (change)="setSortField('customerName')"
+            />
+            الاسم
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="sortField"
+              [checked]="sortField() === 'restaurantName'"
+              (change)="setSortField('restaurantName')"
+            />
+            اسم المطعم
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="sortField"
+              [checked]="sortField() === 'orderCount'"
+              (change)="setSortField('orderCount')"
+            />
+            عدد الطلبات
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="sortField"
+              [checked]="sortField() === 'lastOrderDate'"
+              (change)="setSortField('lastOrderDate')"
+            />
+            تاريخ آخر طلب
+          </label>
+        </fieldset>
+
         <button
           type="button"
           class="customer-manager__sort"
@@ -40,8 +81,8 @@
       <div class="customer-manager__table-head">
         <span>الاسم الكامل</span>
         <span>اسم المطعم</span>
-        <span>رقم الهاتف</span>
-        <span class="customer-manager__actions-label">الإجراءات</span>
+        <span>عدد الطلبات</span>
+        <span>تاريخ آخر طلب</span> <span class="customer-manager__actions-label">الإجراءات</span>
       </div>
 
       <div class="customer-manager__table-body">
@@ -55,8 +96,10 @@
             customer.customerName
           }}</span>
           <span class="customer-manager__cell">{{ customer.restaurantName }}</span>
-          <span class="customer-manager__cell">{{ customer.customerPhone || 'غير متوفر' }}</span>
-
+          <span class="customer-manager__cell">{{ customer.orderCount }}</span>
+          <span class="customer-manager__cell">
+            {{ customer.lastOrderDate ? (customer.lastOrderDate | date : 'medium') : 'غير متوفر' }}
+          </span>
           <span class="customer-manager__actions">
             <button
               type="button"

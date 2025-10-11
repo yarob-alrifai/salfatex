@@ -69,6 +69,36 @@
     gap: 0.75rem;
   }
 
+  &__sort-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #cbd5f5;
+    border-radius: 0.75rem;
+    background-color: #eef2ff;
+
+    legend {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #312e81;
+      padding: 0 0.25rem;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.85rem;
+      color: #312e81;
+      cursor: pointer;
+    }
+
+    input[type='radio'] {
+      accent-color: #4f46e5;
+    }
+  }
+
   &__search {
     display: flex;
     align-items: center;
@@ -139,7 +169,7 @@
   &__table-head,
   &__row {
     display: grid;
-    grid-template-columns: 1.5fr 1.2fr 1fr 0.9fr;
+    grid-template-columns: 1.5fr 1.2fr 0.8fr 1.1fr 0.9fr;
     align-items: center;
     padding: 1rem 1.5rem;
     gap: 1rem;
