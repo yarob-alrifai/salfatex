@@ -7,11 +7,6 @@ import { Category, Product, Subcategory } from '../../models/catalog.models';
 import { CartService } from '../../services/cart.service';
 import { FormsModule } from '@angular/forms';
 
-interface SubcategoryViewModel {
-  subcategory: Subcategory;
-  products: Product[];
-}
-
 @Component({
   selector: 'app-subcategory-list',
   standalone: true,
@@ -23,7 +18,6 @@ interface SubcategoryViewModel {
 export class SubcategoryListComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly catalog = inject(CatalogService);
-  private readonly cart = inject(CartService);
   private readonly router = inject(Router);
 
   private readonly searchTermSubject = new BehaviorSubject<string>('');
@@ -31,35 +25,22 @@ export class SubcategoryListComponent {
 
   private readonly baseViewModel$: Observable<{
     category?: Category;
-    items: SubcategoryViewModel[];
+    items: Subcategory[];
   }> = this.route.paramMap.pipe(
     map((params) => params.get('categoryId') ?? ''),
     switchMap((categoryId) =>
       combineLatest([
         this.catalog.getCategoryById(categoryId),
-        this.catalog.getSubcategories(categoryId).pipe(
-          switchMap((subcategories) => {
-            if (!subcategories.length) {
-              return of<SubcategoryViewModel[]>([]);
-            }
 
-            return combineLatest(
-              subcategories.map((subcategory) =>
-                this.catalog
-                  .getProductsForSubcategory(categoryId, subcategory.id)
-                  .pipe(map((products) => ({ subcategory, products })))
-              )
-            );
-          })
-        ),
+        this.catalog.getSubcategories(categoryId),
       ]).pipe(map(([category, items]) => ({ category, items })))
     )
   );
 
   readonly viewModel$: Observable<{
     category?: Category;
-    items: SubcategoryViewModel[];
-    filteredItems: SubcategoryViewModel[];
+    items: Subcategory[];
+    filteredItems: Subcategory[];
     searchTerm: string;
   }> = combineLatest([this.baseViewModel$, this.searchTerm$]).pipe(
     map(([viewModel, searchTerm]) => {
@@ -67,7 +48,7 @@ export class SubcategoryListComponent {
       const filteredItems = !normalizedSearch
         ? viewModel.items
         : viewModel.items.filter((item) => {
-            const values = [item.subcategory.name ?? '', item.subcategory.description ?? ''];
+            const values = [item.name ?? '', item.description ?? ''];
 
             return values.some((value) => value.toLowerCase().includes(normalizedSearch));
           });
@@ -75,24 +56,6 @@ export class SubcategoryListComponent {
       return { ...viewModel, filteredItems, searchTerm };
     })
   );
-
-  addToCart(product: Product): void {
-    this.cart.addProduct(product);
-  }
-
-  increment(event: Event, product: Product): void {
-    event.stopPropagation();
-    this.cart.increment(product.id);
-  }
-
-  decrement(event: Event, product: Product): void {
-    event.stopPropagation();
-    this.cart.decrement(product.id);
-  }
-
-  getQuantity(productId: string): number {
-    return this.cart.getQuantity(productId);
-  }
 
   openSubcategory(subcategory: Subcategory): void {
     if (!subcategory.id || !subcategory.categoryId) {
