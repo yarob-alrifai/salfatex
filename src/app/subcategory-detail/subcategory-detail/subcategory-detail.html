@@ -1,8 +1,9 @@
 <section class="subcategory-detail" *ngIf="viewModel$ | async as vm; else loading">
   <header class="subcategory-detail__header">
-    <a class="subcategory-detail__back" [routerLink]="['/categories', vm.categoryId]">
-      ← عودة إلى القائمة السابقة
-    </a>
+    <app-back-button
+      class="subcategory-detail__back-button"
+      label="عودة إلى القائمة السابقة"
+    ></app-back-button>
 
     <div class="subcategory-detail__info" *ngIf="vm.subcategory as subcategory">
       <img

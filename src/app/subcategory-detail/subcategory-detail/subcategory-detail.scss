@@ -9,23 +9,8 @@
     gap: 1.5rem;
   }
 
-  &__back {
+  &__back-button {
     align-self: flex-start;
-    border-radius: 9999px;
-    border: 1px solid transparent;
-    color: #6b7280;
-    display: inline-flex;
-    font-size: 0.875rem;
-    font-weight: 500;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    text-decoration: none;
-    transition: all 0.2s ease;
-
-    &:hover {
-      border-color: #fbbf24;
-      color: #d97706;
-    }
   }
 
   &__info {

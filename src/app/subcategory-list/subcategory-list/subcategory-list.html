@@ -3,13 +3,7 @@
   *ngIf="viewModel$ | async as vm; else loading"
 >
   <header class="space-y-4">
-    <a
-      routerLink="/categories"
-      class="inline-flex items-center text-sm font-medium text-slate-600 transition hover:text-amber-600"
-    >
-      <span class="mr-2 text-lg">←</span>
-      عودة إلى الأقسام
-    </a>
+    <app-back-button label="عودة إلى الأقسام"></app-back-button>
 
     <div class="space-y-2" *ngIf="vm.category as category">
       <h1 class="text-2xl font-semibold text-slate-900">

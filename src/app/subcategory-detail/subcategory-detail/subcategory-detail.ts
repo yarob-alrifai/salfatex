@@ -5,6 +5,7 @@ import { Observable, combineLatest, map, switchMap } from 'rxjs';
 import { CatalogService } from '../../services/catalog.service';
 import { CartService } from '../../services/cart.service';
 import { Category, Product, Subcategory } from '../../models/catalog.models';
+import { BackButtonComponent } from 'src/app/component/back-button/back-button';
 
 interface SubcategoryDetailViewModel {
   category?: Category;
@@ -17,7 +18,7 @@ interface SubcategoryDetailViewModel {
 @Component({
   selector: 'app-subcategory-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, BackButtonComponent],
   templateUrl: './subcategory-detail.html',
   styleUrls: ['./subcategory-detail.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

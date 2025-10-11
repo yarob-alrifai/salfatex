@@ -6,11 +6,12 @@ import { CatalogService } from '../../services/catalog.service';
 import { Category, Product, Subcategory } from '../../models/catalog.models';
 import { CartService } from '../../services/cart.service';
 import { FormsModule } from '@angular/forms';
+import { BackButtonComponent } from 'src/app/component/back-button/back-button';
 
 @Component({
   selector: 'app-subcategory-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, BackButtonComponent],
   templateUrl: './subcategory-list.html',
   styleUrls: ['./subcategory-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

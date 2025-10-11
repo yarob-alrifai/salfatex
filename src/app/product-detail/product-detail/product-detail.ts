@@ -5,11 +5,12 @@ import { Observable, map, switchMap } from 'rxjs';
 import { CatalogService } from '../../services/catalog.service';
 import { Product } from '../../models/catalog.models';
 import { CartService } from '../../services/cart.service';
+import { BackButtonComponent } from 'src/app/component/back-button/back-button';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, BackButtonComponent],
   templateUrl: './product-detail.html',
   styleUrls: ['./product-detail.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
