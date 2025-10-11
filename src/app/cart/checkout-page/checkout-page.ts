@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Signal, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CartService } from '../../services/cart.service';
@@ -25,6 +25,8 @@ interface CheckoutConfirmation {
 export class CheckoutPageComponent {
   private readonly cart = inject(CartService);
   private readonly fb = inject(FormBuilder);
+  private readonly location = inject(Location);
+
   private readonly storage: Storage | null =
     typeof window === 'undefined' ? null : window.localStorage;
   private readonly customerInfoStorageKey = 'checkout.customer-info';
@@ -51,6 +53,11 @@ export class CheckoutPageComponent {
       this.saveCustomerInfo(value);
     });
   }
+
+  goBack(): void {
+    this.location.back();
+  }
+
   async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

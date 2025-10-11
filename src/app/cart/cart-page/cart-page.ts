@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CartService } from '../../services/cart.service';
@@ -15,6 +15,7 @@ import { CartItem } from '../../models/cart.models';
 })
 export class CartPageComponent {
   private readonly cart = inject(CartService);
+  private readonly location = inject(Location);
 
   readonly items = this.cart.items;
   // readonly totalQuantity = this.cart.totalQuantity;
@@ -50,5 +51,9 @@ export class CartPageComponent {
 
   lineTotal(item: CartItem): number {
     return item.product.price * item.quantity;
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }
