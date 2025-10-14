@@ -1,36 +1,159 @@
-<div class="app-shell">
-  <header class="app-shell__header">
-    <a class="app-shell__logo" routerLink="/">Salfatex</a>
-    <button
-      type="button"
-      class="app-shell__menu-toggle"
-      (click)="toggleMenu()"
-      [class.app-shell__menu-toggle--open]="isMenuOpen()"
-      [attr.aria-expanded]="isMenuOpen()"
-      aria-controls="primary-navigation"
-      aria-label="عرض القائمة"
-    >
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-    <nav id="primary-navigation" class="app-shell__nav" [class.app-shell__nav--open]="isMenuOpen()">
-      <a routerLink="/categories" routerLinkActive="active" (click)="closeMenu()">الفئات</a>
-      <a routerLink="/about" routerLinkActive="active" (click)="closeMenu()">من نحن</a>
-      <a routerLink="/cart" routerLinkActive="active" (click)="closeMenu()">السلة</a>
-      <a routerLink="/checkout" routerLinkActive="active" (click)="closeMenu()">إتمام الطلب</a>
-      <a routerLink="/admin" (click)="closeMenu()">لوحة الأدمن</a>
-      <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">اتصل بنا</a>
-    </nav>
+<div class="flex min-h-screen flex-col bg-slate-100 text-slate-900">
+  <header
+    class="sticky top-0 z-40 border-b border-white/10 bg-gradient-to-r from-indigo-600 via-sky-600 to-indigo-700 text-white shadow-lg shadow-indigo-900/20"
+  >
+    <div class="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between gap-4 py-4">
+        <a
+          routerLink="/"
+          class="text-2xl font-bold uppercase tracking-[0.35em] text-white drop-shadow-sm sm:text-3xl"
+        >
+          Salfatex
+        </a>
+
+        <nav class="hidden items-center gap-1 lg:flex">
+          <a
+            routerLink="/categories"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            الفئات
+          </a>
+          <a
+            routerLink="/about"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            من نحن
+          </a>
+          <a
+            routerLink="/cart"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            السلة
+          </a>
+          <a
+            routerLink="/checkout"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            إتمام الطلب
+          </a>
+          <a
+            routerLink="/admin"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            لوحة الأدمن
+          </a>
+          <a
+            routerLink="/contact"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/15 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            اتصل بنا
+          </a>
+        </nav>
+
+        <button
+          type="button"
+          class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white lg:hidden"
+          (click)="toggleMenu()"
+          [attr.aria-expanded]="isMenuOpen()"
+          aria-controls="primary-navigation"
+          aria-label="عرض القائمة"
+        >
+          <span class="sr-only">عرض القائمة</span>
+          <span aria-hidden="true" class="flex flex-col items-center justify-center gap-1">
+            <span
+              class="block h-0.5 w-6 rounded-full bg-current transition-transform duration-200"
+              [ngClass]="{ 'translate-y-1.5 rotate-45': isMenuOpen() }"
+            ></span>
+            <span
+              class="block h-0.5 w-6 rounded-full bg-current transition-opacity duration-200"
+              [ngClass]="{ 'opacity-0': isMenuOpen() }"
+            ></span>
+            <span
+              class="block h-0.5 w-6 rounded-full bg-current transition-transform duration-200"
+              [ngClass]="{ '-translate-y-1.5 -rotate-45': isMenuOpen() }"
+            ></span>
+          </span>
+        </button>
+      </div>
+
+      <div *ngIf="isMenuOpen()" class="pb-4 lg:hidden" id="primary-navigation">
+        <nav
+          class="flex flex-col gap-2 rounded-2xl border border-white/20 bg-white/10 p-3 text-sm font-semibold text-white/90 backdrop-blur"
+        >
+          <a
+            routerLink="/categories"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="rounded-xl px-4 py-2 transition hover:bg-white/20 hover:text-white"
+          >
+            الفئات
+          </a>
+          <a
+            routerLink="/about"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="rounded-xl px-4 py-2 transition hover:bg-white/20 hover:text-white"
+          >
+            من نحن
+          </a>
+          <a
+            routerLink="/cart"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="rounded-xl px-4 py-2 transition hover:bg-white/20 hover:text-white"
+          >
+            السلة
+          </a>
+          <a
+            routerLink="/checkout"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="rounded-xl px-4 py-2 transition hover:bg-white/20 hover:text-white"
+          >
+            إتمام الطلب
+          </a>
+          <a
+            routerLink="/admin"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="rounded-xl px-4 py-2 transition hover:bg-white/20 hover:text-white"
+          >
+            لوحة الأدمن
+          </a>
+          <a
+            routerLink="/contact"
+            routerLinkActive="!bg-white/20 !text-white"
+            (click)="closeMenu()"
+            class="rounded-xl px-4 py-2 transition hover:bg-white/20 hover:text-white"
+          >
+            اتصل بنا
+          </a>
+        </nav>
+      </div>
+    </div>
   </header>
 
-  <main class="app-shell__main">
+  <main class="flex-1">
     <router-outlet></router-outlet>
   </main>
 
-  <footer class="app-shell__footer">
-    <p>© {{ title() }} 2024</p>
-    <p>جميع الحقوق محفوظة.</p>
+  <footer
+    class="mt-auto border-t border-slate-200/60 bg-slate-900 py-6 text-center text-sm text-slate-100/80"
+  >
+    <p class="font-semibold tracking-wide">© {{ title() }} {{ currentYear }}</p>
+    <p class="mt-1 text-xs text-slate-300">جميع الحقوق محفوظة.</p>
   </footer>
   <app-floating-cart-button></app-floating-cart-button>
 </div>

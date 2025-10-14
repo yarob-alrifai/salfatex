@@ -1,34 +1,44 @@
-<section class="subcategory-detail" *ngIf="viewModel$ | async as vm; else loading">
-  <header class="subcategory-detail__header">
-    <app-back-button
-      class="subcategory-detail__back-button"
-      label="عودة إلى القائمة السابقة"
-    ></app-back-button>
+<section
+  class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8"
+  *ngIf="viewModel$ | async as vm; else loading"
+>
+  <header class="space-y-6">
+    <app-back-button label="عودة إلى القائمة السابقة"></app-back-button>
 
-    <div class="subcategory-detail__info" *ngIf="vm.subcategory as subcategory">
+    <div
+      class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-lg shadow-slate-900/10 backdrop-blur sm:flex-row sm:items-center"
+      *ngIf="vm.subcategory as subcategory"
+    >
       <img
-        class="subcategory-detail__image"
+        class="h-44 w-full rounded-2xl object-cover sm:h-48 sm:w-48"
         [src]="subcategory.imageUrl"
         [alt]="subcategory.name"
       />
 
-      <div class="subcategory-detail__text">
-        <h1>{{ subcategory.name }}</h1>
-        <p>{{ subcategory.description }}</p>
+      <div class="space-y-3 text-right">
+        <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">{{ subcategory.name }}</h1>
+        <p class="text-sm leading-7 text-slate-600" *ngIf="subcategory.description">
+          {{ subcategory.description }}
+        </p>
       </div>
     </div>
   </header>
 
-  <section class="subcategory-detail__products">
-    <h2 class="subcategory-detail__products-title">المنتجات المتاحة ({{ vm.products.length }})</h2>
+  <section class="mt-10">
+    <h2 class="text-lg font-semibold text-slate-900">
+      المنتجات المتاحة ({{ vm.products.length }})
+    </h2>
 
-    <div *ngIf="vm.products.length; else empty" class="subcategory-detail__product-grid">
+    <div
+      *ngIf="vm.products.length; else empty"
+      class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+    >
       <article
         *ngFor="let product of vm.products; trackBy: trackByProductId"
-        class="subcategory-detail__product"
+        class="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-sm shadow-slate-900/5 transition hover:-translate-y-1 hover:border-amber-400 hover:shadow-lg"
       >
         <a
-          class="subcategory-detail__product-link"
+          class="group flex flex-col gap-4"
           [routerLink]="[
             '/categories',
             vm.categoryId,
@@ -39,30 +49,52 @@
           ]"
           (click)="$event.stopPropagation()"
         >
-          <img [src]="product.mainImageUrl" [alt]="product.name" />
-          <div>
-            <h3>{{ product.name }}</h3>
-            <p *ngIf="product.price" class="subcategory-detail__price">
+          <img
+            class="h-44 w-full rounded-2xl object-cover transition duration-200 group-hover:scale-[1.02]"
+            [src]="product.mainImageUrl"
+            [alt]="product.name"
+          />
+          <div class="space-y-2 text-right">
+            <h3 class="text-lg font-semibold text-slate-900">{{ product.name }}</h3>
+            <p *ngIf="product.price" class="text-sm font-semibold text-amber-600">
               {{ product.price | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
             </p>
-            <p *ngIf="product.color" class="subcategory-detail__color">
-              اللون: {{ product.color }}
-            </p>
+
+            <p *ngIf="product.color" class="text-xs text-slate-500">اللون: {{ product.color }}</p>
           </div>
         </a>
 
-        <div class="subcategory-detail__actions">
+        <div class="mt-auto pt-4">
           <ng-container *ngIf="getQuantity(product.id) === 0; else quantityControls">
-            <button type="button" (click)="addToCart($event, product)">أضف إلى السلة</button>
+            <button
+              type="button"
+              class="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-amber-500/30 transition hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400"
+              (click)="addToCart($event, product)"
+            >
+              أضف إلى السلة
+            </button>
           </ng-container>
 
           <ng-template #quantityControls>
-            <div class="subcategory-detail__quantity">
-              <button type="button" (click)="decrement($event, product)" aria-label="إنقاص الكمية">
+            <div
+              class="inline-flex w-full items-center justify-between rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-600"
+            >
+              <button
+                type="button"
+                class="h-8 w-8 rounded-full bg-white text-base text-amber-600 shadow-sm transition hover:bg-amber-100"
+                (click)="decrement($event, product)"
+                aria-label="إنقاص الكمية"
+              >
                 −
               </button>
-              <span>{{ getQuantity(product.id) }}</span>
-              <button type="button" (click)="increment($event, product)" aria-label="زيادة الكمية">
+
+              <span class="min-w-[2rem] text-center">{{ getQuantity(product.id) }}</span>
+              <button
+                type="button"
+                class="h-8 w-8 rounded-full bg-amber-500 text-base text-white shadow-sm transition hover:bg-amber-600"
+                (click)="increment($event, product)"
+                aria-label="زيادة الكمية"
+              >
                 +
               </button>
             </div>
@@ -74,9 +106,17 @@
 </section>
 
 <ng-template #loading>
-  <div class="subcategory-detail__loading">جاري تحميل بيانات القسم الفرعي...</div>
+  <div
+    class="flex min-h-[40vh] items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white/80 px-6 py-10 text-sm text-slate-500"
+  >
+    جاري تحميل بيانات القسم الفرعي...
+  </div>
 </ng-template>
 
 <ng-template #empty>
-  <div class="subcategory-detail__empty">لا توجد منتجات ضمن هذا القسم الفرعي حالياً.</div>
+  <div
+    class="rounded-3xl border border-dashed border-slate-200 bg-white/90 px-6 py-12 text-center text-sm text-slate-500"
+  >
+    لا توجد منتجات ضمن هذا القسم الفرعي حالياً.
+  </div>
 </ng-template>

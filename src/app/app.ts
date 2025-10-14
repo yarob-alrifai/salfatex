@@ -10,6 +10,7 @@ import { Storage, ref, uploadString, getDownloadURL } from '@angular/fire/storag
 import { CartWidgetComponent } from './component/cart-widget/cart-widget';
 import { MainAdminComponent } from './admin/main-admin/main-admin.component';
 import { FloatingCartButtonComponent } from './component/floating-cart-button/floating-cart-button';
+import { NgClass, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,8 @@ import { FloatingCartButtonComponent } from './component/floating-cart-button/fl
     CartWidgetComponent,
     MainAdminComponent,
     FloatingCartButtonComponent,
+    NgIf,
+    NgClass,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],
