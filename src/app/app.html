@@ -1,13 +1,26 @@
 <div class="app-shell">
   <header class="app-shell__header">
     <a class="app-shell__logo" routerLink="/">Salfatex</a>
-    <nav class="app-shell__nav">
-      <a routerLink="/categories" routerLinkActive="active">الفئات</a>
-      <a routerLink="/about" routerLinkActive="active">من نحن</a>
-      <a routerLink="/cart" routerLinkActive="active">السلة</a>
-      <a routerLink="/checkout" routerLinkActive="active">إتمام الطلب</a>
-      <a routerLink="/admin">لوحة الأدمن</a>
-      <a routerLink="/contact" routerLinkActive="active">اتصل بنا</a>
+    <button
+      type="button"
+      class="app-shell__menu-toggle"
+      (click)="toggleMenu()"
+      [class.app-shell__menu-toggle--open]="isMenuOpen()"
+      [attr.aria-expanded]="isMenuOpen()"
+      aria-controls="primary-navigation"
+      aria-label="عرض القائمة"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <nav id="primary-navigation" class="app-shell__nav" [class.app-shell__nav--open]="isMenuOpen()">
+      <a routerLink="/categories" routerLinkActive="active" (click)="closeMenu()">الفئات</a>
+      <a routerLink="/about" routerLinkActive="active" (click)="closeMenu()">من نحن</a>
+      <a routerLink="/cart" routerLinkActive="active" (click)="closeMenu()">السلة</a>
+      <a routerLink="/checkout" routerLinkActive="active" (click)="closeMenu()">إتمام الطلب</a>
+      <a routerLink="/admin" (click)="closeMenu()">لوحة الأدمن</a>
+      <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">اتصل بنا</a>
     </nav>
   </header>
 

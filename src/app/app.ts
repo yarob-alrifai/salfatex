@@ -29,6 +29,8 @@ import { FloatingCartButtonComponent } from './component/floating-cart-button/fl
 export class App implements OnInit {
   protected readonly title = signal('salfatex');
   protected readonly currentYear = new Date().getFullYear();
+  protected readonly isMenuOpen = signal(false);
+
   constructor(private firestore: Firestore, private auth: Auth, private storage: Storage) {}
 
   async ngOnInit() {
@@ -86,5 +88,12 @@ export class App implements OnInit {
     } catch (err) {
       console.error('❌ Storage test failed:', err);
     }
+  }
+  protected toggleMenu(): void {
+    this.isMenuOpen.update((open) => !open);
+  }
+
+  protected closeMenu(): void {
+    this.isMenuOpen.set(false);
   }
 }
