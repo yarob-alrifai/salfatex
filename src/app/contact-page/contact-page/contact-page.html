@@ -1,5 +1,5 @@
-<section class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-  <div class="space-y-6 text-right text-slate-700">
+<section class="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+  <div class="space-y-8 text-right text-slate-700">
     <header class="space-y-3">
       <h1 class="text-3xl font-bold text-slate-900 sm:text-4xl">اتصل بنا</h1>
       <p class="text-base leading-7 text-slate-500">
@@ -8,32 +8,84 @@
       </p>
     </header>
 
-    <div class="grid gap-4 sm:gap-6 sm:grid-cols-2">
-      <article
-        class="rounded-3xl border border-slate-100 bg-white/90 p-6 shadow-lg shadow-slate-900/5 backdrop-blur"
-      >
-        <h3 class="text-lg font-semibold text-slate-900">البريد الإلكتروني</h3>
-        <a
-          class="mt-2 inline-flex items-center justify-end gap-2 text-sm font-semibold text-indigo-600 transition hover:text-indigo-700"
-          href="mailto:support@salfatex.com"
-        >
-          support@salfatex.com
+    @if (contactInfo$ | async; as info) {
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <article class="contact-card">
+        <h3 class="contact-card__title">الهاتف الأرضي</h3>
+        @if (info.phone) {
+        <a class="contact-card__link" [href]="'tel:' + info.phone" dir="ltr">
+          {{ info.phone }}
         </a>
+
+        } @else {
+        <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
+        }
       </article>
 
-      <div class="grid gap-4 sm:gap-6 sm:grid-cols-2">
-        <article
-          class="rounded-3xl border border-slate-100 bg-white/90 p-6 shadow-lg shadow-slate-900/5 backdrop-blur"
-        >
-          <h3 class="text-lg font-semibold text-slate-900">البريد الإلكتروني</h3>
-          <a
-            class="mt-2 inline-flex items-center justify-end gap-2 text-sm font-semibold text-indigo-600 transition hover:text-indigo-700"
-            href="mailto:support@salfatex.com"
-          >
-            support@salfatex.com
-          </a>
-        </article>
-      </div>
+      <article class="contact-card">
+        <h3 class="contact-card__title">الموبايل</h3>
+        @if (info.mobile) {
+        <a class="contact-card__link" [href]="'tel:' + info.mobile" dir="ltr">
+          {{ info.mobile }}
+        </a>
+        } @else {
+        <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
+        }
+      </article>
+
+      <article class="contact-card">
+        <h3 class="contact-card__title">البريد الإلكتروني</h3>
+        @if (info.email) {
+        <a class="contact-card__link" [href]="'mailto:' + info.email" dir="ltr">
+          {{ info.email }}
+        </a>
+        } @else {
+        <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
+        }
+      </article>
+
+      <article class="contact-card sm:col-span-2 lg:col-span-3">
+        <h3 class="contact-card__title">العنوان</h3>
+        @if (info.address) {
+        <p class="contact-card__text">{{ info.address }}</p>
+        } @else {
+        <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
+        }
+      </article>
+
+      <article class="contact-card">
+        <h3 class="contact-card__title">واتساب</h3>
+        @if (info.whatsappUrl) {
+        <a class="contact-card__link" [href]="info.whatsappUrl" target="_blank" rel="noopener">
+          تواصل عبر واتساب
+        </a>
+        } @else {
+        <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
+        }
+      </article>
+
+      <article class="contact-card">
+        <h3 class="contact-card__title">تلغرام</h3>
+        @if (info.telegramUrl) {
+        <a class="contact-card__link" [href]="info.telegramUrl" target="_blank" rel="noopener">
+          تواصل عبر تلغرام
+        </a>
+        } @else {
+        <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
+        }
+      </article>
+
+      <article class="contact-card sm:col-span-2 lg:col-span-3">
+        <h3 class="contact-card__title">رمز QR للواتساب</h3>
+        @if (info.whatsappQrUrl) {
+        <div class="contact-card__qr">
+          <img [src]="info.whatsappQrUrl" alt="رمز QR للتواصل عبر واتساب" />
+        </div>
+        } @else {
+        <div class="contact-card__qr contact-card__qr--empty" aria-hidden="true"></div>
+        }
+      </article>
     </div>
+    }
   </div>
 </section>

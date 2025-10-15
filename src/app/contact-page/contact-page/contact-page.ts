@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ContactService } from 'src/app/services/contact.service';
 
 @Component({
   selector: 'app-contact-page',
@@ -8,4 +9,8 @@ import { Component } from '@angular/core';
   templateUrl: './contact-page.html',
   styleUrls: ['./contact-page.scss'],
 })
-export class ContactPageComponent {}
+export class ContactPageComponent {
+  private readonly contactService = inject(ContactService);
+
+  readonly contactInfo$ = this.contactService.getContactInfo();
+}

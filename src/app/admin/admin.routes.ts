@@ -22,6 +22,13 @@ export const ADMIN_ROUTES: Routes = [
           ),
       },
       {
+        path: 'contact',
+        loadComponent: () =>
+          import('./contact-settings/contact-settings/contact-settings').then(
+            (m) => m.ContactSettingsComponent
+          ),
+      },
+      {
         path: 'subcategories',
         loadComponent: () =>
           import('./subcategory-manager/subcategory-manager/subcategory-manager').then(

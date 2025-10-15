@@ -13,12 +13,14 @@ import {
   setDoc,
   updateDoc,
   where,
+  getDoc,
 } from '@angular/fire/firestore';
 import { Observable, firstValueFrom } from 'rxjs';
 import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
 import { Category } from './models/category.model';
 import { Subcategory } from './models/subcategory.model';
 import { Product } from './models/product.model';
+import { ContactInfo, EMPTY_CONTACT_INFO } from '../models/contact-info.model';
 
 export interface OrderItem {
   productId: string;
@@ -257,6 +259,54 @@ export class AdminDataService {
     return firstValueFrom(
       collectionData(subcategoryQuery, { idField: 'id' }) as Observable<Subcategory[]>
     );
+  }
+
+  async getContactInfo(): Promise<ContactInfo> {
+    const reference = doc(this.firestore, 'settings', 'contact');
+    const snapshot = await getDoc(reference);
+
+    if (!snapshot.exists()) {
+      return EMPTY_CONTACT_INFO;
+    }
+
+    const data = snapshot.data() as Partial<ContactInfo> | undefined;
+
+    return {
+      phone: data?.phone?.trim() ?? '',
+      mobile: data?.mobile?.trim() ?? '',
+      email: data?.email?.trim() ?? '',
+      address: data?.address?.trim() ?? '',
+      whatsappUrl: data?.whatsappUrl?.trim() ?? '',
+      telegramUrl: data?.telegramUrl?.trim() ?? '',
+      whatsappQrUrl: data?.whatsappQrUrl?.trim() ?? '',
+    };
+  }
+
+  async updateContactInfo(
+    info: Partial<ContactInfo>,
+    options?: { whatsappQrFile?: File | null; removeWhatsappQr?: boolean }
+  ) {
+    const reference = doc(this.firestore, 'settings', 'contact');
+
+    const payload: Partial<ContactInfo> = {
+      phone: info.phone?.trim() ?? '',
+      mobile: info.mobile?.trim() ?? '',
+      email: info.email?.trim() ?? '',
+      address: info.address?.trim() ?? '',
+      whatsappUrl: info.whatsappUrl?.trim() ?? '',
+      telegramUrl: info.telegramUrl?.trim() ?? '',
+    };
+
+    if (options?.whatsappQrFile) {
+      payload.whatsappQrUrl = await this.uploadFile(
+        `settings/contact/${this.createIdentifier()}`,
+        options.whatsappQrFile
+      );
+    } else if (options?.removeWhatsappQr) {
+      payload.whatsappQrUrl = '';
+    }
+
+    await setDoc(reference, payload, { merge: true });
   }
 
   private async generateSequentialIdentifier(

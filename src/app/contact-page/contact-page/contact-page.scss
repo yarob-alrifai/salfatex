@@ -1,3 +1,31 @@
-:host {
-  @apply block;
+.contact-card {
+  @apply rounded-3xl border border-slate-100 bg-white/90 p-6 shadow-lg shadow-slate-900/5 backdrop-blur;
+
+  &__title {
+    @apply text-lg font-semibold text-slate-900;
+  }
+
+  &__link {
+    @apply mt-3 inline-flex items-center justify-end gap-2 text-sm font-semibold text-indigo-600 transition hover:text-indigo-700;
+  }
+
+  &__text {
+    @apply mt-3 text-sm leading-6 text-slate-600;
+  }
+
+  &__placeholder {
+    @apply mt-6 block h-5 w-full;
+  }
+
+  &__qr {
+    @apply mt-4 flex h-52 items-center justify-center rounded-3xl border border-slate-100 bg-white p-6 shadow-inner;
+
+    img {
+      @apply h-full w-full object-contain;
+    }
+
+    &--empty {
+      @apply border-dashed border-slate-200 bg-slate-50;
+    }
+  }
 }
