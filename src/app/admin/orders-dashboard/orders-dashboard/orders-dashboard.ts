@@ -32,7 +32,10 @@ export class OrdersDashboardComponent {
   readonly overallStats$ = this.orders$.pipe(
     map((orders) => ({
       count: orders.length,
-      total: orders.reduce((sum, order) => sum + (order.total ?? 0), 0),
+      total: orders.reduce(
+        (sum, order) => sum + (order.status === 'delivered' ? order.total ?? 0 : 0),
+        0
+      ),
     }))
   );
 
@@ -56,7 +59,10 @@ export class OrdersDashboardComponent {
   readonly filteredStats$ = this.filteredOrders$.pipe(
     map((orders) => ({
       count: orders.length,
-      total: orders.reduce((sum, order) => sum + (order.total ?? 0), 0),
+      total: orders.reduce(
+        (sum, order) => sum + (order.status === 'delivered' ? order.total ?? 0 : 0),
+        0
+      ),
     }))
   );
 
