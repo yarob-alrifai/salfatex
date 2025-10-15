@@ -33,10 +33,6 @@ export class ContactSettingsComponent implements OnInit, OnDestroy {
   private initialWhatsappQrUrl = '';
   private readonly removeWhatsappQr = signal(false);
 
-  readonly isDirty: Signal<boolean> = computed(
-    () => this.form.dirty || this.removeWhatsappQr() || !!this.whatsappQrFile
-  );
-
   async ngOnInit(): Promise<void> {
     this.loading.set(true);
     this.feedback.set('');

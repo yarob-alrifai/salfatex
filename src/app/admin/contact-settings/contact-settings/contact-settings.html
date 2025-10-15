@@ -6,12 +6,7 @@
         قم بتحديث بيانات التواصل التي ستظهر للزوار في صفحة "اتصل بنا".
       </p>
     </div>
-    <button
-      type="button"
-      class="admin-contact__save"
-      (click)="save()"
-      [disabled]="loading() || !isDirty()"
-    >
+    <button type="button" class="admin-contact__save" (click)="save()" [disabled]="loading()">
       <span>حفظ التعديلات</span>
       @if (loading()) {
       <svg class="admin-contact__spinner" viewBox="0 0 24 24" fill="none">
