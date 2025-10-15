@@ -7,8 +7,11 @@ import { ContactPageComponent } from './contact-page/contact-page/contact-page';
 import { CartPageComponent } from './cart/cart-page/cart-page';
 import { CheckoutPageComponent } from './cart/checkout-page/checkout-page';
 import { SubcategoryDetailComponent } from './subcategory-detail/subcategory-detail/subcategory-detail';
+import { HomePageComponent } from './home-page/home-page/home-page';
 
 export const routes: Routes = [
+  { path: '', component: HomePageComponent },
+
   {
     path: 'admin',
     loadChildren: () => import('./admin/admin.routes').then((m) => m.ADMIN_ROUTES),
@@ -28,8 +31,6 @@ export const routes: Routes = [
   { path: 'contact', component: ContactPageComponent },
   { path: 'cart', component: CartPageComponent },
   { path: 'checkout', component: CheckoutPageComponent },
-
-  { path: '', redirectTo: 'categories', pathMatch: 'full' },
 
   { path: '**', redirectTo: 'categories' },
 ];
