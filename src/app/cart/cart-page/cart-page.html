@@ -59,16 +59,17 @@
                   </div>
                 </div>
               </td>
-              <td class="px-4 py-4">
+              <td class="px-4 py-4 text-right">
+                <span class="block text-xs text-slate-500">{{ item.unit.label }}</span>
                 <span class="text-base font-semibold text-emerald-600">
-                  {{ item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+                  {{ item.unit.price | currency : 'USD' : 'symbol' : '1.0-0' }}
                 </span>
               </td>
               <td class="px-4 py-4">
                 <div class="flex items-center justify-center gap-2">
                   <button
                     type="button"
-                    (click)="decrement(item.product.id)"
+                    (click)="decrement(item)"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-lg font-semibold text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                     aria-label="إنقاص الكمية"
                   >
@@ -78,13 +79,13 @@
                     type="number"
                     min="0"
                     [value]="item.quantity"
-                    (change)="updateQuantity(item.product.id, $any($event.target).value)"
+                    (change)="updateQuantity(item, $any($event.target).value)"
                     class="w-20 rounded-xl border border-slate-200 bg-white px-3 py-2 text-center text-sm font-semibold text-slate-700 shadow-sm transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-300/70"
                     aria-label="كمية المنتج"
                   />
                   <button
                     type="button"
-                    (click)="increment(item.product.id)"
+                    (click)="increment(item)"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-indigo-200 bg-indigo-500 text-lg font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                     aria-label="زيادة الكمية"
                   >
@@ -100,7 +101,7 @@
               <td class="px-4 py-4">
                 <button
                   type="button"
-                  (click)="remove(item.product.id)"
+                  (click)="remove(item)"
                   class="inline-flex items-center justify-center rounded-full p-2 text-rose-500 transition hover:bg-rose-50 hover:text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-200"
                   aria-label="إزالة المنتج"
                 >

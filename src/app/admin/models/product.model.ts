@@ -1,4 +1,5 @@
 import { Timestamp } from '@angular/fire/firestore';
+import { ProductUnitOption } from 'src/app/models/catalog.models';
 
 export interface Product {
   id?: string;
@@ -12,4 +13,5 @@ export interface Product {
   galleryUrls?: string[];
   createdAt?: Timestamp;
   sequence?: number;
+  unitOptions?: ProductUnitOption[];
 }

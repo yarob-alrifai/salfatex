@@ -70,10 +70,12 @@
               >
                 <div class="text-right">
                   <span class="block font-semibold text-slate-900">{{ item.product.name }}</span>
+                  <span class="text-xs text-slate-500">{{ item.unit.label }}</span>
+
                   <span class="text-slate-500">× {{ item.quantity }}</span>
                 </div>
                 <span class="font-semibold text-emerald-600">
-                  {{ item.quantity * item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+                  {{ item.quantity * item.unit.price | currency : 'USD' : 'symbol' : '1.0-0' }}
                 </span>
               </li>
             </ul>
@@ -105,13 +107,15 @@
             >
               <div class="space-y-1 text-right">
                 <p class="text-base font-semibold text-slate-900">{{ item.product.name }}</p>
+                <p class="text-xs text-slate-500">{{ item.unit.label }}</p>
+
                 <p class="text-sm text-slate-500">
                   {{ item.quantity }} ×
-                  {{ item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+                  {{ item.unit.price | currency : 'USD' : 'symbol' : '1.0-0' }}
                 </p>
               </div>
               <span class="text-base font-bold text-emerald-600">
-                {{ item.quantity * item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+                {{ item.quantity * item.unit.price | currency : 'USD' : 'symbol' : '1.0-0' }}
               </span>
             </li>
           </ul>

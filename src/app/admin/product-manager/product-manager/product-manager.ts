@@ -8,6 +8,18 @@ import { AdminDataService } from '../../admin-data.service';
 import { Product } from '../../models/product.model';
 import { ImageCroppedEvent, ImageCropperComponent, LoadedImage } from 'ngx-image-cropper';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { ProductUnitOption } from 'src/app/models/catalog.models';
+
+interface UnitOptionsFormValue {
+  pieceEnabled: boolean;
+  piecePrice: number;
+  bundleEnabled: boolean;
+  bundlePrice: number;
+  bundlePiecesCount: number;
+  cartonEnabled: boolean;
+  cartonPrice: number;
+  cartonPiecesCount: number;
+}
 
 @Component({
   selector: 'app-product-manager',
@@ -29,14 +41,23 @@ export class ProductManagerComponent implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly adminDataService = inject(AdminDataService);
   private readonly sanitizer = inject(DomSanitizer);
-
+  private readonly defaultUnitOptions: UnitOptionsFormValue = {
+    pieceEnabled: true,
+    piecePrice: 0,
+    bundleEnabled: false,
+    bundlePrice: 0,
+    bundlePiecesCount: 0,
+    cartonEnabled: false,
+    cartonPrice: 0,
+    cartonPiecesCount: 0,
+  };
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     color: ['', Validators.required],
     description: ['', Validators.required],
-    price: [0, [Validators.required, Validators.min(0)]],
     categoryId: ['', Validators.required],
     subcategoryId: [''],
+    unitOptions: this.createUnitOptionsGroup(),
   });
 
   private mainImage: File | null = null;
@@ -167,10 +188,129 @@ export class ProductManagerComponent implements OnDestroy {
     name: ['', Validators.required],
     color: ['', Validators.required],
     description: ['', Validators.required],
-    price: [0, [Validators.required, Validators.min(0)]],
     categoryId: ['', Validators.required],
     subcategoryId: [''],
+    unitOptions: this.createUnitOptionsGroup(),
   });
+
+  private createUnitOptionsGroup() {
+    return this.fb.nonNullable.group({
+      pieceEnabled: [this.defaultUnitOptions.pieceEnabled],
+      piecePrice: [this.defaultUnitOptions.piecePrice, [Validators.min(0)]],
+      bundleEnabled: [this.defaultUnitOptions.bundleEnabled],
+      bundlePrice: [this.defaultUnitOptions.bundlePrice, [Validators.min(0)]],
+      bundlePiecesCount: [this.defaultUnitOptions.bundlePiecesCount, [Validators.min(0)]],
+      cartonEnabled: [this.defaultUnitOptions.cartonEnabled],
+      cartonPrice: [this.defaultUnitOptions.cartonPrice, [Validators.min(0)]],
+      cartonPiecesCount: [this.defaultUnitOptions.cartonPiecesCount, [Validators.min(0)]],
+    });
+  }
+
+  private resetCreateForm() {
+    this.form.reset({
+      name: '',
+      color: '',
+      description: '',
+      categoryId: '',
+      subcategoryId: '',
+      unitOptions: { ...this.defaultUnitOptions },
+    });
+  }
+
+  private resetEditForm() {
+    this.editForm.reset({
+      name: '',
+      color: '',
+      description: '',
+      categoryId: '',
+      subcategoryId: '',
+      unitOptions: { ...this.defaultUnitOptions },
+    });
+  }
+
+  private buildUnitOptionsFormValue(
+    options: ProductUnitOption[] | undefined,
+    fallbackPrice: number
+  ): UnitOptionsFormValue {
+    const piece = options?.find((option) => option.type === 'piece');
+    const bundle = options?.find((option) => option.type === 'bundle');
+    const carton = options?.find((option) => option.type === 'carton');
+
+    return {
+      pieceEnabled: Boolean(piece) || !options?.length,
+      piecePrice: piece?.price ?? fallbackPrice ?? options?.[0]?.price ?? 0,
+      bundleEnabled: Boolean(bundle),
+      bundlePrice: bundle?.price ?? 0,
+      bundlePiecesCount: bundle?.piecesCount ?? 0,
+      cartonEnabled: Boolean(carton),
+      cartonPrice: carton?.price ?? 0,
+      cartonPiecesCount: carton?.piecesCount ?? 0,
+    };
+  }
+
+  private normalizeUnitOptions(value: UnitOptionsFormValue): {
+    options: ProductUnitOption[];
+    error?: string;
+  } {
+    const options: ProductUnitOption[] = [];
+
+    if (value.pieceEnabled) {
+      const price = Number(value.piecePrice);
+      if (!Number.isFinite(price) || price <= 0) {
+        return { options: [], error: 'يرجى إدخال سعر صالح للقطعة.' };
+      }
+      options.push({ type: 'piece', price });
+    }
+
+    if (value.bundleEnabled) {
+      const price = Number(value.bundlePrice);
+      if (!Number.isFinite(price) || price <= 0) {
+        return { options: [], error: 'يرجى إدخال سعر صالح للمجموعة.' };
+      }
+
+      const piecesCount = Math.floor(Number(value.bundlePiecesCount));
+      if (!Number.isFinite(piecesCount) || piecesCount <= 0) {
+        return { options: [], error: 'يرجى إدخال عدد القطع في المجموعة.' };
+      }
+
+      options.push({ type: 'bundle', price, piecesCount });
+    }
+
+    if (value.cartonEnabled) {
+      const price = Number(value.cartonPrice);
+      if (!Number.isFinite(price) || price <= 0) {
+        return { options: [], error: 'يرجى إدخال سعر صالح للكرتونة.' };
+      }
+
+      const piecesCount = Math.floor(Number(value.cartonPiecesCount));
+      if (!Number.isFinite(piecesCount) || piecesCount <= 0) {
+        return { options: [], error: 'يرجى إدخال عدد القطع في الكرتونة.' };
+      }
+
+      options.push({ type: 'carton', price, piecesCount });
+    }
+
+    if (!options.length) {
+      return { options: [], error: 'يجب اختيار وحدة بيع واحدة على الأقل.' };
+    }
+
+    return { options };
+  }
+
+  private resolveBasePrice(options: ProductUnitOption[]): number {
+    return options.find((option) => option.type === 'piece')?.price ?? options[0]?.price ?? 0;
+  }
+
+  getUnitOptionLabel(option: ProductUnitOption): string {
+    switch (option.type) {
+      case 'bundle':
+        return option.piecesCount ? `مجموعة (${option.piecesCount} قطعة)` : 'مجموعة';
+      case 'carton':
+        return option.piecesCount ? `كرتونة (${option.piecesCount} قطعة)` : 'كرتونة';
+      default:
+        return 'بالقطعة';
+    }
+  }
 
   readonly editFilteredSubcategories$ = combineLatest([
     this.subcategories$,
@@ -452,15 +592,22 @@ export class ProductManagerComponent implements OnDestroy {
 
     this.feedback.set('');
 
-    const { price, ...rest } = this.form.getRawValue();
+    const { unitOptions: unitOptionsRaw, ...rest } = this.form.getRawValue();
+    const { options, error } = this.normalizeUnitOptions(unitOptionsRaw);
 
+    if (error) {
+      this.feedback.set(error);
+      return;
+    }
+
+    const basePrice = this.resolveBasePrice(options);
     try {
       await this.adminDataService.createProduct(
-        { ...rest, price: Number(price) },
+        { ...rest, price: basePrice, unitOptions: options },
         this.mainImage ?? undefined,
         this.galleryImages
       );
-      this.form.reset();
+      this.resetCreateForm();
       this.resetMainImage();
       this.clearGallerySelections();
       this.cancelGalleryCropping();
@@ -486,9 +633,9 @@ export class ProductManagerComponent implements OnDestroy {
       name: product.name ?? '',
       color: product.color ?? '',
       description: product.description ?? '',
-      price: product.price ?? 0,
       categoryId: product.categoryId ?? '',
       subcategoryId: product.subcategoryId ?? '',
+      unitOptions: this.buildUnitOptionsFormValue(product.unitOptions, product.price ?? 0),
     });
     this.editGalleryUrls = [...(product.galleryUrls ?? [])];
     this.editNewGalleryFiles = [];
@@ -499,14 +646,9 @@ export class ProductManagerComponent implements OnDestroy {
   closeEditModal() {
     this.isEditModalOpen = false;
     this.editingProduct = null;
-    this.editForm.reset({
-      name: '',
-      color: '',
-      description: '',
-      price: 0,
-      categoryId: '',
-      subcategoryId: '',
-    });
+
+    this.resetEditForm();
+
     this.editGalleryUrls = [];
     this.editNewGalleryFiles = [];
     this.editMainImageFile = null;
@@ -550,12 +692,20 @@ export class ProductManagerComponent implements OnDestroy {
       return;
     }
 
-    const { price, ...rest } = this.editForm.getRawValue();
+    const { unitOptions: unitOptionsRaw, ...rest } = this.editForm.getRawValue();
+    const { options, error } = this.normalizeUnitOptions(unitOptionsRaw);
+
+    if (error) {
+      this.editFeedback = error;
+      return;
+    }
+
+    const basePrice = this.resolveBasePrice(options);
 
     try {
       await this.adminDataService.updateProduct(
         this.editingProduct.id,
-        { ...rest, price: Number(price) },
+        { ...rest, price: basePrice, unitOptions: options },
         this.editMainImageFile ?? undefined,
         this.editNewGalleryFiles,
         this.editGalleryUrls

@@ -13,6 +13,14 @@ export interface Subcategory {
   imageUrl: string;
 }
 
+export type ProductUnitType = 'piece' | 'bundle' | 'carton';
+
+export interface ProductUnitOption {
+  type: ProductUnitType;
+  price: number;
+  piecesCount?: number;
+}
+
 export interface Product {
   id: string;
   categoryId: string;
@@ -26,4 +34,5 @@ export interface Product {
   materials?: string;
   features?: string[];
   sequence?: number;
+  unitOptions?: ProductUnitOption[];
 }

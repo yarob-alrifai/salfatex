@@ -21,12 +21,18 @@ import { Category } from './models/category.model';
 import { Subcategory } from './models/subcategory.model';
 import { Product } from './models/product.model';
 import { ContactInfo, EMPTY_CONTACT_INFO } from '../models/contact-info.model';
+import { ProductUnitType } from '../models/catalog.models';
 
 export interface OrderItem {
   productId: string;
   name: string;
   quantity: number;
   price: number;
+  color?: string;
+  unitType?: ProductUnitType;
+  unitLabel?: string;
+  unitPrice?: number;
+  piecesCount?: number;
 }
 
 export interface AdminOrder {

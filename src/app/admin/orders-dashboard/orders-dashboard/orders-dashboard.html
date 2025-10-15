@@ -235,7 +235,17 @@
               >
                 <div>
                   <p class="font-medium text-slate-900">{{ item.name }}</p>
+                  <p class="text-xs text-slate-500" *ngIf="item.unitLabel">
+                    الوحدة: {{ item.unitLabel }}
+                  </p>
                   <p class="text-xs text-slate-400">الكمية: {{ item.quantity }}</p>
+                  <p class="text-xs text-slate-400">
+                    سعر الوحدة:
+                    {{
+                      (item.unitPrice ?? item.price) * item.quantity
+                        | currency : 'SAR' : 'symbol' : '1.0-0'
+                    }}
+                  </p>
                 </div>
                 <span class="text-sm font-semibold text-slate-700">
                   {{ item.price | currency : 'SAR' : 'symbol' : '1.0-0' }}

@@ -7,7 +7,7 @@ import {
 } from '@angular/fire/auth';
 import { Firestore, collection, addDoc, getDocs } from '@angular/fire/firestore';
 import { Storage, ref, uploadString, getDownloadURL } from '@angular/fire/storage';
-import { CartWidgetComponent } from './component/cart-widget/cart-widget';
+// import { CartWidgetComponent } from './component/cart-widget/cart-widget';
 import { MainAdminComponent } from './admin/main-admin/main-admin.component';
 import { FloatingCartButtonComponent } from './component/floating-cart-button/floating-cart-button';
 import { NgClass, NgIf } from '@angular/common';
@@ -19,7 +19,7 @@ import { NgClass, NgIf } from '@angular/common';
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
-    CartWidgetComponent,
+    // CartWidgetComponent,
     MainAdminComponent,
     FloatingCartButtonComponent,
     NgIf,

@@ -12,12 +12,8 @@ import {
 } from '@angular/fire/firestore';
 import { Timestamp } from 'firebase/firestore';
 import type { AdminOrder, OrderItem } from '../admin/admin-data.service';
-import { Product } from '../models/catalog.models';
-
-export interface CartItem {
-  product: Product;
-  quantity: number;
-}
+import { Product, ProductUnitOption, ProductUnitType } from '../models/catalog.models';
+import { CartItem, CartUnitSelection } from '../models/cart.models';
 
 export interface CheckoutDetails {
   customerName: string;
@@ -46,43 +42,49 @@ export class CartService {
     this.itemsSignal().reduce((total, item) => total + item.quantity, 0)
   );
   readonly total = computed(() =>
-    this.itemsSignal().reduce((total, item) => total + item.quantity * item.product.price, 0)
+    this.itemsSignal().reduce((total, item) => total + item.quantity * item.unit.price, 0)
   );
   readonly localOrders = computed(() => this.localOrdersSignal());
 
-  addProduct(product: Product) {
+  addProduct(product: Product, unitOption?: ProductUnitOption) {
+    const resolvedUnit = this.createUnitSelection(product, unitOption);
     this.itemsSignal.update((items) => {
-      const existingIndex = items.findIndex((item) => item.product.id === product.id);
-
+      const existingIndex = items.findIndex(
+        (item) => item.product.id === product.id && item.unit.type === resolvedUnit.type
+      );
       if (existingIndex >= 0) {
         return items.map((item, index) =>
           index === existingIndex ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
 
-      return [...items, { product, quantity: 1 }];
+      return [...items, { product, quantity: 1, unit: resolvedUnit }];
     });
   }
 
-  increment(productId: string) {
+  increment(productId: string, unitType: ProductUnitType) {
     this.itemsSignal.update((items) =>
       items.map((item) =>
-        item.product.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+        item.product.id === productId && item.unit.type === unitType
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
       )
     );
   }
 
-  decrement(productId: string) {
+  decrement(productId: string, unitType: ProductUnitType) {
     this.itemsSignal.update((items) =>
       items
         .map((item) =>
-          item.product.id === productId ? { ...item, quantity: item.quantity - 1 } : item
+          item.product.id === productId && item.unit.type === unitType
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
         )
         .filter((item) => item.quantity > 0)
     );
   }
 
-  updateQuantity(productId: string, quantity: number) {
+  updateQuantity(productId: string, unitType: ProductUnitType, quantity: number) {
     if (!Number.isFinite(quantity)) {
       return;
     }
@@ -90,36 +92,46 @@ export class CartService {
     const normalizedQuantity = Math.max(0, Math.floor(quantity));
 
     this.itemsSignal.update((items) => {
-      const index = items.findIndex((item) => item.product.id === productId);
-
+      const index = items.findIndex(
+        (item) => item.product.id === productId && item.unit.type === unitType
+      );
       if (index === -1) {
         return items;
       }
 
       if (normalizedQuantity === 0) {
-        return items.filter((item) => item.product.id !== productId);
+        return items.filter(
+          (item) => !(item.product.id === productId && item.unit.type === unitType)
+        );
       }
 
       return items.map((item) =>
-        item.product.id === productId ? { ...item, quantity: normalizedQuantity } : item
+        item.product.id === productId && item.unit.type === unitType
+          ? { ...item, quantity: normalizedQuantity }
+          : item
       );
     });
   }
 
-  removeProduct(productId: string) {
-    this.itemsSignal.update((items) => items.filter((item) => item.product.id !== productId));
+  removeProduct(productId: string, unitType: ProductUnitType) {
+    this.itemsSignal.update((items) =>
+      items.filter((item) => !(item.product.id === productId && item.unit.type === unitType))
+    );
   }
 
   clearCart() {
     this.itemsSignal.set([]);
   }
 
-  getQuantity(productId: string): number {
-    return this.itemsSignal().find((item) => item.product.id === productId)?.quantity ?? 0;
+  getQuantity(productId: string, unitType: ProductUnitType): number {
+    return (
+      this.itemsSignal().find(
+        (item) => item.product.id === productId && item.unit.type === unitType
+      )?.quantity ?? 0
+    );
   }
 
   async submitOrder(details: CheckoutDetails): Promise<AdminOrder> {
-    console.log('yarob');
     const trimmedName = details.customerName?.trim();
 
     if (!trimmedName) {
@@ -137,7 +149,11 @@ export class CartService {
       name: item.product.name,
       quantity: item.quantity,
       color: item.product.color,
-      price: item.product.price,
+      price: item.unit.price,
+      unitPrice: item.unit.price,
+      unitType: item.unit.type,
+      unitLabel: item.unit.label,
+      piecesCount: item.unit.piecesCount,
     }));
 
     const createdAt = Timestamp.now();
@@ -179,6 +195,43 @@ export class CartService {
     this.localOrdersSignal.update((orders) => [fallbackOrder, ...orders]);
     this.clearCart();
     return fallbackOrder;
+  }
+
+  private createUnitSelection(product: Product, unitOption?: ProductUnitOption): CartUnitSelection {
+    const option = this.resolveUnitOption(product, unitOption);
+
+    return {
+      type: option.type,
+      price: option.price,
+      piecesCount: option.piecesCount,
+      label: this.getUnitLabel(option),
+    };
+  }
+
+  private resolveUnitOption(product: Product, unitOption?: ProductUnitOption): ProductUnitOption {
+    if (unitOption) {
+      return unitOption;
+    }
+
+    if (product.unitOptions?.length) {
+      return product.unitOptions[0];
+    }
+
+    return {
+      type: 'piece',
+      price: product.price,
+    };
+  }
+
+  private getUnitLabel(option: ProductUnitOption): string {
+    switch (option.type) {
+      case 'bundle':
+        return option.piecesCount ? `مجموعة (${option.piecesCount} قطعة)` : 'مجموعة';
+      case 'carton':
+        return option.piecesCount ? `كرتونة (${option.piecesCount} قطعة)` : 'كرتونة';
+      default:
+        return 'بالقطعة';
+    }
   }
 
   private async generateOrderMetadata(createdAt: Timestamp): Promise<OrderMetadata> {

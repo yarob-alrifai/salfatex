@@ -34,7 +34,6 @@ export class CheckoutPageComponent {
   readonly errorMessage = signal<string | null>(null);
   readonly items: Signal<CartItem[]> = this.cart.items;
   readonly totalPrice = this.cart.total;
-
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
@@ -62,8 +61,11 @@ export class CheckoutPageComponent {
 
     const rawValue = this.form.getRawValue();
     const info = this.normalizeCustomerInfo(rawValue);
+    const itemsSnapshot = this.items().map((item) => ({
+      ...item,
+      unit: { ...item.unit },
+    }));
 
-    const itemsSnapshot = this.items().map((item) => ({ ...item }));
     const snapshot: CartSnapshot = {
       items: itemsSnapshot,
       total: this.totalPrice(),
@@ -112,7 +114,7 @@ export class CheckoutPageComponent {
   }
 
   trackByProduct(_index: number, item: CartItem): string {
-    return item.product.id;
+    return `${item.product.id}-${item.unit.type}`;
   }
 
   private composeNotes(restaurantName: string, phone?: string, notes?: string): string | undefined {
@@ -220,7 +222,6 @@ export class CheckoutPageComponent {
       email,
       restaurantName,
       phone,
-
       address,
       notes,
     };

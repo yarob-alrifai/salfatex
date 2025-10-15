@@ -23,27 +23,27 @@ export class CartPageComponent {
   readonly totalPrice = this.cart.total;
 
   trackByProduct(_index: number, item: CartItem): string {
-    return item.product.id;
+    return `${item.product.id}-${item.unit.type}`;
   }
 
-  updateQuantity(productId: string, value: string | number): void {
+  updateQuantity(item: CartItem, value: string | number): void {
     const quantity = Number(value);
     if (Number.isNaN(quantity)) {
       return;
     }
-    this.cart.updateQuantity(productId, quantity);
+    this.cart.updateQuantity(item.product.id, item.unit.type, quantity);
   }
 
-  increment(productId: string): void {
-    this.cart.increment(productId);
+  increment(item: CartItem): void {
+    this.cart.increment(item.product.id, item.unit.type);
   }
 
-  decrement(productId: string): void {
-    this.cart.decrement(productId);
+  decrement(item: CartItem): void {
+    this.cart.decrement(item.product.id, item.unit.type);
   }
 
-  remove(productId: string): void {
-    this.cart.removeProduct(productId);
+  remove(item: CartItem): void {
+    this.cart.removeProduct(item.product.id, item.unit.type);
   }
 
   clear(): void {
@@ -51,6 +51,6 @@ export class CartPageComponent {
   }
 
   lineTotal(item: CartItem): number {
-    return item.product.price * item.quantity;
+    return item.unit.price * item.quantity;
   }
 }

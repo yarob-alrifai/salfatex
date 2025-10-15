@@ -61,17 +61,89 @@
       />
     </label>
 
-    <!-- Price -->
-    <label class="flex flex-col text-right">
-      <span class="mb-1 font-medium text-gray-700">السعر</span>
-      <input
-        type="number"
-        formControlName="price"
-        min="0"
-        step="0.01"
-        class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-      />
-    </label>
+    <!-- Unit Options -->
+    <fieldset
+      class="md:col-span-2 rounded-xl border border-gray-200 p-4"
+      formGroupName="unitOptions"
+    >
+      <legend class="px-2 text-sm font-semibold text-gray-700">خيارات البيع والتسعير</legend>
+      <div class="grid gap-4 md:grid-cols-3">
+        <div class="space-y-3 rounded-lg bg-gray-50 p-4">
+          <label class="flex items-center justify-between text-sm font-medium text-gray-700">
+            <span>بيع بالقطعة</span>
+            <input type="checkbox" formControlName="pieceEnabled" class="h-4 w-4" />
+          </label>
+          <label class="flex flex-col text-right text-sm text-gray-600">
+            <span class="mb-1">سعر القطعة</span>
+            <input
+              type="number"
+              formControlName="piecePrice"
+              min="0"
+              step="0.01"
+              class="rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+          </label>
+        </div>
+
+        <div class="space-y-3 rounded-lg bg-gray-50 p-4">
+          <label class="flex items-center justify-between text-sm font-medium text-gray-700">
+            <span>بيع بالمجموعة</span>
+            <input type="checkbox" formControlName="bundleEnabled" class="h-4 w-4" />
+          </label>
+          <label class="flex flex-col text-right text-sm text-gray-600">
+            <span class="mb-1">سعر المجموعة</span>
+            <input
+              type="number"
+              formControlName="bundlePrice"
+              min="0"
+              step="0.01"
+              class="rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              [disabled]="!form.get('unitOptions.bundleEnabled')?.value"
+            />
+          </label>
+          <label class="flex flex-col text-right text-sm text-gray-600">
+            <span class="mb-1">عدد القطع في المجموعة</span>
+            <input
+              type="number"
+              formControlName="bundlePiecesCount"
+              min="0"
+              step="1"
+              class="rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              [disabled]="!form.get('unitOptions.bundleEnabled')?.value"
+            />
+          </label>
+        </div>
+
+        <div class="space-y-3 rounded-lg bg-gray-50 p-4">
+          <label class="flex items-center justify-between text-sm font-medium text-gray-700">
+            <span>بيع بالكرتونة</span>
+            <input type="checkbox" formControlName="cartonEnabled" class="h-4 w-4" />
+          </label>
+          <label class="flex flex-col text-right text-sm text-gray-600">
+            <span class="mb-1">سعر الكرتونة</span>
+            <input
+              type="number"
+              formControlName="cartonPrice"
+              min="0"
+              step="0.01"
+              class="rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              [disabled]="!form.get('unitOptions.cartonEnabled')?.value"
+            />
+          </label>
+          <label class="flex flex-col text-right text-sm text-gray-600">
+            <span class="mb-1">عدد القطع في الكرتونة</span>
+            <input
+              type="number"
+              formControlName="cartonPiecesCount"
+              min="0"
+              step="1"
+              class="rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              [disabled]="!form.get('unitOptions.cartonEnabled')?.value"
+            />
+          </label>
+        </div>
+      </div>
+    </fieldset>
 
     <!-- Description -->
     <label class="flex flex-col text-right md:col-span-2">
@@ -298,6 +370,8 @@
               <th class="px-4 py-3 font-semibold">القسم</th>
               <th class="px-4 py-3 font-semibold">القسم الفرعي</th>
               <th class="px-4 py-3 font-semibold">السعر</th>
+              <th class="px-4 py-3 font-semibold">الأسعار</th>
+
               <th class="px-4 py-3 font-semibold">الإجراءات</th>
             </tr>
           </thead>
@@ -307,8 +381,25 @@
               <td class="px-4 py-3">{{ product.description || '—' }}</td>
               <td class="px-4 py-3">{{ product.categoryName || 'غير محدد' }}</td>
               <td class="px-4 py-3">{{ product.subcategoryName || '—' }}</td>
-              <td class="px-4 py-3 font-semibold text-indigo-600">
-                {{ product.price | currency : 'SAR' }}
+              <td class="px-4 py-3">
+                <ng-container *ngIf="product.unitOptions?.length; else singlePrice">
+                  <ul class="space-y-1 text-sm">
+                    <li
+                      *ngFor="let option of product.unitOptions"
+                      class="flex flex-col items-end rounded-lg bg-indigo-50/30 px-2 py-1"
+                    >
+                      <span class="text-xs text-indigo-500">{{ getUnitOptionLabel(option) }}</span>
+                      <span class="font-semibold text-indigo-600">
+                        {{ option.price | currency : 'SAR' }}
+                      </span>
+                    </li>
+                  </ul>
+                </ng-container>
+                <ng-template #singlePrice>
+                  <span class="font-semibold text-indigo-600">
+                    {{ product.price | currency : 'SAR' }}
+                  </span>
+                </ng-template>
               </td>
               <td class="px-4 py-3">
                 <div class="flex items-center justify-end gap-2">
@@ -425,16 +516,88 @@
           />
         </label>
 
-        <label class="flex flex-col text-right">
-          <span class="mb-1 font-medium text-gray-700">السعر</span>
-          <input
-            type="number"
-            formControlName="price"
-            min="0"
-            step="0.01"
-            class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          />
-        </label>
+        <fieldset
+          class="md:col-span-2 rounded-xl border border-gray-200 p-4"
+          formGroupName="unitOptions"
+        >
+          <legend class="px-2 text-sm font-semibold text-gray-700">خيارات البيع والتسعير</legend>
+          <div class="grid gap-4 md:grid-cols-3">
+            <div class="space-y-3 rounded-lg bg-gray-50 p-4">
+              <label class="flex items-center justify-between text-sm font-medium text-gray-700">
+                <span>بيع بالقطعة</span>
+                <input type="checkbox" formControlName="pieceEnabled" class="h-4 w-4" />
+              </label>
+              <label class="flex flex-col text-right text-sm text-gray-600">
+                <span class="mb-1">سعر القطعة</span>
+                <input
+                  type="number"
+                  formControlName="piecePrice"
+                  min="0"
+                  step="0.01"
+                  class="rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+              </label>
+            </div>
+
+            <div class="space-y-3 rounded-lg bg-gray-50 p-4">
+              <label class="flex items-center justify-between text-sm font-medium text-gray-700">
+                <span>بيع بالمجموعة</span>
+                <input type="checkbox" formControlName="bundleEnabled" class="h-4 w-4" />
+              </label>
+              <label class="flex flex-col text-right text-sm text-gray-600">
+                <span class="mb-1">سعر المجموعة</span>
+                <input
+                  type="number"
+                  formControlName="bundlePrice"
+                  min="0"
+                  step="0.01"
+                  class="rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  [disabled]="!editForm.get('unitOptions.bundleEnabled')?.value"
+                />
+              </label>
+              <label class="flex flex-col text-right text-sm text-gray-600">
+                <span class="mb-1">عدد القطع في المجموعة</span>
+                <input
+                  type="number"
+                  formControlName="bundlePiecesCount"
+                  min="0"
+                  step="1"
+                  class="rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  [disabled]="!editForm.get('unitOptions.bundleEnabled')?.value"
+                />
+              </label>
+            </div>
+
+            <div class="space-y-3 rounded-lg bg-gray-50 p-4">
+              <label class="flex items-center justify-between text-sm font-medium text-gray-700">
+                <span>بيع بالكرتونة</span>
+                <input type="checkbox" formControlName="cartonEnabled" class="h-4 w-4" />
+              </label>
+              <label class="flex flex-col text-right text-sm text-gray-600">
+                <span class="mb-1">سعر الكرتونة</span>
+                <input
+                  type="number"
+                  formControlName="cartonPrice"
+                  min="0"
+                  step="0.01"
+                  class="rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  [disabled]="!editForm.get('unitOptions.cartonEnabled')?.value"
+                />
+              </label>
+              <label class="flex flex-col text-right text-sm text-gray-600">
+                <span class="mb-1">عدد القطع في الكرتونة</span>
+                <input
+                  type="number"
+                  formControlName="cartonPiecesCount"
+                  min="0"
+                  step="1"
+                  class="rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  [disabled]="!editForm.get('unitOptions.cartonEnabled')?.value"
+                />
+              </label>
+            </div>
+          </div>
+        </fieldset>
 
         <label class="flex flex-col text-right">
           <span class="mb-1 font-medium text-gray-700">التصنيف</span>

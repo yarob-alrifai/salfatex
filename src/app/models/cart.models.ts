@@ -1,8 +1,16 @@
-import { Product } from './catalog.models';
+import { Product, ProductUnitType } from './catalog.models';
+
+export interface CartUnitSelection {
+  type: ProductUnitType;
+  price: number;
+  label: string;
+  piecesCount?: number;
+}
 
 export interface CartItem {
   product: Product;
   quantity: number;
+  unit: CartUnitSelection;
 }
 
 export interface CartSnapshot {

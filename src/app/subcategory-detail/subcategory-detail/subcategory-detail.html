@@ -56,8 +56,12 @@
           />
           <div class="space-y-2 text-right">
             <h3 class="text-lg font-semibold text-slate-900">{{ product.name }}</h3>
-            <p *ngIf="product.price" class="text-sm font-semibold text-amber-600">
-              {{ product.price | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
+            <p class="text-sm font-semibold text-amber-600">
+              {{ getSelectedUnitPrice(product) | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
+            </p>
+
+            <p class="text-sm font-semibold text-amber-600">
+              {{ getSelectedUnitPrice(product) | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
             </p>
 
             <p *ngIf="product.color" class="text-xs text-slate-500">اللون: {{ product.color }}</p>
@@ -65,7 +69,7 @@
         </a>
 
         <div class="mt-auto pt-4">
-          <ng-container *ngIf="getQuantity(product.id) === 0; else quantityControls">
+          <ng-container *ngIf="getQuantity(product) === 0; else quantityControls">
             <button
               type="button"
               class="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-amber-500/30 transition hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400"
@@ -88,7 +92,7 @@
                 −
               </button>
 
-              <span class="min-w-[2rem] text-center">{{ getQuantity(product.id) }}</span>
+              <span class="min-w-[2rem] text-center">{{ getQuantity(product) }}</span>
               <button
                 type="button"
                 class="h-8 w-8 rounded-full bg-amber-500 text-base text-white shadow-sm transition hover:bg-amber-600"

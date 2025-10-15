@@ -203,7 +203,10 @@ export class CatalogService {
         const matchesColor = normalizedColor
           ? product.color.toLowerCase().includes(normalizedColor)
           : true;
-        const matchesPrice = price ? product.price <= price : true;
+        const effectivePrice = product.unitOptions?.length
+          ? Math.min(...product.unitOptions.map((option) => option.price))
+          : product.price;
+        const matchesPrice = price ? effectivePrice <= price : true;
         return matchesTerm && matchesColor && matchesPrice;
       });
 
