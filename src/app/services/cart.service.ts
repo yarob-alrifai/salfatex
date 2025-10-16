@@ -178,9 +178,14 @@ export class CartService {
       createdAt,
       items: orderItems,
     };
+    const sanitizedBaseOrder = this.stripUndefined(baseOrder);
+
     if (this.firestore) {
       const metadata = await this.generateOrderMetadata(createdAt);
-      const payload: Omit<AdminOrder, 'id'> = { ...baseOrder, ...metadata };
+      const payload = this.stripUndefined<Omit<AdminOrder, 'id'>>({
+        ...sanitizedBaseOrder,
+        ...metadata,
+      });
       const orderRef = doc(collection(this.firestore, 'orders'), metadata.orderNumber);
       await setDoc(orderRef, payload);
       const order: AdminOrder = { ...payload, id: metadata.orderNumber };
@@ -190,8 +195,11 @@ export class CartService {
     }
 
     const metadata = this.generateLocalOrderMetadata(createdAt.toDate());
-    const fallbackOrder: AdminOrder = { ...baseOrder, ...metadata, id: metadata.orderNumber };
-
+    const fallbackOrder: AdminOrder = {
+      ...sanitizedBaseOrder,
+      ...metadata,
+      id: metadata.orderNumber,
+    };
     this.localOrdersSignal.update((orders) => [fallbackOrder, ...orders]);
     this.clearCart();
     return fallbackOrder;
@@ -271,6 +279,31 @@ export class CartService {
 
   private composeOrderNumber(year: number, month: string, sequence: number): string {
     return `${year}-${month}-${sequence.toString().padStart(4, '0')}`;
+  }
+
+  private stripUndefined<T>(input: T): T {
+    if (input instanceof Timestamp) {
+      return input;
+    }
+
+    if (Array.isArray(input)) {
+      return input.map((item) => this.stripUndefined(item)) as unknown as T;
+    }
+
+    if (input && typeof input === 'object') {
+      const sanitized: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
+        if (value === undefined) {
+          continue;
+        }
+
+        sanitized[key] = this.stripUndefined(value);
+      }
+
+      return sanitized as T;
+    }
+
+    return input;
   }
 
   private composeNotesWithDetails(
