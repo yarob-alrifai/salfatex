@@ -80,7 +80,7 @@ export class CheckoutPageComponent {
     this.errorMessage.set(null);
 
     try {
-      const notes = this.composeNotes(info.restaurantName, info.phone, info.notes);
+      const notes = this.composeNotes(info.notes);
       const order = await this.cart.submitOrder({
         customerName: info.name,
         customerEmail: info.email || undefined,
@@ -117,21 +117,10 @@ export class CheckoutPageComponent {
     return `${item.product.id}-${item.unit.type}`;
   }
 
-  private composeNotes(restaurantName: string, phone?: string, notes?: string): string | undefined {
+  private composeNotes(notes?: string): string | undefined {
     const details: string[] = [];
 
-    const trimmedRestaurant = restaurantName?.trim();
-    const trimmedPhone = phone?.trim();
-
     const trimmedNotes = notes?.trim();
-
-    if (trimmedRestaurant) {
-      details.push(`اسم المطعم: ${trimmedRestaurant}`);
-    }
-
-    if (trimmedPhone) {
-      details.push(`رقم الهاتف: ${trimmedPhone}`);
-    }
 
     if (trimmedNotes) {
       details.push(trimmedNotes);

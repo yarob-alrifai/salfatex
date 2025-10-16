@@ -144,3 +144,22 @@ textarea {
   border-radius: 0.75rem;
   cursor: pointer;
 }
+
+.order-items-list {
+  max-height: 20rem;
+  overflow-y: auto;
+  padding-inline-end: 0.5rem;
+}
+
+.order-items-list::-webkit-scrollbar {
+  width: 0.4rem;
+}
+
+.order-items-list::-webkit-scrollbar-thumb {
+  background-color: rgba(15, 23, 42, 0.1);
+  border-radius: 999px;
+}
+
+.order-items-list::-webkit-scrollbar-track {
+  background-color: transparent;
+}

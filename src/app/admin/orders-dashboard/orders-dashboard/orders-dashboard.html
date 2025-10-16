@@ -229,30 +229,52 @@
         <section class="grid gap-6 lg:grid-cols-2">
           <div class="rounded-2xl border border-slate-100 p-6">
             <h4 class="text-lg font-semibold text-slate-900">المنتجات</h4>
-            <ul class="mt-4 space-y-3 text-sm text-slate-600">
-              <li
-                *ngFor="let item of selectedOrder.items; trackBy: trackByItem"
-                class="flex items-start justify-between rounded-xl bg-slate-50 px-4 py-3"
-              >
-                <div>
-                  <p class="font-medium text-slate-900">{{ item.name }}</p>
-                  <p class="text-xs text-slate-500" *ngIf="item.unitLabel">
-                    الوحدة: {{ item.unitLabel }}
-                  </p>
-                  <p class="text-xs text-slate-400">الكمية: {{ item.quantity }}</p>
-                  <p class="text-xs text-slate-400">
-                    سعر الوحدة:
-                    {{
-                      (item.unitPrice ?? item.price) * item.quantity
-                        | currency : 'SAR' : 'symbol' : '1.0-0'
-                    }}
-                  </p>
-                </div>
-                <span class="text-sm font-semibold text-slate-700">
-                  {{ item.price | currency : 'SAR' : 'symbol' : '1.0-0' }}
-                </span>
-              </li>
-            </ul>
+            <div class="order-items-list mt-4">
+              <ul class="space-y-3 text-sm text-slate-600">
+                <li
+                  *ngFor="let item of selectedOrder.items; trackBy: trackByItem"
+                  class="space-y-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm"
+                >
+                  <div class="flex items-start justify-between gap-4">
+                    <p class="text-base font-semibold text-slate-900">{{ item.name }}</p>
+                    <span class="text-sm font-semibold text-slate-700">
+                      الإجمالي:
+                      {{ item.price | currency : 'SAR' : 'symbol' : '1.0-0' }}
+                    </span>
+                  </div>
+                  <dl class="grid gap-3 text-xs text-slate-500 sm:grid-cols-2">
+                    <div class="flex items-center justify-between gap-2">
+                      <dt class="font-medium text-slate-400">الوحدة</dt>
+                      <dd class="text-slate-600">
+                        {{ item.unitLabel || item.unitType || '—' }}
+                      </dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                      <dt class="font-medium text-slate-400">العدد</dt>
+                      <dd class="text-slate-600">{{ item.piecesCount ?? '—' }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                      <dt class="font-medium text-slate-400">الكمية</dt>
+                      <dd class="text-slate-600">{{ item.quantity }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                      <dt class="font-medium text-slate-400">اللون</dt>
+                      <dd class="text-slate-600">{{ item.color || '—' }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                      <dt class="font-medium text-slate-400">سعر الوحدة</dt>
+                      <dd class="text-slate-600">
+                        {{
+                          item.unitPrice ??
+                            (item.quantity ? item.price / item.quantity : item.price)
+                            | currency : 'SAR' : 'symbol' : '1.0-0'
+                        }}
+                      </dd>
+                    </div>
+                  </dl>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div class="space-y-6">
@@ -265,9 +287,26 @@
 
             <div class="rounded-2xl border border-slate-100 p-6">
               <h4 class="text-lg font-semibold text-slate-900">ملاحظات</h4>
-              <p class="mt-3 text-sm text-slate-600">
-                {{ selectedOrder.notes || 'لا توجد ملاحظات' }}
-              </p>
+              <dl class="mt-4 space-y-3 text-sm text-slate-600">
+                <div>
+                  <dt class="text-xs font-medium text-slate-500">اسم المطعم</dt>
+                  <dd class="mt-1 text-base text-slate-700">
+                    {{ selectedOrder.restaurantName || '—' }}
+                  </dd>
+                </div>
+                <div>
+                  <dt class="text-xs font-medium text-slate-500">رقم الهاتف</dt>
+                  <dd class="mt-1 text-base text-slate-700" dir="ltr">
+                    {{ selectedOrder.customerPhone || '—' }}
+                  </dd>
+                </div>
+                <div>
+                  <dt class="text-xs font-medium text-slate-500">ملاحظات إضافية</dt>
+                  <dd class="mt-1 whitespace-pre-line text-base text-slate-700">
+                    {{ selectedOrder.notes || 'لا توجد ملاحظات' }}
+                  </dd>
+                </div>
+              </dl>
             </div>
           </div>
         </section>

@@ -197,11 +197,7 @@ export class CartService {
     const trimmedRestaurant = details.restaurantName?.trim();
     const trimmedPhone = details.customerPhone?.trim();
 
-    const normalizedNotes = this.composeNotesWithDetails(
-      trimmedRestaurant,
-      trimmedPhone,
-      details.notes
-    );
+    const normalizedNotes = this.composeNotesWithDetails(details.notes);
 
     const baseOrder: Omit<AdminOrder, 'id' | 'orderNumber' | 'orderSequence' | 'orderMonth'> = {
       customerName: trimmedName,
@@ -343,26 +339,9 @@ export class CartService {
     return input;
   }
 
-  private composeNotesWithDetails(
-    restaurantName?: string,
-    phone?: string,
-    notes?: string | null
-  ): string | undefined {
+  private composeNotesWithDetails(notes?: string | null): string | undefined {
     const parts: string[] = [];
     const trimmedNotes = notes?.toString().trim() ?? '';
-    const includesRestaurant = /اسم\s+المطعم/i.test(trimmedNotes);
-    const includesPhone = /رقم\s+الهاتف|phone|tel/i.test(trimmedNotes);
-
-    const trimmedRestaurant = restaurantName?.trim();
-    const trimmedPhone = phone?.trim();
-
-    if (trimmedRestaurant && !includesRestaurant) {
-      parts.push(`اسم المطعم: ${trimmedRestaurant}`);
-    }
-
-    if (trimmedPhone && !includesPhone) {
-      parts.push(`رقم الهاتف: ${trimmedPhone}`);
-    }
 
     if (trimmedNotes) {
       parts.push(trimmedNotes);
