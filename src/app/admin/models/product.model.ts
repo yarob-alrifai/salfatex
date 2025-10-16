@@ -10,6 +10,8 @@ export interface Product {
   categoryId: string;
   subcategoryId?: string;
   mainImageUrl?: string;
+  colors?: string[];
+
   galleryUrls?: string[];
   createdAt?: Timestamp;
   sequence?: number;

@@ -11,6 +11,7 @@ export interface CartItem {
   product: Product;
   quantity: number;
   unit: CartUnitSelection;
+  color?: string;
 }
 
 export interface CartSnapshot {

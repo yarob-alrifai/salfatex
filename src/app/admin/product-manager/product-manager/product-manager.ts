@@ -2,7 +2,15 @@ import { AsyncPipe, CommonModule, CurrencyPipe, NgClass, NgFor, NgIf } from '@an
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { BehaviorSubject, combineLatest, map, startWith } from 'rxjs';
 import { AdminDataService } from '../../admin-data.service';
 import { Product } from '../../models/product.model';
@@ -53,7 +61,7 @@ export class ProductManagerComponent implements OnDestroy {
   };
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
-    color: ['', Validators.required],
+    colors: this.createColorsArray(),
     description: ['', Validators.required],
     categoryId: ['', Validators.required],
     subcategoryId: [''],
@@ -146,6 +154,8 @@ export class ProductManagerComponent implements OnDestroy {
               product.name,
               product.description,
               product.color,
+              product.colors?.join(' '),
+
               product.categoryName,
               product.subcategoryName,
               product.price,
@@ -186,12 +196,20 @@ export class ProductManagerComponent implements OnDestroy {
 
   readonly editForm = this.fb.nonNullable.group({
     name: ['', Validators.required],
-    color: ['', Validators.required],
+    colors: this.createColorsArray(),
     description: ['', Validators.required],
     categoryId: ['', Validators.required],
     subcategoryId: [''],
     unitOptions: this.createUnitOptionsGroup(),
   });
+
+  get createColorControls(): FormControl<string>[] {
+    return (this.form.controls.colors as FormArray<FormControl<string>>).controls;
+  }
+
+  get editColorControls(): FormControl<string>[] {
+    return (this.editForm.controls.colors as FormArray<FormControl<string>>).controls;
+  }
 
   private createUnitOptionsGroup() {
     return this.fb.nonNullable.group({
@@ -209,23 +227,73 @@ export class ProductManagerComponent implements OnDestroy {
   private resetCreateForm() {
     this.form.reset({
       name: '',
-      color: '',
       description: '',
       categoryId: '',
       subcategoryId: '',
       unitOptions: { ...this.defaultUnitOptions },
     });
+    this.setFormColors(this.form);
   }
 
   private resetEditForm() {
     this.editForm.reset({
       name: '',
-      color: '',
       description: '',
       categoryId: '',
       subcategoryId: '',
       unitOptions: { ...this.defaultUnitOptions },
     });
+    this.setFormColors(this.editForm);
+  }
+
+  private createColorControl(value: string = ''): FormControl<string> {
+    return this.fb.control(value, { nonNullable: true, validators: [Validators.required] });
+  }
+
+  private atLeastOneColor(control: AbstractControl): ValidationErrors | null {
+    const values = (control as FormArray<FormControl<string>>).value as string[];
+    const hasColor = values.some((color) => color?.trim());
+    return hasColor ? null : { colorRequired: true };
+  }
+
+  private createColorsArray(values: string[] = ['']): FormArray<FormControl<string>> {
+    const source = values.length ? values : [''];
+    return new FormArray<FormControl<string>>(
+      source.map((value) => this.createColorControl(value)),
+      { validators: [this.atLeastOneColor.bind(this)] }
+    );
+  }
+
+  private setFormColors(
+    form: typeof this.form | typeof this.editForm,
+    colors: string[] = ['']
+  ): void {
+    const source = colors.length ? colors : [''];
+    form.setControl('colors', this.createColorsArray(source));
+  }
+
+  addColorControl(target: 'create' | 'edit'): void {
+    const array =
+      target === 'create'
+        ? (this.form.controls.colors as FormArray<FormControl<string>>)
+        : (this.editForm.controls.colors as FormArray<FormControl<string>>);
+    array.push(this.createColorControl());
+  }
+
+  removeColorControl(target: 'create' | 'edit', index: number): void {
+    const array =
+      target === 'create'
+        ? (this.form.controls.colors as FormArray<FormControl<string>>)
+        : (this.editForm.controls.colors as FormArray<FormControl<string>>);
+    if (array.length <= 1) {
+      array.at(0).reset('');
+      return;
+    }
+    array.removeAt(index);
+  }
+
+  private normalizeColors(colors: string[] = []): string[] {
+    return colors.map((color) => color.trim()).filter(Boolean);
   }
 
   private buildUnitOptionsFormValue(
@@ -592,7 +660,7 @@ export class ProductManagerComponent implements OnDestroy {
 
     this.feedback.set('');
 
-    const { unitOptions: unitOptionsRaw, ...rest } = this.form.getRawValue();
+    const { unitOptions: unitOptionsRaw, colors, ...rest } = this.form.getRawValue();
     const { options, error } = this.normalizeUnitOptions(unitOptionsRaw);
 
     if (error) {
@@ -601,9 +669,21 @@ export class ProductManagerComponent implements OnDestroy {
     }
 
     const basePrice = this.resolveBasePrice(options);
+    const normalizedColors = this.normalizeColors(colors);
+
+    if (!normalizedColors.length) {
+      this.feedback.set('يرجى إضافة لون واحد على الأقل للمنتج.');
+      return;
+    }
     try {
       await this.adminDataService.createProduct(
-        { ...rest, price: basePrice, unitOptions: options },
+        {
+          ...rest,
+          price: basePrice,
+          unitOptions: options,
+          color: normalizedColors[0],
+          colors: normalizedColors,
+        },
         this.mainImage ?? undefined,
         this.galleryImages
       );
@@ -629,14 +709,17 @@ export class ProductManagerComponent implements OnDestroy {
   openEdit(product: Product & { categoryName?: string; subcategoryName?: string }) {
     this.isEditModalOpen = true;
     this.editingProduct = product;
-    this.editForm.setValue({
+    this.editForm.patchValue({
       name: product.name ?? '',
-      color: product.color ?? '',
       description: product.description ?? '',
       categoryId: product.categoryId ?? '',
       subcategoryId: product.subcategoryId ?? '',
       unitOptions: this.buildUnitOptionsFormValue(product.unitOptions, product.price ?? 0),
     });
+    this.setFormColors(
+      this.editForm,
+      product.colors?.length ? product.colors : [product.color ?? '']
+    );
     this.editGalleryUrls = [...(product.galleryUrls ?? [])];
     this.editNewGalleryFiles = [];
     this.editMainImageFile = null;
@@ -692,7 +775,7 @@ export class ProductManagerComponent implements OnDestroy {
       return;
     }
 
-    const { unitOptions: unitOptionsRaw, ...rest } = this.editForm.getRawValue();
+    const { unitOptions: unitOptionsRaw, colors, ...rest } = this.editForm.getRawValue();
     const { options, error } = this.normalizeUnitOptions(unitOptionsRaw);
 
     if (error) {
@@ -701,11 +784,23 @@ export class ProductManagerComponent implements OnDestroy {
     }
 
     const basePrice = this.resolveBasePrice(options);
+    const normalizedColors = this.normalizeColors(colors);
+
+    if (!normalizedColors.length) {
+      this.editFeedback = 'يرجى إضافة لون واحد على الأقل للمنتج.';
+      return;
+    }
 
     try {
       await this.adminDataService.updateProduct(
         this.editingProduct.id,
-        { ...rest, price: basePrice, unitOptions: options },
+        {
+          ...rest,
+          price: basePrice,
+          unitOptions: options,
+          color: normalizedColors[0],
+          colors: normalizedColors,
+        },
         this.editMainImageFile ?? undefined,
         this.editNewGalleryFiles,
         this.editGalleryUrls

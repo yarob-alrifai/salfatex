@@ -46,11 +46,16 @@ export class CartService {
   );
   readonly localOrders = computed(() => this.localOrdersSignal());
 
-  addProduct(product: Product, unitOption?: ProductUnitOption) {
+  addProduct(product: Product, unitOption?: ProductUnitOption, selectedColor?: string) {
     const resolvedUnit = this.createUnitSelection(product, unitOption);
+    const normalizedColor = selectedColor?.trim() || product.color?.trim();
+    const productWithColor = normalizedColor ? { ...product, color: normalizedColor } : product;
     this.itemsSignal.update((items) => {
       const existingIndex = items.findIndex(
-        (item) => item.product.id === product.id && item.unit.type === resolvedUnit.type
+        (item) =>
+          item.product.id === product.id &&
+          item.unit.type === resolvedUnit.type &&
+          (item.color ?? item.product.color ?? null) === (normalizedColor ?? null)
       );
       if (existingIndex >= 0) {
         return items.map((item, index) =>
@@ -58,25 +63,37 @@ export class CartService {
         );
       }
 
-      return [...items, { product, quantity: 1, unit: resolvedUnit }];
+      return [
+        ...items,
+        {
+          product: productWithColor,
+          quantity: 1,
+          unit: resolvedUnit,
+          color: normalizedColor ?? undefined,
+        },
+      ];
     });
   }
 
-  increment(productId: string, unitType: ProductUnitType) {
+  increment(productId: string, unitType: ProductUnitType, color?: string) {
     this.itemsSignal.update((items) =>
       items.map((item) =>
-        item.product.id === productId && item.unit.type === unitType
+        item.product.id === productId &&
+        item.unit.type === unitType &&
+        (item.color ?? item.product.color ?? null) === (color ?? null)
           ? { ...item, quantity: item.quantity + 1 }
           : item
       )
     );
   }
 
-  decrement(productId: string, unitType: ProductUnitType) {
+  decrement(productId: string, unitType: ProductUnitType, color?: string) {
     this.itemsSignal.update((items) =>
       items
         .map((item) =>
-          item.product.id === productId && item.unit.type === unitType
+          item.product.id === productId &&
+          item.unit.type === unitType &&
+          (item.color ?? item.product.color ?? null) === (color ?? null)
             ? { ...item, quantity: item.quantity - 1 }
             : item
         )
@@ -84,7 +101,7 @@ export class CartService {
     );
   }
 
-  updateQuantity(productId: string, unitType: ProductUnitType, quantity: number) {
+  updateQuantity(productId: string, unitType: ProductUnitType, quantity: number, color?: string) {
     if (!Number.isFinite(quantity)) {
       return;
     }
@@ -93,7 +110,10 @@ export class CartService {
 
     this.itemsSignal.update((items) => {
       const index = items.findIndex(
-        (item) => item.product.id === productId && item.unit.type === unitType
+        (item) =>
+          item.product.id === productId &&
+          item.unit.type === unitType &&
+          (item.color ?? item.product.color ?? null) === (color ?? null)
       );
       if (index === -1) {
         return items;
@@ -101,21 +121,35 @@ export class CartService {
 
       if (normalizedQuantity === 0) {
         return items.filter(
-          (item) => !(item.product.id === productId && item.unit.type === unitType)
+          (item) =>
+            !(
+              item.product.id === productId &&
+              item.unit.type === unitType &&
+              (item.color ?? item.product.color ?? null) === (color ?? null)
+            )
         );
       }
 
       return items.map((item) =>
-        item.product.id === productId && item.unit.type === unitType
+        item.product.id === productId &&
+        item.unit.type === unitType &&
+        (item.color ?? item.product.color ?? null) === (color ?? null)
           ? { ...item, quantity: normalizedQuantity }
           : item
       );
     });
   }
 
-  removeProduct(productId: string, unitType: ProductUnitType) {
+  removeProduct(productId: string, unitType: ProductUnitType, color?: string) {
     this.itemsSignal.update((items) =>
-      items.filter((item) => !(item.product.id === productId && item.unit.type === unitType))
+      items.filter(
+        (item) =>
+          !(
+            item.product.id === productId &&
+            item.unit.type === unitType &&
+            (item.color ?? item.product.color ?? null) === (color ?? null)
+          )
+      )
     );
   }
 
@@ -123,10 +157,13 @@ export class CartService {
     this.itemsSignal.set([]);
   }
 
-  getQuantity(productId: string, unitType: ProductUnitType): number {
+  getQuantity(productId: string, unitType: ProductUnitType, color?: string): number {
     return (
       this.itemsSignal().find(
-        (item) => item.product.id === productId && item.unit.type === unitType
+        (item) =>
+          item.product.id === productId &&
+          item.unit.type === unitType &&
+          (item.color ?? item.product.color ?? null) === (color ?? null)
       )?.quantity ?? 0
     );
   }
@@ -148,7 +185,7 @@ export class CartService {
       productId: item.product.id,
       name: item.product.name,
       quantity: item.quantity,
-      color: item.product.color,
+      color: item.color ?? item.product.color,
       price: item.unit.price,
       unitPrice: item.unit.price,
       unitType: item.unit.type,

@@ -54,7 +54,7 @@
                       {{ item.product.name }}
                     </strong>
                     <span class="block text-xs font-medium text-slate-500">
-                      اللون: {{ item.product.color || 'غير محدد' }}
+                      اللون: {{ item.color || item.product.color || 'غير محدد' }}
                     </span>
                   </div>
                 </div>

@@ -34,6 +34,7 @@ export class SubcategoryDetailComponent {
   private readonly catalog = inject(CatalogService);
   private readonly cart = inject(CartService);
   private readonly selectedUnits = signal<Record<string, ProductUnitType>>({});
+  private readonly selectedColors = signal<Record<string, string | undefined>>({});
 
   readonly viewModel$: Observable<SubcategoryDetailViewModel> = this.route.paramMap.pipe(
     map((params) => ({
@@ -61,21 +62,37 @@ export class SubcategoryDetailComponent {
 
   addToCart(event: Event, product: Product): void {
     event.stopPropagation();
-    this.cart.addProduct(product, this.getSelectedUnitOption(product));
+    this.cart.addProduct(
+      product,
+      this.getSelectedUnitOption(product),
+      this.getSelectedColor(product)
+    );
   }
 
   increment(event: Event, product: Product): void {
     event.stopPropagation();
-    this.cart.increment(product.id, this.getSelectedUnitType(product));
+    this.cart.increment(
+      product.id,
+      this.getSelectedUnitType(product),
+      this.getSelectedColor(product)
+    );
   }
 
   decrement(event: Event, product: Product): void {
     event.stopPropagation();
-    this.cart.decrement(product.id, this.getSelectedUnitType(product));
+    this.cart.decrement(
+      product.id,
+      this.getSelectedUnitType(product),
+      this.getSelectedColor(product)
+    );
   }
 
   getQuantity(product: Product): number {
-    return this.cart.getQuantity(product.id, this.getSelectedUnitType(product));
+    return this.cart.getQuantity(
+      product.id,
+      this.getSelectedUnitType(product),
+      this.getSelectedColor(product)
+    );
   }
 
   trackByProductId(_: number, product: Product): string {
@@ -88,6 +105,9 @@ export class SubcategoryDetailComponent {
 
   selectUnit(productId: string, unitType: ProductUnitType): void {
     this.selectedUnits.update((units) => ({ ...units, [productId]: unitType }));
+  }
+  selectColor(productId: string, color: string): void {
+    this.selectedColors.update((colors) => ({ ...colors, [productId]: color }));
   }
 
   getAvailableUnitOptions(product: Product): ProductUnitOption[] {
@@ -118,6 +138,26 @@ export class SubcategoryDetailComponent {
     return this.getSelectedUnitOption(product).price;
   }
 
+  getAvailableColors(product: Product): string[] {
+    if (product.colors?.length) {
+      return product.colors;
+    }
+    return product.color ? [product.color] : [];
+  }
+
+  getSelectedColor(product: Product): string | undefined {
+    const current = this.selectedColors()[product.id];
+    const colors = this.getAvailableColors(product);
+    if (current && colors.includes(current)) {
+      return current;
+    }
+    return colors[0];
+  }
+
+  isSelectedColor(product: Product, color: string): boolean {
+    return this.getSelectedColor(product) === color;
+  }
+
   getUnitLabel(option: ProductUnitOption): string {
     switch (option.type) {
       case 'bundle':
@@ -144,6 +184,19 @@ export class SubcategoryDetailComponent {
         const defaultType = product.unitOptions?.[0]?.type;
 
         next[product.id] = defaultType ?? 'piece';
+      }
+      return next;
+    });
+    this.selectedColors.update((colors) => {
+      const next = { ...colors };
+      for (const product of products) {
+        if (next[product.id]) {
+          continue;
+        }
+        const available = this.getAvailableColors(product);
+        if (available.length) {
+          next[product.id] = available[0];
+        }
       }
       return next;
     });

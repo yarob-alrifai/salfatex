@@ -28,7 +28,8 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  color: string;
+  color?: string;
+  colors?: string[];
   mainImageUrl?: string;
   galleryUrls?: string[];
   materials?: string;

@@ -64,7 +64,26 @@
               {{ getSelectedUnitPrice(product) | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
             </p>
 
-            <p *ngIf="product.color" class="text-xs text-slate-500">اللون: {{ product.color }}</p>
+            <div
+              *ngIf="getAvailableColors(product).length"
+              class="flex flex-wrap justify-end gap-2 text-xs text-slate-600"
+            >
+              <button
+                type="button"
+                *ngFor="let color of getAvailableColors(product)"
+                class="rounded-full border px-2 py-1 transition"
+                [class.bg-amber-500]="isSelectedColor(product, color)"
+                [class.text-white]="isSelectedColor(product, color)"
+                [class.border-amber-500]="isSelectedColor(product, color)"
+                [class.text-amber-600]="!isSelectedColor(product, color)"
+                [class.border-amber-200]="!isSelectedColor(product, color)"
+                (click)="
+                  selectColor(product.id, color); $event.preventDefault(); $event.stopPropagation()
+                "
+              >
+                {{ color }}
+              </button>
+            </div>
           </div>
         </a>
 

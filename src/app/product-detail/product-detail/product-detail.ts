@@ -22,27 +22,47 @@ export class ProductDetailComponent {
 
   readonly quantity = signal(1);
   private readonly selectedUnitType = signal<ProductUnitType | null>(null);
+  private readonly selectedColor = signal<string | null>(null);
 
   readonly product$: Observable<Product | undefined> = this.route.paramMap.pipe(
     map((params) => params.get('productId') ?? ''),
     switchMap((productId) => this.catalog.getProductById(productId)),
-    tap((product) => this.ensureDefaultUnit(product))
+    tap((product) => {
+      this.ensureDefaultUnit(product);
+      this.ensureDefaultColor(product);
+    })
   );
 
   addToCart(product: Product) {
-    this.cart.addProduct(product, this.getSelectedUnitOption(product));
+    this.cart.addProduct(
+      product,
+      this.getSelectedUnitOption(product),
+      this.getSelectedColor(product) ?? undefined
+    );
   }
 
   increment(product: Product) {
-    this.cart.increment(product.id, this.getSelectedUnitType(product));
+    this.cart.increment(
+      product.id,
+      this.getSelectedUnitType(product),
+      this.getSelectedColor(product) ?? undefined
+    );
   }
 
   decrement(product: Product) {
-    this.cart.decrement(product.id, this.getSelectedUnitType(product));
+    this.cart.decrement(
+      product.id,
+      this.getSelectedUnitType(product),
+      this.getSelectedColor(product) ?? undefined
+    );
   }
 
   getQuantity(product: Product): number {
-    return this.cart.getQuantity(product.id, this.getSelectedUnitType(product));
+    return this.cart.getQuantity(
+      product.id,
+      this.getSelectedUnitType(product),
+      this.getSelectedColor(product) ?? undefined
+    );
   }
 
   getMainImage(product: Product): string | undefined {
@@ -105,6 +125,30 @@ export class ProductDetailComponent {
     return this.getSelectedUnitOption(product).price;
   }
 
+  getAvailableColors(product: Product): string[] {
+    if (product.colors?.length) {
+      return product.colors;
+    }
+    return product.color ? [product.color] : [];
+  }
+
+  selectColor(color: string): void {
+    this.selectedColor.set(color);
+  }
+
+  isSelectedColor(product: Product, color: string): boolean {
+    return this.getSelectedColor(product) === color;
+  }
+
+  getSelectedColor(product: Product): string | null {
+    const current = this.selectedColor();
+    if (current && this.getAvailableColors(product).includes(current)) {
+      return current;
+    }
+    const defaultColor = this.getAvailableColors(product)[0];
+    return defaultColor ?? null;
+  }
+
   private getSelectedUnitOption(product: Product): ProductUnitOption {
     const selectedType = this.getSelectedUnitType(product);
     const options = this.getAvailableUnitOptions(product);
@@ -133,6 +177,8 @@ export class ProductDetailComponent {
   private ensureDefaultUnit(product?: Product): void {
     if (!product) {
       this.selectedUnitType.set(null);
+      this.selectedColor.set(null);
+
       return;
     }
 
@@ -146,5 +192,24 @@ export class ProductDetailComponent {
 
     const defaultType = product.unitOptions?.[0]?.type ?? 'piece';
     this.selectedUnitType.set(defaultType);
+  }
+  private ensureDefaultColor(product?: Product): void {
+    if (!product) {
+      this.selectedColor.set(null);
+      return;
+    }
+
+    const colors = this.getAvailableColors(product);
+    if (!colors.length) {
+      this.selectedColor.set(null);
+      return;
+    }
+
+    const current = this.selectedColor();
+    if (current && colors.includes(current)) {
+      return;
+    }
+
+    this.selectedColor.set(colors[0]);
   }
 }

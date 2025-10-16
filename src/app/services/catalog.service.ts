@@ -200,8 +200,12 @@ export class CatalogService {
           ? product.name.toLowerCase().includes(normalizedTerm) ||
             product.description.toLowerCase().includes(normalizedTerm)
           : true;
+        const availableColors = [product.color, ...(product.colors ?? [])]
+          .filter((value): value is string => Boolean(value))
+          .map((value) => value.toLowerCase());
+
         const matchesColor = normalizedColor
-          ? product.color.toLowerCase().includes(normalizedColor)
+          ? availableColors.some((value) => value.includes(normalizedColor))
           : true;
         const effectivePrice = product.unitOptions?.length
           ? Math.min(...product.unitOptions.map((option) => option.price))

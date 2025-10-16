@@ -78,9 +78,24 @@
             </button>
           </div>
 
-          <p class="text-base font-medium text-slate-600" *ngIf="product.color">
-            اللون: {{ product.color }}
-          </p>
+          <div *ngIf="getAvailableColors(product).length" class="space-y-2 text-right">
+            <p class="text-sm font-medium text-slate-600">اختر اللون</p>
+            <div class="flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                *ngFor="let color of getAvailableColors(product)"
+                class="rounded-full border px-3 py-1 text-sm transition"
+                [class.bg-emerald-500]="isSelectedColor(product, color)"
+                [class.text-white]="isSelectedColor(product, color)"
+                [class.border-emerald-500]="isSelectedColor(product, color)"
+                [class.text-emerald-600]="!isSelectedColor(product, color)"
+                [class.border-emerald-200]="!isSelectedColor(product, color)"
+                (click)="selectColor(color)"
+              >
+                {{ color }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <p class="text-base leading-relaxed text-slate-600" *ngIf="product.description">
