@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { Observable, combineLatest, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map, switchMap, tap } from 'rxjs';
 import { CatalogService } from '../../services/catalog.service';
 import { CartService } from '../../services/cart.service';
 import {
@@ -12,6 +12,7 @@ import {
   Subcategory,
 } from '../../models/catalog.models';
 import { BackButtonComponent } from 'src/app/component/back-button/back-button';
+import { FormsModule } from '@angular/forms';
 
 interface SubcategoryDetailViewModel {
   category?: Category;
@@ -24,7 +25,7 @@ interface SubcategoryDetailViewModel {
 @Component({
   selector: 'app-subcategory-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, BackButtonComponent],
+  imports: [CommonModule, RouterModule, FormsModule, BackButtonComponent],
   templateUrl: './subcategory-detail.html',
   styleUrls: ['./subcategory-detail.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,31 +36,47 @@ export class SubcategoryDetailComponent {
   private readonly cart = inject(CartService);
   private readonly selectedUnits = signal<Record<string, ProductUnitType>>({});
   private readonly selectedColors = signal<Record<string, string | undefined>>({});
+  private readonly searchTermSubject = new BehaviorSubject<string>('');
 
-  readonly viewModel$: Observable<SubcategoryDetailViewModel> = this.route.paramMap.pipe(
-    map((params) => ({
-      categoryId: params.get('categoryId') ?? '',
-      subcategoryId: params.get('subcategoryId') ?? '',
-    })),
-    switchMap(({ categoryId, subcategoryId }) =>
-      combineLatest([
-        this.catalog.getCategoryById(categoryId),
-        this.catalog.getSubcategoryById(subcategoryId),
-        this.catalog.getProductsForSubcategory(categoryId, subcategoryId),
-      ]).pipe(
-        tap(([, , products]) => this.ensureDefaults(products)),
+  private readonly baseViewModel$: Observable<SubcategoryDetailViewModel> =
+    this.route.paramMap.pipe(
+      map((params) => ({
+        categoryId: params.get('categoryId') ?? '',
+        subcategoryId: params.get('subcategoryId') ?? '',
+      })),
+      switchMap(({ categoryId, subcategoryId }) =>
+        combineLatest([
+          this.catalog.getCategoryById(categoryId),
+          this.catalog.getSubcategoryById(subcategoryId),
+          this.catalog.getProductsForSubcategory(categoryId, subcategoryId),
+        ]).pipe(
+          tap(([, , products]) => this.ensureDefaults(products)),
 
-        map(([category, subcategory, products]) => ({
-          category,
-          subcategory,
-          products,
-          categoryId,
-          subcategoryId,
-        }))
+          map(([category, subcategory, products]) => ({
+            category,
+            subcategory,
+            products,
+            categoryId,
+            subcategoryId,
+          }))
+        )
       )
-    )
-  );
+    );
+  readonly viewModel$: Observable<
+    SubcategoryDetailViewModel & {
+      filteredProducts: Product[];
+      searchTerm: string;
+    }
+  > = combineLatest([this.baseViewModel$, this.searchTermSubject]).pipe(
+    map(([viewModel, searchTerm]) => {
+      const normalizedSearch = searchTerm.trim().toLowerCase();
+      const filteredProducts = normalizedSearch
+        ? viewModel.products.filter((product) => this.matchesSearch(product, normalizedSearch))
+        : viewModel.products;
 
+      return { ...viewModel, filteredProducts, searchTerm };
+    })
+  );
   addToCart(event: Event, product: Product): void {
     event.stopPropagation();
     this.cart.addProduct(
@@ -109,7 +126,9 @@ export class SubcategoryDetailComponent {
   selectColor(productId: string, color: string): void {
     this.selectedColors.update((colors) => ({ ...colors, [productId]: color }));
   }
-
+  updateSearch(term: string): void {
+    this.searchTermSubject.next(term);
+  }
   getAvailableUnitOptions(product: Product): ProductUnitOption[] {
     if (product.unitOptions?.length) {
       return product.unitOptions;
@@ -171,6 +190,19 @@ export class SubcategoryDetailComponent {
 
   isSelectedUnit(product: Product, option: ProductUnitOption): boolean {
     return this.getSelectedUnitType(product) === option.type;
+  }
+
+  private matchesSearch(product: Product, searchTerm: string): boolean {
+    const haystacks = [
+      product.name ?? '',
+      product.description ?? '',
+      product.color ?? '',
+      ...(product.colors ?? []),
+    ]
+      .filter((value): value is string => Boolean(value))
+      .map((value) => value.toLowerCase());
+
+    return haystacks.some((value) => value.includes(searchTerm));
   }
 
   private ensureDefaults(products: Product[]): void {

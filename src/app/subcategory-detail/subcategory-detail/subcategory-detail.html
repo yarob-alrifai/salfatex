@@ -25,16 +25,32 @@
   </header>
 
   <section class="mt-10">
-    <h2 class="text-lg font-semibold text-slate-900">
-      المنتجات المتاحة ({{ vm.products.length }})
-    </h2>
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="text-lg font-semibold text-slate-900">
+        المنتجات المتاحة ({{ vm.filteredProducts.length }})
+      </h2>
+
+      <label
+        class="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-500 shadow-sm focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-200 sm:min-w-[22rem]"
+      >
+        <span class="whitespace-nowrap">ابحث ضمن المنتجات</span>
+        <input
+          type="search"
+          name="subcategory-search"
+          class="w-full border-none bg-transparent text-right text-sm text-slate-900 focus:outline-none"
+          placeholder="اكتب اسم المنتج أو لونه"
+          [ngModel]="vm.searchTerm"
+          (ngModelChange)="updateSearch($event)"
+        />
+      </label>
+    </div>
 
     <div
-      *ngIf="vm.products.length; else empty"
+      *ngIf="vm.filteredProducts.length; else empty"
       class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
     >
       <article
-        *ngFor="let product of vm.products; trackBy: trackByProductId"
+        *ngFor="let product of vm.filteredProducts; trackBy: trackByProductId"
         class="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-sm shadow-slate-900/5 transition hover:-translate-y-1 hover:border-amber-400 hover:shadow-lg"
       >
         <a
@@ -125,6 +141,24 @@
         </div>
       </article>
     </div>
+
+    <ng-template #empty>
+      <ng-container *ngIf="vm.products.length === 0; else noFilteredResults">
+        <div
+          class="rounded-3xl border border-dashed border-slate-200 bg-white/90 px-6 py-12 text-center text-sm text-slate-500"
+        >
+          لا توجد منتجات ضمن هذا القسم الفرعي حالياً.
+        </div>
+      </ng-container>
+    </ng-template>
+
+    <ng-template #noFilteredResults>
+      <div
+        class="rounded-3xl border border-dashed border-amber-200 bg-white/90 px-6 py-12 text-center text-sm text-amber-600"
+      >
+        لا توجد منتجات مطابقة لعبارة البحث الحالية.
+      </div>
+    </ng-template>
   </section>
 </section>
 
@@ -133,13 +167,5 @@
     class="flex min-h-[40vh] items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white/80 px-6 py-10 text-sm text-slate-500"
   >
     جاري تحميل بيانات القسم الفرعي...
-  </div>
-</ng-template>
-
-<ng-template #empty>
-  <div
-    class="rounded-3xl border border-dashed border-slate-200 bg-white/90 px-6 py-12 text-center text-sm text-slate-500"
-  >
-    لا توجد منتجات ضمن هذا القسم الفرعي حالياً.
   </div>
 </ng-template>

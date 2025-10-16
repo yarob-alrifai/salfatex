@@ -1,4 +1,97 @@
 <section class="space-y-16 bg-slate-50 pb-20">
+  <section class="bg-gradient-to-br from-amber-50 via-white to-amber-100">
+    <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-3xl space-y-6 text-center">
+        <h1 class="text-3xl font-bold text-slate-900 sm:text-4xl">
+          ابحثوا عن منتجاتكم المفضّلة مباشرة
+        </h1>
+        <p class="text-lg leading-relaxed text-slate-600">
+          اكتبوا اسم المنتج أو نوعه للوصول السريع إلى النتائج المتاحة في متجر سالفاتكس.
+        </p>
+
+        <form
+          class="mx-auto flex max-w-2xl flex-col gap-3 sm:flex-row"
+          (ngSubmit)="onSubmit($event)"
+        >
+          <label class="sr-only" for="home-search">ابحثوا عن منتج</label>
+          <input
+            id="home-search"
+            name="home-search"
+            type="search"
+            class="w-full rounded-full border border-amber-200 bg-white px-6 py-3 text-right text-base text-slate-900 shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
+            placeholder="ابحثوا عن منتج..."
+            [ngModel]="searchTerm"
+            (ngModelChange)="onSearchTermChange($event)"
+          />
+          <button
+            type="submit"
+            class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-amber-500/30 transition hover:-translate-y-0.5 hover:shadow-xl"
+          >
+            ابحث الآن
+          </button>
+        </form>
+      </div>
+
+      <div class="mx-auto mt-10 max-w-5xl" *ngIf="searchResults$ | async as search">
+        <div *ngIf="search.hasSearched">
+          <div
+            *ngIf="search.isLoading"
+            class="rounded-3xl border border-dashed border-amber-200 bg-white/80 px-6 py-10 text-center text-sm text-amber-600"
+          >
+            جارٍ البحث عن "{{ search.term }}"...
+          </div>
+
+          <ng-container *ngIf="!search.isLoading">
+            <div
+              *ngIf="search.results.length; else homeNoResults"
+              class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              <article
+                *ngFor="let product of search.results; trackBy: trackProduct"
+                class="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/95 p-4 text-right shadow-sm transition hover:-translate-y-1 hover:border-amber-400 hover:shadow-lg"
+              >
+                <a
+                  class="flex flex-col gap-4"
+                  [routerLink]="[
+                    '/categories',
+                    product.categoryId,
+                    'subcategories',
+                    product.subcategoryId,
+                    'products',
+                    product.id
+                  ]"
+                >
+                  <img
+                    class="h-44 w-full rounded-2xl object-cover"
+                    [src]="product.mainImageUrl"
+                    [alt]="product.name"
+                  />
+                  <div class="space-y-2">
+                    <h3 class="text-lg font-semibold text-slate-900">{{ product.name }}</h3>
+                    <p class="text-sm font-semibold text-amber-600">
+                      {{ getMinimumPrice(product) | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
+                    </p>
+                    <p class="text-xs text-slate-500" *ngIf="product.color">
+                      الألوان المتوفرة: {{ product.color }}
+                    </p>
+                  </div>
+                </a>
+              </article>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <ng-template #homeNoResults>
+        <div
+          class="rounded-3xl border border-dashed border-amber-200 bg-white/80 px-6 py-10 text-center text-sm text-amber-600"
+        >
+          لا توجد منتجات مطابقة لعبارة البحث الحالية.
+        </div>
+      </ng-template>
+    </div>
+  </section>
+
   <app-categories></app-categories>
 
   <section class="bg-white">
