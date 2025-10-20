@@ -1,5 +1,16 @@
-import { ChangeDetectionStrategy, Component, Signal, inject, signal } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  NgZone,
+  Signal,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CartService } from '../../services/cart.service';
@@ -15,6 +26,34 @@ interface CheckoutConfirmation {
   orderNumber: string | null;
 }
 
+type RecaptchaCallback = (token: string) => void;
+
+interface Grecaptcha {
+  render(
+    container: HTMLElement,
+    parameters: {
+      sitekey: string;
+      callback?: RecaptchaCallback;
+      'expired-callback'?: () => void;
+      'error-callback'?: () => void;
+      size?: 'normal' | 'compact' | 'invisible';
+      theme?: 'light' | 'dark';
+    }
+  ): number;
+  reset(widgetId?: number): void;
+  ready?(callback: () => void): void;
+}
+
+declare global {
+  interface Window {
+    grecaptcha?: Grecaptcha;
+  }
+}
+
+const RECAPTCHA_SCRIPT_ID = 'google-recaptcha-script';
+
+let recaptchaLoader: Promise<void> | null = null;
+
 @Component({
   selector: 'app-checkout-page',
   standalone: true,
@@ -23,15 +62,18 @@ interface CheckoutConfirmation {
   styleUrls: ['./checkout-page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CheckoutPageComponent {
+export class CheckoutPageComponent implements AfterViewInit {
   private readonly cart = inject(CartService);
   private readonly fb = inject(FormBuilder);
+  private readonly zone = inject(NgZone);
 
   private readonly storage: Storage | null =
     typeof window === 'undefined' ? null : window.localStorage;
   private readonly customerInfoStorageKey = 'checkout.customer-info';
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly recaptchaLoadError = signal<string | null>(null);
+
   readonly items: Signal<CartItem[]> = this.cart.items;
   readonly totalPrice = this.cart.total;
   readonly form = this.fb.nonNullable.group({
@@ -42,15 +84,32 @@ export class CheckoutPageComponent {
     phone: ['', [Validators.required, Validators.minLength(8)]],
 
     notes: [''],
+    recaptchaToken: ['', Validators.required],
   });
 
   readonly confirmation = signal<CheckoutConfirmation | null>(null);
+
+  @ViewChild('recaptchaContainer')
+  private recaptchaContainer?: ElementRef<HTMLDivElement>;
+  private recaptchaWidgetId: number | null = null;
+  private readonly recaptchaSiteKey = this.resolveRecaptchaSiteKey();
+
   constructor() {
     this.restoreCustomerInfo();
 
     this.form.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.saveCustomerInfo(value);
+      const { recaptchaToken: _recaptchaToken, ...customerInfo } = value;
+      this.saveCustomerInfo(customerInfo);
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (typeof queueMicrotask === 'function') {
+      queueMicrotask(() => this.initializeRecaptcha());
+      return;
+    }
+
+    Promise.resolve().then(() => this.initializeRecaptcha());
   }
 
   async submit(): Promise<void> {
@@ -60,7 +119,8 @@ export class CheckoutPageComponent {
     }
 
     const rawValue = this.form.getRawValue();
-    const info = this.normalizeCustomerInfo(rawValue);
+    const { recaptchaToken, ...customerFields } = rawValue;
+    const info = this.normalizeCustomerInfo(customerFields);
     const itemsSnapshot = this.items().map((item) => ({
       ...item,
       unit: { ...item.unit },
@@ -88,6 +148,7 @@ export class CheckoutPageComponent {
         restaurantName: info.restaurantName || undefined,
         shippingAddress: info.address,
         notes,
+        recaptchaToken,
       });
 
       this.confirmation.set({
@@ -101,9 +162,11 @@ export class CheckoutPageComponent {
         {
           ...persisted,
           notes: persisted.notes ?? '',
+          recaptchaToken: '',
         },
         { emitEvent: false }
       );
+      this.resetRecaptcha();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'تعذر إرسال الطلب. حاول مرة أخرى لاحقاً.';
@@ -214,5 +277,176 @@ export class CheckoutPageComponent {
       address,
       notes,
     };
+  }
+
+  private resolveRecaptchaSiteKey(): string {
+    if (typeof document === 'undefined') {
+      return '';
+    }
+
+    const preferredMeta = document.querySelector(
+      'meta[name="google-recaptcha-site-key"], meta[name="recaptcha-site-key"]'
+    );
+    const content = preferredMeta?.getAttribute('content')?.trim();
+
+    if (content) {
+      return content;
+    }
+
+    const metaEnv = (
+      import.meta as ImportMeta & {
+        env?: Record<string, string | undefined>;
+      }
+    ).env;
+
+    const envKey = metaEnv?.['NG_APP_RECAPTCHA_SITE_KEY']?.trim();
+
+    if (envKey) {
+      return envKey;
+    }
+
+    const globalKey = (globalThis as typeof globalThis & { NG_APP_RECAPTCHA_SITE_KEY?: string })
+      .NG_APP_RECAPTCHA_SITE_KEY;
+
+    return globalKey?.trim() ?? '';
+  }
+
+  private async initializeRecaptcha(): Promise<void> {
+    if (typeof window === 'undefined' || this.recaptchaWidgetId !== null) {
+      return;
+    }
+
+    const container = this.recaptchaContainer?.nativeElement;
+
+    if (!container) {
+      return;
+    }
+
+    if (!this.recaptchaSiteKey) {
+      this.recaptchaLoadError.set(
+        'لم يتم ضبط مفتاح reCAPTCHA. يرجى التواصل مع فريق الدعم لإعداد الخدمة.'
+      );
+      return;
+    }
+
+    try {
+      await this.loadRecaptchaScript();
+      const grecaptcha = window.grecaptcha;
+
+      if (!grecaptcha?.render) {
+        throw new Error('تعذر تهيئة خدمة reCAPTCHA.');
+      }
+
+      this.recaptchaWidgetId = grecaptcha.render(container, {
+        sitekey: this.recaptchaSiteKey,
+        callback: (token) => this.zone.run(() => this.onRecaptchaResolved(token)),
+        'expired-callback': () => this.zone.run(() => this.onRecaptchaExpired()),
+        'error-callback': () => this.zone.run(() => this.onRecaptchaError()),
+      });
+      this.recaptchaLoadError.set(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'تعذر تحميل خدمة reCAPTCHA.';
+      this.recaptchaLoadError.set(message);
+    }
+  }
+
+  private loadRecaptchaScript(): Promise<void> {
+    if (typeof window === 'undefined') {
+      return Promise.reject(new Error('خدمة reCAPTCHA غير مدعومة في هذا السياق.'));
+    }
+
+    const grecaptcha = window.grecaptcha;
+
+    if (grecaptcha?.render) {
+      if (typeof grecaptcha.ready === 'function') {
+        return new Promise((resolve) => grecaptcha.ready!(resolve));
+      }
+
+      return Promise.resolve();
+    }
+
+    if (recaptchaLoader) {
+      return recaptchaLoader;
+    }
+
+    recaptchaLoader = new Promise<void>((resolve, reject) => {
+      const existingScript = document.getElementById(
+        RECAPTCHA_SCRIPT_ID
+      ) as HTMLScriptElement | null;
+
+      if (existingScript) {
+        if (existingScript.dataset['loaded'] === 'true') {
+          resolve();
+          return;
+        }
+        existingScript.addEventListener('load', () => resolve(), { once: true });
+        existingScript.addEventListener(
+          'error',
+          () => reject(new Error('تعذر تحميل خدمة reCAPTCHA.')),
+          { once: true }
+        );
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.id = RECAPTCHA_SCRIPT_ID;
+      script.src = 'https://www.google.com/recaptcha/api.js?hl=ar';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        script.dataset['loaded'] = 'true';
+        const loadedGrecaptcha = window.grecaptcha;
+        if (loadedGrecaptcha?.ready) {
+          loadedGrecaptcha.ready(() => resolve());
+          return;
+        }
+        resolve();
+      };
+      script.onerror = () => reject(new Error('تعذر تحميل خدمة reCAPTCHA.'));
+      document.body.appendChild(script);
+    });
+
+    return recaptchaLoader.then(
+      () => undefined,
+      (error) => {
+        recaptchaLoader = null;
+        throw error;
+      }
+    );
+  }
+
+  private onRecaptchaResolved(token: string): void {
+    this.form.controls.recaptchaToken.setValue(token);
+    this.form.controls.recaptchaToken.markAsDirty();
+    this.form.controls.recaptchaToken.markAsTouched();
+    this.form.controls.recaptchaToken.updateValueAndValidity();
+    this.recaptchaLoadError.set(null);
+  }
+
+  private onRecaptchaExpired(): void {
+    this.form.controls.recaptchaToken.reset('', { emitEvent: false });
+    this.form.controls.recaptchaToken.markAsTouched();
+    this.form.controls.recaptchaToken.setErrors({ required: true });
+    this.recaptchaLoadError.set('انتهت صلاحية التحقق. يرجى المحاولة مرة أخرى.');
+    if (this.recaptchaWidgetId !== null) {
+      window.grecaptcha?.reset(this.recaptchaWidgetId);
+    }
+  }
+
+  private onRecaptchaError(): void {
+    this.form.controls.recaptchaToken.reset('', { emitEvent: false });
+    this.form.controls.recaptchaToken.markAsTouched();
+    this.recaptchaLoadError.set('حدث خطأ أثناء التحقق. يرجى إعادة المحاولة.');
+    if (this.recaptchaWidgetId !== null) {
+      window.grecaptcha?.reset(this.recaptchaWidgetId);
+    }
+  }
+
+  private resetRecaptcha(): void {
+    this.form.controls.recaptchaToken.reset('', { emitEvent: false });
+    if (this.recaptchaWidgetId !== null) {
+      window.grecaptcha?.reset(this.recaptchaWidgetId);
+    }
+    this.recaptchaLoadError.set(null);
   }
 }

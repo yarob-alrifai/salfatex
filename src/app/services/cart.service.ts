@@ -22,6 +22,7 @@ export interface CheckoutDetails {
   restaurantName?: string;
   shippingAddress?: string;
   notes?: string;
+  recaptchaToken?: string;
 }
 
 interface OrderMetadata {
@@ -194,6 +195,12 @@ export class CartService {
 
     if (!trimmedName) {
       throw new Error('يجب إدخال اسم العميل قبل تأكيد الطلب.');
+    }
+
+    const recaptchaToken = details.recaptchaToken?.trim();
+
+    if (!recaptchaToken) {
+      throw new Error('يرجى تأكيد التحقق من reCAPTCHA قبل إرسال الطلب.');
     }
 
     const items = this.itemsSignal();

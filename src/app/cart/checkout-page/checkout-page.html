@@ -207,6 +207,25 @@
               <textarea formControlName="notes" rows="3" class="app-input"></textarea>
             </label>
 
+            <div class="app-input-group app-input-group--captcha">
+              <span>رمز التحقق</span>
+
+              <div class="recaptcha-container" #recaptchaContainer></div>
+            </div>
+
+            <div
+              class="app-input-error"
+              *ngIf="
+                form.controls.recaptchaToken.hasError('required') &&
+                form.controls.recaptchaToken.touched
+              "
+            >
+              الرجاء تأكيد أنك لست روبوتاً.
+            </div>
+            <div class="app-input-error" *ngIf="recaptchaLoadError()">
+              {{ recaptchaLoadError() }}
+            </div>
+
             <button
               type="submit"
               class="app-button app-button--primary mt-2"
