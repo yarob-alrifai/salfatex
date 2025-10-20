@@ -1,7 +1,7 @@
 import { AsyncPipe, CommonModule, CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, inject, computed, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { combineLatest, map, startWith } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
 import { AdminDataService, AdminOrder } from '../../admin-data.service';
 
 @Component({
@@ -14,6 +14,7 @@ import { AdminDataService, AdminOrder } from '../../admin-data.service';
 export class OrdersDashboardComponent {
   private readonly fb = inject(FormBuilder);
   private readonly adminDataService = inject(AdminDataService);
+  private readonly pageIndexSubject = new BehaviorSubject(0);
 
   readonly filterForm = this.fb.nonNullable.group({
     status: [''],
@@ -53,7 +54,8 @@ export class OrdersDashboardComponent {
 
         return statusMatches && startMatches && endMatches;
       });
-    })
+    }),
+    tap(() => this.pageIndexSubject.next(0))
   );
 
   readonly filteredStats$ = this.filteredOrders$.pipe(
@@ -80,6 +82,7 @@ export class OrdersDashboardComponent {
   readonly selectedOrder = signal<AdminOrder | null>(null);
   readonly isModalOpen = computed(() => this.selectedOrder() !== null);
   readonly toDate = (value: unknown) => this.parseDate(value);
+  readonly pageSize = 10;
 
   readonly statusStyles: Record<AdminOrder['status'], string> = {
     pending: 'bg-amber-100 text-amber-800 ring-1 ring-inset ring-amber-200',
@@ -94,7 +97,31 @@ export class OrdersDashboardComponent {
   readonly trackByItem = (_: number, item: AdminOrder['items'][number]) =>
     item.productId ?? item.name ?? String(_);
   readonly getOrderTotal = (order?: AdminOrder | null) => order?.total ?? 0;
+  readonly paginatedOrders$ = combineLatest([
+    this.filteredOrders$,
+    this.pageIndexSubject.asObservable(),
+  ]).pipe(
+    map(([orders, pageIndex]) => {
+      const total = orders.length;
+      const totalPages = Math.ceil(total / this.pageSize);
+      const safePageIndex = totalPages ? Math.min(Math.max(pageIndex, 0), totalPages - 1) : 0;
+      const startIndex = total === 0 ? 0 : safePageIndex * this.pageSize + 1;
+      const endIndex = total === 0 ? 0 : Math.min((safePageIndex + 1) * this.pageSize, total);
 
+      return {
+        items: orders.slice(
+          safePageIndex * this.pageSize,
+          safePageIndex * this.pageSize + this.pageSize
+        ),
+        total,
+        totalPages,
+        pageIndex: safePageIndex,
+        startIndex,
+        endIndex,
+        pages: Array.from({ length: totalPages }, (_, i) => i),
+      };
+    })
+  );
   async confirmStatus(order: AdminOrder, status: AdminOrder['status']) {
     if (!order.id) {
       return;
@@ -162,6 +189,15 @@ export class OrdersDashboardComponent {
     this.feedback.set('تم حذف الطلب.');
     this.error.set('');
     this.closeOrderDetails();
+  }
+
+  goToPage(index: number, totalPages: number) {
+    if (!totalPages) {
+      return;
+    }
+
+    const safeIndex = Math.max(0, Math.min(index, totalPages - 1));
+    this.pageIndexSubject.next(safeIndex);
   }
 
   private parseDate(value: unknown): Date {
