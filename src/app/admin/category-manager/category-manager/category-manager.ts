@@ -22,45 +22,62 @@ export class CategoryManagerComponent {
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     description: [''],
+    groupId: [''],
   });
 
   readonly editForm = this.fb.nonNullable.group({
     name: ['', Validators.required],
     description: [''],
+    groupId: [''],
   });
 
   readonly categories$ = this.adminDataService.categories$;
+  readonly categoryGroups$ = this.adminDataService.categoryGroups$;
+
   readonly searchControl = new FormControl('', { nonNullable: true });
   private readonly searchTerm$ = this.searchControl.valueChanges.pipe(
     startWith(this.searchControl.value)
   );
-  readonly filteredCategories$ = combineLatest([this.categories$, this.searchTerm$]).pipe(
-    map(([categories, searchTerm]) => {
+  readonly filteredCategories$ = combineLatest([
+    this.categories$,
+    this.categoryGroups$,
+    this.searchTerm$,
+  ]).pipe(
+    map(([categories, groups, searchTerm]) => {
       const normalized = searchTerm.trim().toLowerCase();
 
       if (!normalized) {
-        return categories;
+        return categories.map((category) => ({
+          ...category,
+          groupName: groups.find((group) => group.id === category.groupId)?.name,
+        }));
       }
 
-      return categories.filter((category) => {
-        const fields: Array<string | undefined | null> = [
-          category.name,
-          category.description,
-          category.id,
-        ];
+      return categories
+        .filter((category) => {
+          const fields: Array<string | undefined | null> = [
+            category.name,
+            category.description,
+            category.id,
+            groups.find((group) => group.id === category.groupId)?.name,
+          ];
 
-        return fields.some((field) =>
-          String(field ?? '')
-            .toLowerCase()
-            .includes(normalized)
-        );
-      });
+          return fields.some((field) =>
+            String(field ?? '')
+              .toLowerCase()
+              .includes(normalized)
+          );
+        })
+        .map((category) => ({
+          ...category,
+          groupName: groups.find((group) => group.id === category.groupId)?.name,
+        }));
     })
   );
   readonly feedback = signal('');
   readonly editFeedback = signal('');
   readonly isEditModalOpen = signal(false);
-  readonly selectedCategory = signal<Category | null>(null);
+  readonly selectedCategory = signal<CategoryListItem | null>(null);
 
   private imageFile: File | null = null;
   private editImageFile: File | null = null;
@@ -192,11 +209,17 @@ export class CategoryManagerComponent {
     this.feedback.set('');
 
     try {
+      const { groupId, ...rest } = this.form.getRawValue();
+
       await this.adminDataService.createCategory(
-        this.form.getRawValue(),
+        {
+          ...rest,
+          groupId: groupId ? groupId : undefined,
+        },
+
         this.imageFile ?? undefined
       );
-      this.form.reset({ name: '', description: '' });
+      this.form.reset({ name: '', description: '', groupId: '' });
       this.resetMainImageSelection();
       this.feedback.set('تم حفظ التصنيف بنجاح.');
     } catch (error: any) {
@@ -204,7 +227,7 @@ export class CategoryManagerComponent {
     }
   }
 
-  async deleteCategory(category: Category) {
+  async deleteCategory(category: CategoryListItem) {
     if (!category.id) {
       return;
     }
@@ -225,6 +248,7 @@ export class CategoryManagerComponent {
     this.editForm.reset({
       name: category.name,
       description: category.description ?? '',
+      groupId: category.groupId ?? '',
     });
     this.editFeedback.set('');
     this.resetEditImageSelection();
@@ -234,7 +258,7 @@ export class CategoryManagerComponent {
   closeEditModal() {
     this.isEditModalOpen.set(false);
     this.selectedCategory.set(null);
-    this.editForm.reset({ name: '', description: '' });
+    this.editForm.reset({ name: '', description: '', groupId: '' });
     this.resetEditImageSelection();
     this.editFeedback.set('');
   }
@@ -348,9 +372,16 @@ export class CategoryManagerComponent {
     this.editFeedback.set('');
 
     try {
+      const { groupId, ...rest } = this.editForm.getRawValue();
+
       await this.adminDataService.updateCategory(
         category.id,
-        this.editForm.getRawValue(),
+
+        {
+          ...rest,
+          groupId: groupId ? groupId : undefined,
+        },
+
         this.editImageFile ?? undefined
       );
 
@@ -419,3 +450,7 @@ export class CategoryManagerComponent {
     }
   }
 }
+
+type CategoryListItem = Category & {
+  groupName?: string;
+};

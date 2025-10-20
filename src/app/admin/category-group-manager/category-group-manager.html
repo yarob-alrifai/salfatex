@@ -1,0 +1,204 @@
+<section class="app-section space-y-12">
+  <header class="app-card app-card--tinted space-y-4 text-right">
+    <span class="app-badge">إدارة المحتوى</span>
+    <h1 class="app-heading text-3xl">التصنيفات الرئيسية</h1>
+    <p class="app-subheading">
+      أنشئ تصنيفات رئيسية مثل مواد التنظيف أو محارم الطعام ثم اربط بها التصنيفات الفرعية لتظهر
+      منتجاتها في الصفحة الرئيسية.
+    </p>
+  </header>
+
+  <form
+    class="app-card app-form app-form--two-columns"
+    [formGroup]="form"
+    (ngSubmit)="createCategoryGroup()"
+  >
+    <div class="app-field">
+      <label class="app-field__label" for="group-name">اسم التصنيف الرئيسي</label>
+      <input id="group-name" formControlName="name" placeholder="مواد التنظيف" class="app-input" />
+    </div>
+
+    <div class="app-field sm:col-span-2">
+      <label class="app-field__label" for="group-description">الوصف</label>
+      <textarea
+        id="group-description"
+        formControlName="description"
+        rows="3"
+        placeholder="نبذة تساعد فريق المبيعات على تمييز التصنيف"
+        class="app-textarea"
+      ></textarea>
+      <p class="app-field__hint">الوصف يظهر بجانب الاسم داخل الصفحة الرئيسية إن وجد.</p>
+    </div>
+
+    <div class="app-field sm:col-span-2">
+      <span class="app-field__label">صورة التصنيف الرئيسي</span>
+      <label class="app-upload">
+        <span>اختر صورة مربعة بدقة عالية لعرض التصنيف على الصفحة الرئيسية.</span>
+        <input
+          type="file"
+          accept="image/*"
+          (change)="onImageChange($event)"
+          class="app-upload__control"
+        />
+      </label>
+      <div class="app-upload__preview" *ngIf="imagePreviewUrl as preview">
+        <img [src]="preview" alt="معاينة صورة التصنيف الرئيسي" class="app-upload__image" />
+      </div>
+    </div>
+
+    <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
+      <p class="app-field__success" *ngIf="feedback()">{{ feedback() }}</p>
+      <button type="submit" class="app-button app-button--primary sm:ml-auto">
+        <span>➕</span>
+        <span>حفظ التصنيف الرئيسي</span>
+      </button>
+    </div>
+  </form>
+
+  <section class="space-y-6" *ngIf="filteredGroups$ | async as groups">
+    <div class="app-toolbar">
+      <div class="space-y-1 text-right">
+        <h2 class="text-xl font-semibold text-neutral-900">قائمة التصنيفات الرئيسية</h2>
+        <p class="text-sm text-neutral-500">تابع التصنيفات الرئيسية المرتبطة بالأقسام.</p>
+      </div>
+      <div class="app-toolbar__actions">
+        <div class="relative w-full sm:w-72">
+          <span
+            class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-neutral-400"
+            >🔍</span
+          >
+          <input
+            type="search"
+            [formControl]="searchControl"
+            placeholder="ابحث عن تصنيف رئيسي..."
+            class="app-input pr-12 text-right"
+          />
+        </div>
+        <span class="app-count">إجمالي التصنيفات الرئيسية: {{ groups.length }}</span>
+      </div>
+    </div>
+
+    <div class="app-table-container">
+      <ng-container *ngIf="groups.length; else noGroups">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th scope="col">الصورة</th>
+              <th scope="col">الاسم</th>
+              <th scope="col">الوصف</th>
+              <th scope="col">عدد التصنيفات الفرعية</th>
+              <th scope="col" class="text-center">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-neutral-100">
+            <tr *ngFor="let group of groups; trackBy: trackGroup">
+              <td class="px-4 py-4">
+                <div class="flex justify-end">
+                  <img
+                    *ngIf="group.imageUrl; else groupPlaceholder"
+                    [src]="group.imageUrl"
+                    [alt]="group.name"
+                    class="h-16 w-16 rounded-2xl border border-neutral-200 object-cover shadow-sm"
+                  />
+                  <ng-template #groupPlaceholder>
+                    <span
+                      class="flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-100 text-2xl text-neutral-400"
+                    >
+                      🗂️
+                    </span>
+                  </ng-template>
+                </div>
+              </td>
+              <td class="px-4 py-4 text-base font-semibold text-neutral-900">{{ group.name }}</td>
+              <td class="px-4 py-4 text-sm text-neutral-600">
+                {{ group.description || 'لا يوجد وصف' }}
+              </td>
+              <td class="px-4 py-4 text-sm text-neutral-600 text-center">
+                {{ group.categoryCount }}
+              </td>
+              <td class="px-4 py-4">
+                <div class="flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    (click)="openEditModal(group)"
+                    class="app-button app-button--secondary !px-4 !py-2 text-xs"
+                  >
+                    ✏️ تعديل
+                  </button>
+                  <button
+                    type="button"
+                    (click)="deleteCategoryGroup(group)"
+                    class="app-button app-button--ghost !px-4 !py-2 text-xs text-rose-600 hover:text-rose-600"
+                  >
+                    🗑️ حذف
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </ng-container>
+    </div>
+  </section>
+
+  <ng-template #noGroups>
+    <div class="app-empty">لا توجد تصنيفات رئيسية مطابقة لبحثك الحالي.</div>
+  </ng-template>
+
+  <div class="app-modal" *ngIf="isEditModalOpen()">
+    <div class="app-modal__content space-y-6">
+      <button type="button" class="app-modal__close" (click)="closeEditModal()">✕</button>
+      <header class="space-y-2 text-right">
+        <h3 class="text-2xl font-semibold text-neutral-900">تعديل التصنيف الرئيسي</h3>
+        <p class="text-sm text-neutral-500">حدّث بيانات التصنيف الرئيسي ثم احفظ التغييرات.</p>
+      </header>
+      <form
+        class="app-form app-form--two-columns"
+        [formGroup]="editForm"
+        (ngSubmit)="saveCategoryGroupEdits()"
+      >
+        <div class="app-field">
+          <label class="app-field__label" for="edit-group-name">اسم التصنيف الرئيسي</label>
+          <input id="edit-group-name" formControlName="name" class="app-input" />
+        </div>
+        <div class="app-field sm:col-span-2">
+          <label class="app-field__label" for="edit-group-description">الوصف</label>
+          <textarea
+            id="edit-group-description"
+            formControlName="description"
+            rows="3"
+            class="app-textarea"
+          ></textarea>
+        </div>
+        <div class="app-field sm:col-span-2">
+          <span class="app-field__label">تغيير الصورة</span>
+          <label class="app-upload">
+            <span>اختر صورة جديدة للتصنيف الرئيسي.</span>
+            <input
+              type="file"
+              accept="image/*"
+              (change)="onEditImageChange($event)"
+              class="app-upload__control"
+            />
+          </label>
+          <div class="app-upload__preview" *ngIf="editImagePreviewUrl as preview">
+            <img [src]="preview" alt="معاينة الصورة الجديدة" class="app-upload__image" />
+          </div>
+        </div>
+        <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            class="app-button app-button--ghost !px-4 !py-2"
+            (click)="closeEditModal()"
+          >
+            إلغاء
+          </button>
+          <button type="submit" class="app-button app-button--primary !px-5 !py-2">
+            💾 حفظ التعديلات
+          </button>
+          <p class="app-field__error" *ngIf="editFeedback()">{{ editFeedback() }}</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

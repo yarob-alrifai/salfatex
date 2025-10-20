@@ -35,6 +35,19 @@
     </div>
 
     <div class="app-field sm:col-span-2">
+      <label class="app-field__label" for="category-group">التصنيف الرئيسي</label>
+      <select id="category-group" formControlName="groupId" class="app-select">
+        <option value="">بدون تصنيف رئيسي</option>
+        <option *ngFor="let group of categoryGroups$ | async" [value]="group.id">
+          {{ group.name }}
+        </option>
+      </select>
+      <p class="app-field__hint">
+        اختر التصنيف الرئيسي الذي سيظهر ضمنه هذا التصنيف في الصفحة الرئيسية.
+      </p>
+    </div>
+
+    <div class="app-field sm:col-span-2">
       <span class="app-field__label">صورة التصنيف</span>
       <label class="app-upload">
         <span>اضغط أو اسحب ملفاً بصيغة ‎PNG‎ أو ‎JPG‎ بدقة عالية.</span>
@@ -136,6 +149,8 @@
               <th scope="col">الصورة</th>
               <th scope="col">الاسم</th>
               <th scope="col">الوصف</th>
+              <th scope="col">التصنيف الرئيسي</th>
+
               <th scope="col" class="text-center">الإجراءات</th>
             </tr>
           </thead>
@@ -163,6 +178,11 @@
               <td class="px-4 py-4 text-sm text-neutral-600">
                 {{ category.description || 'لا يوجد وصف' }}
               </td>
+
+              <td class="px-4 py-4 text-sm text-neutral-600">
+                {{ category.groupName || 'غير مرتبط' }}
+              </td>
+
               <td class="px-4 py-4">
                 <div class="flex items-center justify-center gap-2">
                   <button
@@ -217,6 +237,16 @@
             rows="3"
             class="app-textarea"
           ></textarea>
+        </div>
+
+        <div class="app-field sm:col-span-2">
+          <label class="app-field__label" for="edit-group">التصنيف الرئيسي</label>
+          <select id="edit-group" formControlName="groupId" class="app-select">
+            <option value="">بدون تصنيف رئيسي</option>
+            <option *ngFor="let group of categoryGroups$ | async" [value]="group.id">
+              {{ group.name }}
+            </option>
+          </select>
         </div>
 
         <ng-container *ngIf="selectedCategory() as category">

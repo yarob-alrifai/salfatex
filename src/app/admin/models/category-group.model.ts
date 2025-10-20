@@ -1,11 +1,10 @@
 import { Timestamp } from '@angular/fire/firestore';
 
-export interface Category {
+export interface CategoryGroup {
   id?: string;
   name: string;
   description?: string;
   imageUrl?: string;
   createdAt?: Timestamp;
   sequence?: number;
-  groupId?: string | null;
 }

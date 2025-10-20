@@ -21,6 +21,15 @@ export const ADMIN_ROUTES: Routes = [
             (m) => m.CategoryManagerComponent
           ),
       },
+
+      {
+        path: 'category-groups',
+        loadComponent: () =>
+          import('./category-group-manager/category-group-manager').then(
+            (m) => m.CategoryGroupManagerComponent
+          ),
+      },
+
       {
         path: 'contact',
         loadComponent: () =>

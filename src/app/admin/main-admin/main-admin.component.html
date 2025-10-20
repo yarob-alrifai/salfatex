@@ -74,6 +74,22 @@
                 <span>التصنيفات</span>
               </a>
             </li>
+
+            <li>
+              <a
+                routerLink="/admin/category-groups"
+                routerLinkActive="!bg-neutral-900 !text-white"
+                class="flex items-center gap-3 rounded-xl px-3 py-2 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
+                (click)="closeSidebar()"
+              >
+                <span
+                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600"
+                  >🏷️</span
+                >
+                <span>التصنيفات الرئيسية</span>
+              </a>
+            </li>
+
             <li>
               <a
                 routerLink="/admin/subcategories"

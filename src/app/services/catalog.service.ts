@@ -9,7 +9,7 @@ import {
   where,
 } from '@angular/fire/firestore';
 import { Observable, catchError, map, of } from 'rxjs';
-import { Category, Product, Subcategory } from '../models/catalog.models';
+import { Category, CategoryGroup, Product, Subcategory } from '../models/catalog.models';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +17,7 @@ import { Category, Product, Subcategory } from '../models/catalog.models';
 export class CatalogService {
   private firestore = inject(Firestore, { optional: true });
 
-  private readonly categoriesFallback: Category[] = [
+  private readonly categoryGroupsFallback: CategoryGroup[] = [
     {
       id: 'luxury-fabrics',
 
@@ -83,6 +83,49 @@ export class CatalogService {
     },
   ];
 
+  private readonly categoriesFallback: Category[] = [
+    {
+      id: 'surface-cleaners',
+      name: 'منظفات الأسطح',
+      description: 'منظفات مركزة لإزالة الدهون والأوساخ اليومية.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1600369672857-69d0b502d3c1?auto=format&fit=crop&w=800&q=80',
+      groupId: 'cleaning-essentials',
+    },
+    {
+      id: 'hand-sanitation',
+      name: 'معقمات اليدين',
+      description: 'جل ورذاذ تعقيم معتمد للاستخدام المتكرر.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1581579186989-2de9886fb811?auto=format&fit=crop&w=800&q=80',
+      groupId: 'cleaning-essentials',
+    },
+    {
+      id: 'napkins',
+      name: 'محارم الطعام',
+      description: 'محارم متعددة الطبقات للمطاعم وقاعات المناسبات.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
+      groupId: 'paper-solutions',
+    },
+    {
+      id: 'paper-towels',
+      name: 'لفائف ورقية صناعية',
+      description: 'لفائف قوية لخطوط الإنتاج والمطابخ الاحترافية.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+      groupId: 'paper-solutions',
+    },
+    {
+      id: 'packaging',
+      name: 'تغليف الطعام',
+      description: 'عبوات وأغطية تحافظ على جودة الطعام أثناء التوصيل.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=800&q=80',
+      groupId: 'food-service',
+    },
+  ];
+
   getCategories(): Observable<Category[]> {
     if (this.firestore) {
       const ref = collection(this.firestore, 'categories');
@@ -92,6 +135,18 @@ export class CatalogService {
       );
     }
     return of(this.categoriesFallback);
+  }
+
+  getCategoryGroups(): Observable<CategoryGroup[]> {
+    if (this.firestore) {
+      const ref = collection(this.firestore, 'categoryGroups');
+      return collectionData(ref, { idField: 'id' }).pipe(
+        map((docs) => docs as CategoryGroup[]),
+        catchError(() => of(this.categoryGroupsFallback))
+      );
+    }
+
+    return of(this.categoryGroupsFallback);
   }
 
   getCategoryById(categoryId: string): Observable<Category | undefined> {

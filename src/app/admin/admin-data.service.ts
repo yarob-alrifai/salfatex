@@ -12,6 +12,7 @@ import {
   query,
   setDoc,
   updateDoc,
+  deleteField,
   where,
   getDoc,
 } from '@angular/fire/firestore';
@@ -22,6 +23,7 @@ import { Subcategory } from './models/subcategory.model';
 import { Product } from './models/product.model';
 import { ContactInfo, EMPTY_CONTACT_INFO } from '../models/contact-info.model';
 import { ProductUnitType } from '../models/catalog.models';
+import { CategoryGroup } from './models/category-group.model';
 
 export interface OrderItem {
   productId: string;
@@ -62,6 +64,11 @@ export class AdminDataService {
     { idField: 'id' }
   ) as Observable<Category[]>;
 
+  readonly categoryGroups$: Observable<CategoryGroup[]> = collectionData(
+    query(collection(this.firestore, 'categoryGroups'), orderBy('createdAt', 'desc')),
+    { idField: 'id' }
+  ) as Observable<CategoryGroup[]>;
+
   readonly subcategories$: Observable<Subcategory[]> = collectionData(
     query(collection(this.firestore, 'subcategories'), orderBy('createdAt', 'desc')),
     { idField: 'id' }
@@ -86,6 +93,10 @@ export class AdminDataService {
       createdAt: Timestamp.now(),
       sequence,
     };
+
+    if (!payload.groupId) {
+      delete payload.groupId;
+    }
 
     if (image) {
       payload.imageUrl = await this.uploadFile(`categories/${this.createIdentifier()}`, image);
@@ -125,11 +136,63 @@ export class AdminDataService {
   ) {
     const payload: Partial<Category> = { ...changes };
 
+    if (!payload.groupId) {
+      delete payload.groupId;
+    }
+
     if (image) {
       payload.imageUrl = await this.uploadFile(`categories/${this.createIdentifier()}`, image);
     }
 
     await updateDoc(doc(this.firestore, 'categories', categoryId), payload);
+  }
+
+  // RED ================================================ CATEGORY GROUPS ====================================
+
+  async createCategoryGroup(
+    categoryGroup: Omit<CategoryGroup, 'id' | 'createdAt' | 'imageUrl'>,
+    image?: File
+  ) {
+    const { id, sequence } = await this.generateSequentialIdentifier('categoryGroups', 'GRP');
+
+    const payload: CategoryGroup = {
+      ...categoryGroup,
+      createdAt: Timestamp.now(),
+      sequence,
+    };
+
+    if (image) {
+      payload.imageUrl = await this.uploadFile(`category-groups/${this.createIdentifier()}`, image);
+    }
+
+    await setDoc(doc(this.firestore, 'categoryGroups', id), payload);
+  }
+
+  async updateCategoryGroup(
+    categoryGroupId: string,
+    changes: Partial<Omit<CategoryGroup, 'id' | 'createdAt'>>,
+    image?: File
+  ) {
+    const payload: Partial<CategoryGroup> = { ...changes };
+
+    if (image) {
+      payload.imageUrl = await this.uploadFile(`category-groups/${this.createIdentifier()}`, image);
+    }
+
+    await updateDoc(doc(this.firestore, 'categoryGroups', categoryGroupId), payload);
+  }
+
+  async deleteCategoryGroup(categoryGroupId: string) {
+    const relatedCategories = await getDocs(
+      query(collection(this.firestore, 'categories'), where('groupId', '==', categoryGroupId))
+    );
+
+    const detachments = relatedCategories.docs.map((snapshot) =>
+      updateDoc(snapshot.ref, { groupId: deleteField() })
+    );
+
+    await Promise.all(detachments);
+    await deleteDoc(doc(this.firestore, 'categoryGroups', categoryGroupId));
   }
 
   async deleteCategory(categoryId: string) {
@@ -316,7 +379,7 @@ export class AdminDataService {
   }
 
   private async generateSequentialIdentifier(
-    collectionName: 'categories' | 'subcategories' | 'products',
+    collectionName: 'categories' | 'subcategories' | 'products' | 'categoryGroups',
     prefix: string
   ): Promise<{ id: string; sequence: number }> {
     const collectionRef = collection(this.firestore, collectionName);

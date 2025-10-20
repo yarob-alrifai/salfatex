@@ -3,6 +3,7 @@ export interface Category {
   name: string;
   description: string;
   imageUrl: string;
+  groupId?: string;
 }
 
 export interface Subcategory {
@@ -36,4 +37,11 @@ export interface Product {
   features?: string[];
   sequence?: number;
   unitOptions?: ProductUnitOption[];
+}
+
+export interface CategoryGroup {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl?: string;
 }

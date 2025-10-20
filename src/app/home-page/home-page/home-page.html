@@ -83,6 +83,82 @@
     </div>
   </section>
 
+  <section *ngIf="featuredGroups$ | async as featuredGroups">
+    <div class="app-section space-y-12">
+      <div class="space-y-3 text-right">
+        <span class="app-badge">الأقسام الرئيسية</span>
+        <h2 class="app-heading text-3xl">تصفح المنتجات حسب التصنيف الرئيسي</h2>
+        <p class="app-subheading">
+          اختر التصنيف الرئيسي المناسب لمجال عملك لاستعراض أبرز المنتجات المرتبطة به مباشرة من
+          الصفحة الرئيسية.
+        </p>
+      </div>
+
+      <div class="space-y-16" *ngFor="let group of featuredGroups; trackBy: trackGroup">
+        <div class="space-y-3 text-right">
+          <div
+            class="flex flex-col items-start gap-3 text-right sm:flex-row sm:items-center sm:justify-between sm:text-right"
+          >
+            <div class="space-y-2 sm:text-right">
+              <h3 class="text-2xl font-semibold text-neutral-900">{{ group.name }}</h3>
+              <p class="text-sm text-neutral-600" *ngIf="group.description">
+                {{ group.description }}
+              </p>
+            </div>
+            <div class="text-sm text-neutral-500">
+              يشمل التصنيفات:
+              <span class="font-semibold text-neutral-700">
+                {{ formatCategoryNames(group) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <ng-container *ngIf="group.products.length; else noGroupProducts">
+          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <article
+              *ngFor="let product of group.products; trackBy: trackGroupProduct"
+              class="app-card flex h-full flex-col gap-4 text-right transition hover:-translate-y-1 hover:shadow-brand"
+            >
+              <a
+                class="flex flex-col gap-4"
+                [routerLink]="[
+                  '/categories',
+                  product.categoryId,
+                  'subcategories',
+                  product.subcategoryId,
+                  'products',
+                  product.id
+                ]"
+              >
+                <img
+                  class="h-44 w-full rounded-2xl object-cover"
+                  [src]="product.mainImageUrl"
+                  [alt]="product.name"
+                />
+                <div class="space-y-2">
+                  <h3 class="text-lg font-semibold text-neutral-900">{{ product.name }}</h3>
+                  <p class="text-sm font-semibold text-brand-600">
+                    {{ getMinimumPrice(product) | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
+                  </p>
+                  <p class="text-xs text-neutral-500" *ngIf="product.color">
+                    الألوان المتوفرة: {{ product.color }}
+                  </p>
+                </div>
+              </a>
+            </article>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </section>
+
+  <ng-template #noGroupProducts>
+    <div class="app-card app-card--tinted text-sm text-neutral-600">
+      لا توجد منتجات مرتبطة بهذا التصنيف الرئيسي حالياً.
+    </div>
+  </ng-template>
+
   <app-categories></app-categories>
 
   <section>
