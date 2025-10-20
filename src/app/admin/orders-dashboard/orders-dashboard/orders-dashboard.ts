@@ -185,6 +185,10 @@ export class OrdersDashboardComponent {
       return;
     }
 
+    if (typeof window !== 'undefined' && !window.confirm('هل أنت متأكد من أنك تريد حذف العنصر؟')) {
+      return;
+    }
+
     await this.adminDataService.deleteOrder(order.id);
     this.feedback.set('تم حذف الطلب.');
     this.error.set('');

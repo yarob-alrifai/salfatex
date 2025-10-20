@@ -703,6 +703,10 @@ export class ProductManagerComponent implements OnDestroy {
       return;
     }
 
+    if (typeof window !== 'undefined' && !window.confirm('هل أنت متأكد من أنك تريد حذف العنصر؟')) {
+      return;
+    }
+
     await this.adminDataService.deleteProduct(product.id);
   }
 

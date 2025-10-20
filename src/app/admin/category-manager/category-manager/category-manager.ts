@@ -209,6 +209,10 @@ export class CategoryManagerComponent {
       return;
     }
 
+    if (typeof window !== 'undefined' && !window.confirm('هل أنت متأكد من أنك تريد حذف العنصر؟')) {
+      return;
+    }
+
     await this.adminDataService.deleteCategory(category.id);
   }
 
