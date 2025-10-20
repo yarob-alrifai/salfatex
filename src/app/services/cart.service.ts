@@ -46,10 +46,21 @@ export class CartService {
   );
   readonly localOrders = computed(() => this.localOrdersSignal());
 
-  addProduct(product: Product, unitOption?: ProductUnitOption, selectedColor?: string) {
+  addProduct(
+    product: Product,
+    unitOption?: ProductUnitOption,
+    selectedColor?: string,
+    quantity: number = 1
+  ) {
     const resolvedUnit = this.createUnitSelection(product, unitOption);
     const normalizedColor = selectedColor?.trim() || product.color?.trim();
     const productWithColor = normalizedColor ? { ...product, color: normalizedColor } : product;
+    const quantityToAdd = Number.isFinite(quantity) ? Math.max(1, Math.floor(quantity)) : 1;
+
+    if (quantityToAdd <= 0) {
+      return;
+    }
+
     this.itemsSignal.update((items) => {
       const existingIndex = items.findIndex(
         (item) =>
@@ -59,7 +70,7 @@ export class CartService {
       );
       if (existingIndex >= 0) {
         return items.map((item, index) =>
-          index === existingIndex ? { ...item, quantity: item.quantity + 1 } : item
+          index === existingIndex ? { ...item, quantity: item.quantity + quantityToAdd } : item
         );
       }
 
@@ -67,7 +78,7 @@ export class CartService {
         ...items,
         {
           product: productWithColor,
-          quantity: 1,
+          quantity: quantityToAdd,
           unit: resolvedUnit,
           color: normalizedColor ?? undefined,
         },
@@ -75,26 +86,36 @@ export class CartService {
     });
   }
 
-  increment(productId: string, unitType: ProductUnitType, color?: string) {
+  increment(productId: string, unitType: ProductUnitType, color?: string, step: number = 1) {
+    if (!Number.isFinite(step) || step <= 0) {
+      return;
+    }
+
+    const normalizedStep = Math.max(1, Math.floor(step));
     this.itemsSignal.update((items) =>
       items.map((item) =>
         item.product.id === productId &&
         item.unit.type === unitType &&
         (item.color ?? item.product.color ?? null) === (color ?? null)
-          ? { ...item, quantity: item.quantity + 1 }
+          ? { ...item, quantity: item.quantity + normalizedStep }
           : item
       )
     );
   }
 
-  decrement(productId: string, unitType: ProductUnitType, color?: string) {
+  decrement(productId: string, unitType: ProductUnitType, color?: string, step: number = 1) {
+    if (!Number.isFinite(step) || step <= 0) {
+      return;
+    }
+
+    const normalizedStep = Math.max(1, Math.floor(step));
     this.itemsSignal.update((items) =>
       items
         .map((item) =>
           item.product.id === productId &&
           item.unit.type === unitType &&
           (item.color ?? item.product.color ?? null) === (color ?? null)
-            ? { ...item, quantity: item.quantity - 1 }
+            ? { ...item, quantity: item.quantity - normalizedStep }
             : item
         )
         .filter((item) => item.quantity > 0)

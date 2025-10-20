@@ -110,49 +110,73 @@
 
         <div class="flex flex-col gap-5 pt-2">
           <ng-container *ngIf="getQuantity(product) === 0; else quantityControls">
-            <button
-              type="button"
-              class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-blue-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-sky-500/30 transition duration-200 hover:from-indigo-600 hover:via-sky-600 hover:to-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-              class="app-button app-button--primary w-full"
-              (click)="addToCart(product)"
-            >
-              أضف إلى السلة
-            </button>
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-blue-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-sky-500/30 transition duration-200 hover:from-indigo-600 hover:via-sky-600 hover:to-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 app-button app-button--primary sm:flex-1"
+                (click)="addToCart(product)"
+              >
+                أضف إلى السلة
+              </button>
+              <button
+                type="button"
+                class="app-button app-button--secondary w-full sm:flex-1"
+                (click)="addToCart(product, 5)"
+              >
+                أضف 5 دفعة واحدة
+              </button>
+            </div>
           </ng-container>
 
           <ng-template #quantityControls>
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div
-                class="inline-flex items-center rounded-full border border-brand-200 bg-brand-50/70 text-brand-700 shadow-sm"
+                class="flex flex-col justify-around gap-3 w-full sm:flex-row sm:items-center sm:gap-4"
               >
                 <button
                   type="button"
-                  class="h-11 w-11 text-xl font-semibold transition hover:text-brand-600"
-                  (click)="decrement(product)"
-                  aria-label="إنقاص الكمية"
+                  class="h-11 min-w-[3.25rem] rounded-full border border-brand-200 bg-white px-4 text-sm font-semibold text-brand-600 shadow-sm transition hover:bg-brand-50"
+                  (click)="decrement(product, 5)"
+                  aria-label="إنقاص 5 وحدات"
                 >
-                  −
+                  −5
                 </button>
-                <span class="min-w-[3rem] text-center text-base font-semibold">
-                  {{ getQuantity(product) }}
-                </span>
+                <div
+                  class="inline-flex items-center rounded-full border border-brand-200 bg-brand-50/70 text-brand-700 shadow-sm"
+                >
+                  <button
+                    type="button"
+                    class="h-11 w-11 text-xl font-semibold transition hover:text-brand-600"
+                    (click)="decrement(product)"
+                    aria-label="إنقاص الكمية"
+                  >
+                    −
+                  </button>
+                  <span class="min-w-[3rem] text-center text-base font-semibold">
+                    {{ getQuantity(product) }}
+                  </span>
+                  <button
+                    type="button"
+                    class="h-11 w-11 text-xl font-semibold transition hover:text-brand-600"
+                    (click)="increment(product)"
+                    aria-label="زيادة الكمية"
+                  >
+                    +
+                  </button>
+                </div>
                 <button
                   type="button"
-                  class="h-11 w-11 text-xl font-semibold transition hover:text-brand-600"
-                  (click)="increment(product)"
-                  aria-label="زيادة الكمية"
+                  class="h-11 min-w-[3.25rem] rounded-full bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+                  (click)="increment(product, 5)"
+                  aria-label="زيادة 5 وحدات"
                 >
-                  +
+                  +5
                 </button>
               </div>
-
-              <a
-                class="app-button app-button--primary w-full sm:w-auto"
-                [routerLink]="['/checkout']"
-              >
-                إتمام الطلب
-              </a>
             </div>
+            <a class="app-button app-button--primary w-full sm:w-auto" [routerLink]="['/checkout']">
+              إتمام الطلب
+            </a>
           </ng-template>
         </div>
 

@@ -33,27 +33,32 @@ export class ProductDetailComponent {
     })
   );
 
-  addToCart(product: Product) {
+  addToCart(product: Product, quantity: number = 1) {
     this.cart.addProduct(
       product,
       this.getSelectedUnitOption(product),
-      this.getSelectedColor(product) ?? undefined
+
+      this.getSelectedColor(product) ?? undefined,
+      quantity
     );
   }
 
-  increment(product: Product) {
+  increment(product: Product, step: number = 1) {
     this.cart.increment(
       product.id,
       this.getSelectedUnitType(product),
-      this.getSelectedColor(product) ?? undefined
+      this.getSelectedColor(product) ?? undefined,
+      step
     );
   }
 
-  decrement(product: Product) {
+  decrement(product: Product, step: number = 1) {
     this.cart.decrement(
       product.id,
       this.getSelectedUnitType(product),
-      this.getSelectedColor(product) ?? undefined
+
+      this.getSelectedColor(product) ?? undefined,
+      step
     );
   }
 
