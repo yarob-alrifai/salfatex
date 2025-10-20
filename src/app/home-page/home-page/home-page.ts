@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CategoriesComponent } from '../../categories/categories/categories';
 import { FormsModule } from '@angular/forms';
-import { Category, CategoryGroup, Product } from 'src/app/models/catalog.models';
+import { Category, CategoryGroup, Product, Subcategory } from 'src/app/models/catalog.models';
 import {
   BehaviorSubject,
   debounceTime,
@@ -29,14 +29,19 @@ export class HomePageComponent {
   private readonly catalog = inject(CatalogService);
   private readonly searchTermSubject = new BehaviorSubject<string>('');
 
-  readonly searchTerm$ = this.searchTermSubject.asObservable();
-  readonly searchResults$: Observable<SearchViewModel> = this.searchTerm$.pipe(
+  /** ✅ FIXED: Define observable pipeline properly */
+  readonly searchResults$: Observable<SearchViewModel> = this.searchTermSubject.pipe(
     debounceTime(250),
     map((term) => term.trim()),
     distinctUntilChanged(),
     switchMap((term) => {
       if (!term) {
-        return of({ term: '', results: [], hasSearched: false, isLoading: false });
+        return of({
+          term: '',
+          results: [],
+          hasSearched: false,
+          isLoading: false,
+        });
       }
 
       return this.catalog.searchProducts(term).pipe(
@@ -53,42 +58,38 @@ export class HomePageComponent {
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
+  /** ✅ Featured groups observable */
   readonly featuredGroups$: Observable<FeaturedCategoryGroup[]> = combineLatest([
     this.catalog.getCategoryGroups(),
     this.catalog.getCategories(),
-    this.catalog.getAllProducts(),
+    this.catalog.getAllSubcategories(),
   ]).pipe(
-    map(([groups, categories, products]) => {
-      const sortedProducts = [...products].sort((a, b) => {
-        const aSequence = a.sequence ?? Number.MAX_SAFE_INTEGER;
-        const bSequence = b.sequence ?? Number.MAX_SAFE_INTEGER;
-
-        if (aSequence !== bSequence) {
-          return aSequence - bSequence;
-        }
-
-        return a.name.localeCompare(b.name);
-      });
-
-      return groups
+    map(([groups, categories, subcategories]) =>
+      groups
         .map((group) => {
-          const groupCategories = categories.filter((category) => category.groupId === group.id);
-          const categoryIds = new Set(groupCategories.map((category) => category.id));
-          const groupProducts = sortedProducts.filter((product) =>
-            categoryIds.has(product.categoryId)
-          );
+          const groupCategories = categories
+            .filter((category) => category.groupId === group.id)
+            .map(
+              (category) =>
+                ({
+                  ...category,
+                  subcategories: subcategories
+                    .filter((subcategory) => subcategory.categoryId === category.id)
+                    .sort((a, b) => a.name.localeCompare(b.name)),
+                } satisfies FeaturedCategory)
+            );
 
           return {
             ...group,
             categories: groupCategories,
-            products: groupProducts.slice(0, 6),
           } satisfies FeaturedCategoryGroup;
         })
-        .filter((group) => group.categories.length > 0);
-    }),
+        .filter((group) => group.categories.length > 0)
+    ),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
+  /** ✅ Form and handlers */
   searchTerm = '';
 
   onSearchTermChange(term: string): void {
@@ -101,6 +102,7 @@ export class HomePageComponent {
     this.searchTermSubject.next(this.searchTerm);
   }
 
+  /** ✅ TrackBy functions */
   trackProduct(_: number, product: Product): string {
     return product.id;
   }
@@ -109,10 +111,15 @@ export class HomePageComponent {
     return group.id;
   }
 
-  trackGroupProduct(_: number, product: Product): string {
-    return product.id;
+  trackGroupCategory(_: number, category: FeaturedCategory): string {
+    return category.id;
   }
 
+  trackSubcategory(_: number, subcategory: Subcategory): string {
+    return subcategory.id;
+  }
+
+  /** ✅ Helper methods */
   formatCategoryNames(group: FeaturedCategoryGroup): string {
     return group.categories.map((category) => category.name).join('، ');
   }
@@ -125,6 +132,7 @@ export class HomePageComponent {
   }
 }
 
+/** ✅ Supporting interfaces */
 interface SearchViewModel {
   term: string;
   results: Product[];
@@ -133,6 +141,9 @@ interface SearchViewModel {
 }
 
 interface FeaturedCategoryGroup extends CategoryGroup {
-  categories: Category[];
-  products: Product[];
+  categories: FeaturedCategory[];
+}
+
+interface FeaturedCategory extends Category {
+  subcategories: Subcategory[];
 }
