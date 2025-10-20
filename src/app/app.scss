@@ -1,6 +1,3 @@
 :host {
-  @apply block min-h-screen bg-slate-100 text-slate-900 antialiased;
-
-  font-family: 'Tajawal', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    sans-serif;
+  @apply block font-sans text-neutral-900;
 }

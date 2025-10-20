@@ -1,16 +1,11 @@
-<section
-  class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8"
-  *ngIf="viewModel$ | async as vm; else loading"
->
+<section class="app-section space-y-8" *ngIf="viewModel$ | async as vm; else loading">
   <header class="space-y-4">
     <app-back-button label="عودة إلى الأقسام"></app-back-button>
 
     <div class="space-y-2" *ngIf="vm.category as category">
-      <h1 class="text-2xl font-semibold text-slate-900">
-        {{ category.name }}
-      </h1>
+      <h1 class="app-heading text-2xl sm:text-3xl">{{ category.name }}</h1>
       <p
-        class="max-w-3xl text-sm leading-6 text-slate-600"
+        class="app-subheading max-w-3xl text-sm sm:text-base"
         *ngIf="category.description as categoryDescription"
       >
         {{ categoryDescription }}
@@ -18,33 +13,35 @@
     </div>
   </header>
 
-  <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <p class="text-sm text-slate-500">
+  <div
+    class="flex flex-col gap-4 rounded-3xl border border-white/60 bg-white/90 p-5 shadow-soft backdrop-blur sm:flex-row sm:items-center sm:justify-between"
+  >
+    <p class="text-sm text-neutral-600">
       تم العثور على
-      <span class="font-semibold text-slate-900">{{ vm.filteredItems.length }}</span>
+
+      <span class="font-semibold text-neutral-900">{{ vm.filteredItems.length }}</span>
       من أصل
-      <span class="font-semibold text-slate-900">{{ vm.items.length }}</span>
+
+      <span class="font-semibold text-neutral-900">{{ vm.items.length }}</span>
       قسم فرعي.
     </p>
 
-    <div class="relative w-full max-w-md">
+    <label class="relative flex w-full items-center gap-3 sm:w-auto">
+      <span class="app-chip bg-brand-50/80 text-brand-600">بحث</span>
       <input
         type="search"
-        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+        class="app-input app-input--small w-full sm:min-w-[18rem]"
         placeholder="ابحث عن قسم فرعي بالاسم أو الوصف"
         [ngModel]="vm.searchTerm"
         (ngModelChange)="updateSearch($event)"
       />
-      <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
-        🔍
-      </span>
-    </div>
+    </label>
   </div>
 
-  <div class="mt-8 space-y-8" *ngIf="vm.filteredItems.length; else empty">
+  <div class="space-y-6" *ngIf="vm.filteredItems.length; else empty">
     <article
       *ngFor="let subcategory of vm.filteredItems"
-      class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-amber-400 hover:shadow-lg"
+      class="group cursor-pointer overflow-hidden rounded-4xl border border-white/60 bg-white/95 shadow-soft transition hover:-translate-y-1 hover:shadow-brand"
       role="button"
       tabindex="0"
       (click)="openSubcategory(subcategory)"
@@ -52,26 +49,30 @@
       (keydown.space)="$event.preventDefault(); openSubcategory(subcategory)"
     >
       <!-- {{ item | json }} -->
-      <div class="flex flex-col gap-6 p-6 lg:flex-row">
-        <div class="flex w-full flex-col items-center gap-3 lg:w-64">
+
+      <div class="flex flex-col gap-6 p-6 lg:flex-row lg:items-center">
+        <div class="relative w-full overflow-hidden rounded-3xl lg:w-72">
           <img
-            class="h-48 w-full rounded-xl object-cover"
+            class="h-52 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
             [src]="subcategory.imageUrl"
             [alt]="subcategory.name"
           />
+          <div
+            class="absolute inset-x-4 bottom-4 flex items-center justify-between rounded-full bg-white/80 px-4 py-2 text-xs font-semibold text-neutral-700 shadow-sm"
+          >
+            <span>عرض المزيد</span>
+            <span class="text-brand-600">استكشاف</span>
+          </div>
         </div>
 
-        <div class="flex-1 space-y-6">
-          <div class="space-y-2">
-            <div class="space-y-1">
-              <h2 class="text-xl font-semibold text-slate-900">
-                {{ subcategory.name }}
-              </h2>
-            </div>
-            <div class="space-y-1 text-sm leading-6 text-slate-600">
-              <p *ngIf="subcategory.description as descriptionAr">{{ descriptionAr }}</p>
-            </div>
-          </div>
+        <div class="flex-1 space-y-3 text-right">
+          <h2 class="text-xl font-semibold text-neutral-900">{{ subcategory.name }}</h2>
+          <p
+            class="text-sm leading-6 text-neutral-600"
+            *ngIf="subcategory.description as descriptionAr"
+          >
+            {{ descriptionAr }}
+          </p>
         </div>
       </div>
     </article>
@@ -79,15 +80,9 @@
 </section>
 
 <ng-template #loading>
-  <div class="flex min-h-[40vh] items-center justify-center">
-    <p class="text-sm text-slate-500">...يتم تحميل التفاصيل</p>
-  </div>
+  <div class="app-empty">...يتم تحميل التفاصيل</div>
 </ng-template>
 
 <ng-template #empty>
-  <div
-    class="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm text-slate-500"
-  >
-    لا توجد أقسام فرعية مطابقة لبحثك في الوقت الحالي.
-  </div>
+  <div class="app-empty">لا توجد أقسام فرعية مطابقة لبحثك في الوقت الحالي.</div>
 </ng-template>

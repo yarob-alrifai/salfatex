@@ -1,64 +1,92 @@
-<section class="customer-manager">
-  <header class="customer-manager__header">
-    <h2>الزبائن</h2>
-    <p>عرض وإدارة بيانات الزبائن الذين قاموا بالطلب عبر المنصة.</p>
+<section class="app-section space-y-12">
+  <header class="app-card app-card--tinted space-y-4 text-right">
+    <span class="app-badge">إدارة العملاء</span>
+    <h1 class="app-heading text-3xl">الزبائن</h1>
+    <p class="app-subheading">
+      استعرض بيانات الزبائن، قم بالبحث والترتيب، ثم حدّث المعلومات الأساسية للحفاظ على قاعدة بيانات
+      دقيقة وحديثة.
+    </p>
+    s
   </header>
 
-  <section class="customer-manager__messages">
-    <p *ngIf="feedback()" class="customer-manager__feedback">{{ feedback() }}</p>
-    <p *ngIf="error()" class="customer-manager__error">{{ error() }}</p>
+  <section class="space-y-4">
+    <p
+      *ngIf="feedback()"
+      class="rounded-2xl bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-600"
+    >
+      {{ feedback() }}
+    </p>
+    <p *ngIf="error()" class="rounded-2xl bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600">
+      {{ error() }}
+    </p>
   </section>
 
-  <section class="customer-manager__list" *ngIf="viewModel$ | async as vm; else loading">
-    <div class="customer-manager__toolbar">
-      <div class="customer-manager__stats">
-        <span>إجمالي الزبائن: {{ vm.total }}</span>
-        <span *ngIf="vm.hasSearch">عدد النتائج: {{ vm.filteredCount }}</span>
-      </div>
-
-      <div class="customer-manager__filters">
-        <label class="customer-manager__search">
-          <span class="sr-only">البحث عن الزبائن</span>
+  <section *ngIf="viewModel$ | async as vm; else loading" class="space-y-6">
+    <div class="app-card space-y-6">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="space-y-2 text-right">
+          <h2 class="text-xl font-semibold text-neutral-900">قائمة الزبائن</h2>
+          <p class="text-sm text-neutral-500">
+            إجمالي الزبائن: {{ vm.total }}
+            <span *ngIf="vm.hasSearch">— النتائج المطابقة: {{ vm.filteredCount }}</span>
+          </p>
+        </div>
+        <div class="relative w-full lg:w-80">
+          <span
+            class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-neutral-400"
+            >🔍</span
+          >
           <input
             type="search"
             [formControl]="searchControl"
-            placeholder="ابحث بالاسم، المطعم، البريد، الهاتف أو العنوان"
+            placeholder="ابحث بالاسم، المطعم، البريد أو الهاتف"
+            class="app-input pr-12 text-right"
           />
-        </label>
+        </div>
+      </div>
 
-        <fieldset class="customer-manager__sort-fields">
-          <legend>ترتيب حسب</legend>
-          <label>
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <fieldset
+          class="flex flex-wrap items-center gap-3 rounded-3xl border border-brand-200/70 bg-brand-50/50 px-4 py-3 text-sm text-brand-700"
+        >
+          <legend class="px-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand-500">
+            ترتيب حسب
+          </legend>
+          <label class="inline-flex items-center gap-2">
             <input
               type="radio"
               name="sortField"
+              class="h-4 w-4 accent-brand-500"
               [checked]="sortField() === 'customerName'"
               (change)="setSortField('customerName')"
             />
             الاسم
           </label>
-          <label>
+          <label class="inline-flex items-center gap-2">
             <input
               type="radio"
               name="sortField"
+              class="h-4 w-4 accent-brand-500"
               [checked]="sortField() === 'restaurantName'"
               (change)="setSortField('restaurantName')"
             />
             اسم المطعم
           </label>
-          <label>
+          <label class="inline-flex items-center gap-2">
             <input
               type="radio"
               name="sortField"
+              class="h-4 w-4 accent-brand-500"
               [checked]="sortField() === 'orderCount'"
               (change)="setSortField('orderCount')"
             />
             عدد الطلبات
           </label>
-          <label>
+          <label class="inline-flex items-center gap-2">
             <input
               type="radio"
               name="sortField"
+              class="h-4 w-4 accent-brand-500"
               [checked]="sortField() === 'lastOrderDate'"
               (change)="setSortField('lastOrderDate')"
             />
@@ -68,7 +96,7 @@
 
         <button
           type="button"
-          class="customer-manager__sort"
+          class="app-pill-button"
           (click)="toggleSortDirection()"
           [attr.aria-label]="sortDirection() === 'asc' ? 'ترتيب تنازلي' : 'ترتيب تصاعدي'"
         >
@@ -77,126 +105,174 @@
       </div>
     </div>
 
-    <div class="customer-manager__table" *ngIf="vm.customers.length; else empty">
-      <div class="customer-manager__table-head">
-        <span>الاسم الكامل</span>
-        <span>اسم المطعم</span>
-        <span>عدد الطلبات</span>
-        <span>تاريخ آخر طلب</span> <span class="customer-manager__actions-label">الإجراءات</span>
-      </div>
-
-      <div class="customer-manager__table-body">
-        <button
-          type="button"
-          class="customer-manager__row"
-          *ngFor="let customer of vm.customers; trackBy: trackByCustomer"
-          (click)="selectCustomer(customer)"
-        >
-          <span class="customer-manager__cell customer-manager__name">{{
-            customer.customerName
-          }}</span>
-          <span class="customer-manager__cell">{{ customer.restaurantName }}</span>
-          <span class="customer-manager__cell">{{ customer.orderCount }}</span>
-          <span class="customer-manager__cell">
-            {{ customer.lastOrderDate ? (customer.lastOrderDate | date : 'medium') : 'غير متوفر' }}
-          </span>
-          <span class="customer-manager__actions">
-            <button
-              type="button"
-              class="customer-manager__edit"
-              (click)="$event.stopPropagation(); startEdit(customer)"
-            >
-              تعديل
-            </button>
-            <button
-              type="button"
-              class="customer-manager__delete"
-              [disabled]="processing()"
-              (click)="$event.stopPropagation(); deleteCustomer(customer)"
-            >
-              حذف
-            </button>
-          </span>
-        </button>
-      </div>
+    <div class="app-table-container" *ngIf="vm.customers.length; else empty">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th scope="col">الاسم الكامل</th>
+            <th scope="col">اسم المطعم</th>
+            <th scope="col">عدد الطلبات</th>
+            <th scope="col">آخر طلب</th>
+            <th scope="col" class="text-center">الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-neutral-100">
+          <tr
+            *ngFor="let customer of vm.customers; trackBy: trackByCustomer"
+            class="cursor-pointer transition hover:bg-brand-50/50"
+            (click)="selectCustomer(customer)"
+          >
+            <td class="px-4 py-4 text-base font-semibold text-neutral-900">
+              {{ customer.customerName }}
+            </td>
+            <td class="px-4 py-4 text-sm text-neutral-600">{{ customer.restaurantName }}</td>
+            <td class="px-4 py-4 text-sm text-neutral-600">{{ customer.orderCount }}</td>
+            <td class="px-4 py-4 text-sm text-neutral-600">
+              {{
+                customer.lastOrderDate ? (customer.lastOrderDate | date : 'medium') : 'غير متوفر'
+              }}
+            </td>
+            <td class="px-4 py-4">
+              <div class="flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  class="app-button app-button--secondary !px-4 !py-2 text-xs"
+                  (click)="$event.stopPropagation(); startEdit(customer)"
+                >
+                  تعديل
+                </button>
+                <button
+                  type="button"
+                  class="app-button app-button--ghost !px-4 !py-2 text-xs text-rose-600 hover:text-rose-600"
+                  [disabled]="processing()"
+                  (click)="$event.stopPropagation(); deleteCustomer(customer)"
+                >
+                  حذف
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
-  <section class="customer-manager__editor" *ngIf="editingCustomer() as editing">
-    <h3>تعديل بيانات الزبون</h3>
-    <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
-      <div class="customer-manager__form-grid">
-        <label>
-          <span>الاسم الكامل</span>
-          <input type="text" formControlName="customerName" />
-        </label>
-        <label>
-          <span>اسم المطعم</span>
-          <input type="text" formControlName="restaurantName" />
-        </label>
-        <label>
-          <span>البريد الإلكتروني</span>
-          <input type="email" formControlName="customerEmail" />
-        </label>
-        <label>
-          <span>رقم الهاتف</span>
-          <input type="tel" formControlName="customerPhone" />
-        </label>
-        <label class="customer-manager__address">
-          <span>عنوان التوصيل</span>
-          <textarea rows="3" formControlName="shippingAddress"></textarea>
-        </label>
+  <section class="app-card space-y-6" *ngIf="editingCustomer() as editing">
+    <header class="space-y-2 text-right">
+      <h3 class="text-xl font-semibold text-neutral-900">تعديل بيانات الزبون</h3>
+      <p class="text-sm text-neutral-500">حدّث معلومات التواصل والشحن حسب الحاجة.</p>
+    </header>
+    <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="app-form app-form--two-columns">
+      <div class="app-field">
+        <label class="app-field__label" for="edit-customer-name">الاسم الكامل</label>
+        <input
+          id="edit-customer-name"
+          type="text"
+          formControlName="customerName"
+          class="app-input"
+        />
       </div>
 
-      <div class="customer-manager__editor-actions">
-        <button type="submit" [disabled]="processing()">حفظ التعديلات</button>
-        <button type="button" (click)="cancelEdit()">إلغاء</button>
+      <div class="app-field">
+        <label class="app-field__label" for="edit-restaurant-name">اسم المطعم</label>
+        <input
+          id="edit-restaurant-name"
+          type="text"
+          formControlName="restaurantName"
+          class="app-input"
+        />
+      </div>
+      <div class="app-field">
+        <label class="app-field__label" for="edit-customer-email">البريد الإلكتروني</label>
+        <input
+          id="edit-customer-email"
+          type="email"
+          formControlName="customerEmail"
+          class="app-input"
+        />
+      </div>
+      <div class="app-field">
+        <label class="app-field__label" for="edit-customer-phone">رقم الهاتف</label>
+        <input
+          id="edit-customer-phone"
+          type="tel"
+          formControlName="customerPhone"
+          class="app-input"
+        />
+      </div>
+      <div class="app-field sm:col-span-2">
+        <label class="app-field__label" for="edit-shipping-address">عنوان التوصيل</label>
+        <textarea
+          id="edit-shipping-address"
+          rows="3"
+          formControlName="shippingAddress"
+          class="app-textarea"
+        ></textarea>
+      </div>
+      <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
+        <button
+          type="submit"
+          class="app-button app-button--primary !px-5 !py-2"
+          [disabled]="processing()"
+        >
+          حفظ التعديلات
+        </button>
+        <button
+          type="button"
+          class="app-button app-button--ghost !px-4 !py-2"
+          (click)="cancelEdit()"
+        >
+          إلغاء
+        </button>
       </div>
     </form>
   </section>
 </section>
 
 <ng-template #loading>
-  <p class="customer-manager__loading">جاري تحميل بيانات الزبائن...</p>
+  <div class="flex justify-center py-16 text-neutral-500">جاري تحميل بيانات الزبائن...</div>
 </ng-template>
 
 <ng-template #empty>
-  <p class="customer-manager__empty">لم يتم العثور على زبائن لديهم طلبات حتى الآن.</p>
+  <div class="app-empty">لم يتم العثور على زبائن لديهم طلبات حتى الآن.</div>
 </ng-template>
 
-<div class="customer-manager__modal" *ngIf="selectedCustomer() as customer">
-  <div class="customer-manager__modal-backdrop" (click)="closeModal()"></div>
-  <article class="customer-manager__modal-content">
-    <header>
-      <h3>{{ customer.customerName }}</h3>
-      <button type="button" (click)="closeModal()" aria-label="إغلاق">×</button>
+<div class="app-modal" *ngIf="selectedCustomer() as customer">
+  <div class="app-modal__content space-y-6">
+    <button type="button" class="app-modal__close" (click)="closeModal()" aria-label="إغلاق">
+      ✕
+    </button>
+    <header class="space-y-2 text-right">
+      <h3 class="text-2xl font-semibold text-neutral-900">{{ customer.customerName }}</h3>
+      <p class="text-sm text-neutral-500">عرض سريع لمعلومات الزبون المختار.</p>
     </header>
 
-    <dl>
+    <dl class="grid gap-4 text-sm text-neutral-600 sm:grid-cols-2">
       <div>
-        <dt>اسم المطعم</dt>
+        <dt class="app-field__label">اسم المطعم</dt>
         <dd>{{ customer.restaurantName }}</dd>
       </div>
       <div>
-        <dt>رقم الهاتف</dt>
+        <dt class="app-field__label">رقم الهاتف</dt>
         <dd>{{ customer.customerPhone || 'غير متوفر' }}</dd>
       </div>
       <div>
-        <dt>البريد الإلكتروني</dt>
+        <dt class="app-field__label">البريد الإلكتروني</dt>
         <dd>{{ customer.customerEmail || 'غير متوفر' }}</dd>
       </div>
       <div>
-        <dt>عنوان التوصيل</dt>
-        <dd>{{ customer.shippingAddress || 'غير متوفر' }}</dd>
-      </div>
-      <div>
-        <dt>عدد الطلبات</dt>
+        <dt class="app-field__label">عدد الطلبات</dt>
         <dd>{{ customer.orderCount }}</dd>
       </div>
-      <div *ngIf="customer.lastOrderDate">
-        <dt>آخر طلب</dt>
+
+      <div class="sm:col-span-2">
+        <dt class="app-field__label">عنوان التوصيل</dt>
+        <dd>{{ customer.shippingAddress || 'غير متوفر' }}</dd>
+      </div>
+      <div *ngIf="customer.lastOrderDate" class="sm:col-span-2">
+        <dt class="app-field__label">تاريخ آخر طلب</dt>
         <dd>{{ customer.lastOrderDate | date : 'medium' }}</dd>
       </div>
     </dl>
-  </article>
+  </div>
 </div>

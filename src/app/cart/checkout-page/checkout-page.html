@@ -1,86 +1,85 @@
-<section class="bg-slate-50 py-10 lg:py-16">
-  <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
+<section class="py-10 lg:py-16">
+  <div class="app-section flex flex-col gap-8">
     <div class="flex justify-end">
       <app-back-button icon="←" fallbackUrl="/"></app-back-button>
     </div>
 
     <header class="text-center">
-      <h1 class="text-3xl font-bold text-slate-900 sm:text-4xl">إتمام الطلب</h1>
-      <p class="mt-2 text-base text-slate-600">
+      <span class="app-badge mx-auto">خطوة واحدة</span>
+      <h1 class="app-heading mt-4">إتمام الطلب</h1>
+      <p class="app-subheading mt-2">
         راجع تفاصيل طلبك وأكمل بياناتك لنتمكن من تجهيز الشحنة بأسرع وقت.
       </p>
     </header>
 
-    <div
-      class="w-full rounded-3xl border border-emerald-100 bg-emerald-50/70 p-6 shadow-sm shadow-emerald-100/40"
-      *ngIf="confirmation() as confirmation"
-    >
+    <div class="app-card app-card--tinted" *ngIf="confirmation() as confirmation">
       <div class="flex flex-col gap-4 text-right">
         <div class="flex flex-col gap-1">
-          <h2 class="text-2xl font-semibold text-emerald-700">شكراً لثقتكم بنا!</h2>
-          <p class="text-slate-700">
+          <h2 class="text-2xl font-semibold text-brand-700">شكراً لثقتكم بنا!</h2>
+          <p class="text-neutral-700">
             تم استلام طلبكم بتاريخ {{ confirmation.createdAt | date : 'medium' }} وسيتم التواصل معكم
             قريباً لتأكيد التفاصيل.
           </p>
         </div>
 
-        <p *ngIf="confirmation.orderNumber" class="text-sm font-semibold text-emerald-900">
+        <p *ngIf="confirmation.orderNumber" class="text-sm font-semibold text-brand-900">
           رقم الطلب: <span class="font-bold">{{ confirmation.orderNumber }}</span>
         </p>
 
-        <div class="grid gap-6 rounded-2xl bg-white/70 p-6 sm:grid-cols-2">
+        <div class="grid gap-6 rounded-3xl bg-white/80 p-6 shadow-inner sm:grid-cols-2">
           <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-slate-900">بيانات الزبون</h3>
-            <dl class="grid gap-3 text-sm text-slate-600">
+            <h3 class="text-lg font-semibold text-neutral-900">بيانات الزبون</h3>
+            <dl class="grid gap-3 text-sm text-neutral-600">
               <div>
-                <dt class="font-semibold text-slate-800">الاسم</dt>
+                <dt class="font-semibold text-neutral-800">الاسم</dt>
                 <dd>{{ confirmation.info.name }}</dd>
               </div>
               <div>
-                <dt class="font-semibold text-slate-800">البريد الإلكتروني</dt>
+                <dt class="font-semibold text-neutral-800">البريد الإلكتروني</dt>
                 <dd>{{ confirmation.info.email }}</dd>
               </div>
               <div>
-                <dt class="font-semibold text-slate-800">اسم المطعم</dt>
+                <dt class="font-semibold text-neutral-800">اسم المطعم</dt>
                 <dd>{{ confirmation.info.restaurantName }}</dd>
               </div>
 
               <div>
-                <dt class="font-semibold text-slate-800">رقم الهاتف</dt>
+                <dt class="font-semibold text-neutral-800">رقم الهاتف</dt>
                 <dd>{{ confirmation.info.phone }}</dd>
               </div>
 
               <div>
-                <dt class="font-semibold text-slate-800">العنوان</dt>
+                <dt class="font-semibold text-neutral-800">العنوان</dt>
                 <dd>{{ confirmation.info.address }}</dd>
               </div>
               <div *ngIf="confirmation.info.notes">
-                <dt class="font-semibold text-slate-800">ملاحظات</dt>
+                <dt class="font-semibold text-neutral-800">ملاحظات</dt>
                 <dd>{{ confirmation.info.notes }}</dd>
               </div>
             </dl>
           </div>
 
           <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-slate-900">ملخص الطلب</h3>
+            <h3 class="text-lg font-semibold text-neutral-900">ملخص الطلب</h3>
             <ul class="space-y-3">
               <li
-                class="flex items-start justify-between gap-4 rounded-xl border border-slate-100 bg-white/80 px-4 py-3 text-sm"
+                class="flex items-start justify-between gap-4 rounded-2xl border border-white/70 bg-white px-4 py-3 text-sm"
                 *ngFor="let item of confirmation.snapshot.items; trackBy: trackByProduct"
               >
                 <div class="text-right">
-                  <span class="block font-semibold text-slate-900">{{ item.product.name }}</span>
-                  <span class="text-xs text-slate-500">{{ item.unit.label }}</span>
-
-                  <span class="text-slate-500">× {{ item.quantity }}</span>
+                  <span class="block font-semibold text-neutral-900">{{ item.product.name }}</span>
+                  <span class="text-xs text-neutral-500">{{ item.unit.label }}</span>
+                  <span class="text-neutral-500">× {{ item.quantity }}</span>
                 </div>
-                <span class="font-semibold text-emerald-600">
+
+                <span class="font-semibold text-brand-600">
                   {{ item.quantity * item.unit.price | currency : 'USD' : 'symbol' : '1.0-0' }}
                 </span>
               </li>
             </ul>
+
             <p
-              class="flex items-center justify-between rounded-xl bg-emerald-600/10 px-4 py-3 text-sm font-semibold text-slate-900"
+              class="flex items-center justify-between rounded-2xl bg-brand-600/10 px-4 py-3 text-sm font-semibold text-neutral-900"
             >
               <span>الإجمالي:</span>
               {{ confirmation.snapshot.total | currency : 'USD' : 'symbol' : '1.0-0' }}
@@ -92,149 +91,131 @@
 
     <ng-container *ngIf="items().length > 0; else empty">
       <div class="grid w-full gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-        <section class="flex flex-col gap-6 rounded-3xl bg-white p-6 shadow-xl shadow-slate-200/60">
+        <section class="app-card flex flex-col gap-6">
           <div class="flex items-center justify-between gap-3">
-            <h2 class="text-xl font-semibold text-slate-900">المنتجات المختارة</h2>
-            <a routerLink="/cart" class="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+            <h2 class="text-xl font-semibold text-neutral-900">المنتجات المختارة</h2>
+            <a routerLink="/cart" class="text-sm font-medium text-brand-600 hover:text-brand-700"
               >تعديل السلة</a
             >
           </div>
 
           <ul class="space-y-4">
             <li
-              class="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 text-right shadow-sm sm:flex-row sm:items-center sm:justify-between"
+              class="flex flex-col gap-4 rounded-2xl border border-white/70 bg-white/80 p-4 text-right shadow-sm sm:flex-row sm:items-center sm:justify-between"
               *ngFor="let item of items(); trackBy: trackByProduct"
             >
               <div class="space-y-1 text-right">
-                <p class="text-base font-semibold text-slate-900">{{ item.product.name }}</p>
-                <p class="text-xs text-slate-500">{{ item.unit.label }}</p>
-
-                <p class="text-sm text-slate-500">
+                <p class="text-base font-semibold text-neutral-900">{{ item.product.name }}</p>
+                <p class="text-xs text-neutral-500">{{ item.unit.label }}</p>
+                <p class="text-sm text-neutral-500">
                   {{ item.quantity }} ×
                   {{ item.unit.price | currency : 'USD' : 'symbol' : '1.0-0' }}
                 </p>
               </div>
-              <span class="text-base font-bold text-emerald-600">
+
+              <span class="text-base font-bold text-brand-600">
                 {{ item.quantity * item.unit.price | currency : 'USD' : 'symbol' : '1.0-0' }}
               </span>
             </li>
           </ul>
 
           <div
-            class="flex flex-col gap-2 rounded-2xl bg-slate-900 px-6 py-4 text-right text-white sm:flex-row sm:items-center sm:justify-between"
+            class="flex flex-col gap-2 rounded-2xl bg-neutral-900 px-6 py-4 text-right text-white sm:flex-row sm:items-center sm:justify-between"
           >
-            <span class="text-sm font-medium text-slate-200">الإجمالي الكلي</span>
+            <span class="text-sm font-medium text-neutral-200">الإجمالي الكلي</span>
             <strong class="text-2xl font-semibold">{{
               totalPrice() | currency : 'USD' : 'symbol' : '1.0-0'
             }}</strong>
           </div>
         </section>
 
-        <section class="flex flex-col gap-6 rounded-3xl bg-white p-6 shadow-xl shadow-slate-200/60">
+        <section class="app-card flex flex-col gap-6">
           <div class="flex flex-col gap-1 text-right">
-            <h2 class="text-xl font-semibold text-slate-900">معلومات الزبون</h2>
-            <p class="text-sm text-slate-500">املأ الحقول التالية لإتمام الطلب.</p>
+            <h2 class="text-xl font-semibold text-neutral-900">معلومات الزبون</h2>
+            <p class="text-sm text-neutral-500">املأ الحقول التالية لإتمام الطلب.</p>
           </div>
 
           <form class="grid gap-5" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-            <label class="flex flex-col gap-2 text-right text-sm font-medium text-slate-800">
+            <label class="app-input-group">
               <span>الاسم الكامل</span>
-              <input
-                type="text"
-                formControlName="name"
-                required
-                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-              />
+
+              <input type="text" formControlName="name" required class="app-input" />
             </label>
+
             <div
-              class="text-right text-sm text-rose-600"
+              class="app-input-error"
               *ngIf="form.controls.name.invalid && form.controls.name.touched"
             >
               الرجاء إدخال الاسم.
             </div>
 
-            <label class="flex flex-col gap-2 text-right text-sm font-medium text-slate-800">
+            <label class="app-input-group">
               <span>البريد الإلكتروني</span>
-              <input
-                type="email"
-                formControlName="email"
-                required
-                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-              />
+
+              <input type="email" formControlName="email" required class="app-input" />
             </label>
+
             <div
-              class="text-right text-sm text-rose-600"
+              class="app-input-error"
               *ngIf="form.controls.email.invalid && form.controls.email.touched"
             >
               الرجاء إدخال بريد إلكتروني صالح.
             </div>
 
-            <label class="flex flex-col gap-2 text-right text-sm font-medium text-slate-800">
+            <label class="app-input-group">
               <span>رقم الهاتف</span>
-              <input
-                type="tel"
-                formControlName="phone"
-                required
-                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-              />
+
+              <input type="tel" formControlName="phone" required class="app-input" />
             </label>
+
             <div
-              class="text-right text-sm text-rose-600"
+              class="app-input-error"
               *ngIf="form.controls.phone.invalid && form.controls.phone.touched"
             >
               الرجاء إدخال رقم هاتف صالح.
             </div>
 
-            <label class="flex flex-col gap-2 text-right text-sm font-medium text-slate-800">
+            <label class="app-input-group">
               <span>اسم المطعم</span>
-              <input
-                type="text"
-                formControlName="restaurantName"
-                required
-                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-              />
+
+              <input type="text" formControlName="restaurantName" required class="app-input" />
             </label>
+
             <div
-              class="text-right text-sm text-rose-600"
+              class="app-input-error"
               *ngIf="form.controls.restaurantName.invalid && form.controls.restaurantName.touched"
             >
               الرجاء إدخال اسم المطعم.
             </div>
 
-            <label class="flex flex-col gap-2 text-right text-sm font-medium text-slate-800">
+            <label class="app-input-group">
               <span>عنوان التوصيل</span>
-              <textarea
-                formControlName="address"
-                rows="3"
-                required
-                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-              ></textarea>
+
+              <textarea formControlName="address" rows="3" required class="app-input"></textarea>
             </label>
+
             <div
-              class="text-right text-sm text-rose-600"
+              class="app-input-error"
               *ngIf="form.controls.address.invalid && form.controls.address.touched"
             >
               الرجاء إدخال العنوان.
             </div>
 
-            <label class="flex flex-col gap-2 text-right text-sm font-medium text-slate-800">
+            <label class="app-input-group">
               <span>ملاحظات إضافية</span>
-              <textarea
-                formControlName="notes"
-                rows="3"
-                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-              ></textarea>
+
+              <textarea formControlName="notes" rows="3" class="app-input"></textarea>
             </label>
 
             <button
               type="submit"
-              class="mt-2 inline-flex items-center justify-center rounded-xl bg-gradient-to-l from-indigo-600 via-indigo-500 to-purple-500 px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:from-indigo-500 hover:via-indigo-500 hover:to-purple-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 disabled:cursor-not-allowed disabled:opacity-60"
+              class="app-button app-button--primary mt-2"
               [disabled]="submitting()"
             >
               {{ submitting() ? 'جاري إرسال الطلب...' : 'إرسال الطلب' }}
             </button>
 
-            <p class="text-right text-sm font-medium text-rose-600" *ngIf="errorMessage()">
+            <p class="app-input-error" *ngIf="errorMessage()">
               {{ errorMessage() }}
             </p>
           </form>
@@ -245,18 +226,11 @@
 </section>
 
 <ng-template #empty>
-  <div
-    class="mx-auto max-w-3xl rounded-3xl bg-white px-6 py-12 text-center shadow-xl shadow-slate-200/70"
-    *ngIf="!confirmation()"
-  >
-    <p class="text-lg font-semibold text-slate-800">
+  <div class="app-card text-center" *ngIf="!confirmation()">
+    <p class="text-lg font-semibold text-neutral-800">
       السلة فارغة. الرجاء إضافة منتجات قبل إتمام الطلب.
     </p>
-    <a
-      routerLink="/categories"
-      class="mt-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-indigo-500"
-    >
-      العودة إلى التسوق
-    </a>
+
+    <a routerLink="/categories" class="app-button app-button--primary mt-6"> العودة إلى التسوق </a>
   </div>
 </ng-template>

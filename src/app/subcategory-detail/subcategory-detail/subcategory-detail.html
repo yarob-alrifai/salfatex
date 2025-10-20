@@ -1,43 +1,40 @@
-<section
-  class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8"
-  *ngIf="viewModel$ | async as vm; else loading"
->
+<section class="app-section space-y-10" *ngIf="viewModel$ | async as vm; else loading">
   <header class="space-y-6">
     <app-back-button label="عودة إلى القائمة السابقة"></app-back-button>
 
     <div
-      class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-lg shadow-slate-900/10 backdrop-blur sm:flex-row sm:items-center"
+      class="app-card flex flex-col gap-6 sm:flex-row sm:items-center"
       *ngIf="vm.subcategory as subcategory"
     >
       <img
-        class="h-44 w-full rounded-2xl object-cover sm:h-48 sm:w-48"
+        class="h-44 w-full rounded-3xl object-cover shadow-sm sm:h-48 sm:w-48"
         [src]="subcategory.imageUrl"
         [alt]="subcategory.name"
       />
 
       <div class="space-y-3 text-right">
-        <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">{{ subcategory.name }}</h1>
-        <p class="text-sm leading-7 text-slate-600" *ngIf="subcategory.description">
+        <h1 class="app-heading text-2xl sm:text-3xl">{{ subcategory.name }}</h1>
+        <p class="app-subheading text-sm sm:text-base" *ngIf="subcategory.description">
           {{ subcategory.description }}
         </p>
       </div>
     </div>
   </header>
 
-  <section class="mt-10">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <h2 class="text-lg font-semibold text-slate-900">
+  <section class="space-y-6">
+    <div
+      class="flex flex-col gap-4 rounded-3xl border border-white/60 bg-white/90 p-5 shadow-soft backdrop-blur sm:flex-row sm:items-center sm:justify-between"
+    >
+      <h2 class="text-lg font-semibold text-neutral-900">
         المنتجات المتاحة ({{ vm.filteredProducts.length }})
       </h2>
 
-      <label
-        class="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-500 shadow-sm focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-200 sm:min-w-[22rem]"
-      >
-        <span class="whitespace-nowrap">ابحث ضمن المنتجات</span>
+      <label class="flex items-center gap-3">
+        <span class="app-chip bg-brand-50/80 text-brand-600">ابحث ضمن المنتجات</span>
         <input
           type="search"
           name="subcategory-search"
-          class="w-full border-none bg-transparent text-right text-sm text-slate-900 focus:outline-none"
+          class="app-input app-input--small w-full sm:w-72"
           placeholder="اكتب اسم المنتج أو لونه"
           [ngModel]="vm.searchTerm"
           (ngModelChange)="updateSearch($event)"
@@ -47,11 +44,11 @@
 
     <div
       *ngIf="vm.filteredProducts.length; else empty"
-      class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+      class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
     >
       <article
         *ngFor="let product of vm.filteredProducts; trackBy: trackByProductId"
-        class="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-sm shadow-slate-900/5 transition hover:-translate-y-1 hover:border-amber-400 hover:shadow-lg"
+        class="app-card flex h-full flex-col gap-4 text-right transition hover:-translate-y-1 hover:shadow-brand"
       >
         <a
           class="group flex flex-col gap-4"
@@ -70,29 +67,26 @@
             [src]="product.mainImageUrl"
             [alt]="product.name"
           />
-          <div class="space-y-2 text-right">
-            <h3 class="text-lg font-semibold text-slate-900">{{ product.name }}</h3>
-            <p class="text-sm font-semibold text-amber-600">
-              {{ getSelectedUnitPrice(product) | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
-            </p>
 
-            <p class="text-sm font-semibold text-amber-600">
+          <div class="space-y-2">
+            <h3 class="text-lg font-semibold text-neutral-900">{{ product.name }}</h3>
+            <p class="text-sm font-semibold text-brand-600">
               {{ getSelectedUnitPrice(product) | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
             </p>
 
             <div
               *ngIf="getAvailableColors(product).length"
-              class="flex flex-wrap justify-end gap-2 text-xs text-slate-600"
+              class="flex flex-wrap justify-end gap-2 text-xs text-neutral-600"
             >
               <button
                 type="button"
                 *ngFor="let color of getAvailableColors(product)"
                 class="rounded-full border px-2 py-1 transition"
-                [class.bg-amber-500]="isSelectedColor(product, color)"
+                [class.bg-brand-500]="isSelectedColor(product, color)"
                 [class.text-white]="isSelectedColor(product, color)"
-                [class.border-amber-500]="isSelectedColor(product, color)"
-                [class.text-amber-600]="!isSelectedColor(product, color)"
-                [class.border-amber-200]="!isSelectedColor(product, color)"
+                [class.border-brand-500]="isSelectedColor(product, color)"
+                [class.text-brand-600]="!isSelectedColor(product, color)"
+                [class.border-brand-200]="!isSelectedColor(product, color)"
                 (click)="
                   selectColor(product.id, color); $event.preventDefault(); $event.stopPropagation()
                 "
@@ -103,11 +97,11 @@
           </div>
         </a>
 
-        <div class="mt-auto pt-4">
+        <div class="mt-auto pt-2">
           <ng-container *ngIf="getQuantity(product) === 0; else quantityControls">
             <button
               type="button"
-              class="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-amber-500/30 transition hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400"
+              class="app-button app-button--primary w-full"
               (click)="addToCart($event, product)"
             >
               أضف إلى السلة
@@ -116,11 +110,11 @@
 
           <ng-template #quantityControls>
             <div
-              class="inline-flex w-full items-center justify-between rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-600"
+              class="flex items-center justify-between rounded-full border border-brand-200 bg-brand-50/70 px-3 py-1.5 text-sm font-semibold text-brand-700"
             >
               <button
                 type="button"
-                class="h-8 w-8 rounded-full bg-white text-base text-amber-600 shadow-sm transition hover:bg-amber-100"
+                class="h-8 w-8 rounded-full bg-white text-base text-brand-600 shadow-sm transition hover:bg-brand-50"
                 (click)="decrement($event, product)"
                 aria-label="إنقاص الكمية"
               >
@@ -130,7 +124,7 @@
               <span class="min-w-[2rem] text-center">{{ getQuantity(product) }}</span>
               <button
                 type="button"
-                class="h-8 w-8 rounded-full bg-amber-500 text-base text-white shadow-sm transition hover:bg-amber-600"
+                class="h-8 w-8 rounded-full bg-brand-600 text-base text-white shadow-sm transition hover:bg-brand-700"
                 (click)="increment($event, product)"
                 aria-label="زيادة الكمية"
               >
@@ -144,28 +138,16 @@
 
     <ng-template #empty>
       <ng-container *ngIf="vm.products.length === 0; else noFilteredResults">
-        <div
-          class="rounded-3xl border border-dashed border-slate-200 bg-white/90 px-6 py-12 text-center text-sm text-slate-500"
-        >
-          لا توجد منتجات ضمن هذا القسم الفرعي حالياً.
-        </div>
+        <div class="app-empty">لا توجد منتجات ضمن هذا القسم الفرعي حالياً.</div>
       </ng-container>
     </ng-template>
 
     <ng-template #noFilteredResults>
-      <div
-        class="rounded-3xl border border-dashed border-amber-200 bg-white/90 px-6 py-12 text-center text-sm text-amber-600"
-      >
-        لا توجد منتجات مطابقة لعبارة البحث الحالية.
-      </div>
+      <div class="app-empty text-brand-600">لا توجد منتجات مطابقة لعبارة البحث الحالية.</div>
     </ng-template>
   </section>
 </section>
 
 <ng-template #loading>
-  <div
-    class="flex min-h-[40vh] items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white/80 px-6 py-10 text-sm text-slate-500"
-  >
-    جاري تحميل بيانات القسم الفرعي...
-  </div>
+  <div class="app-empty">جاري تحميل بيانات القسم الفرعي...</div>
 </ng-template>

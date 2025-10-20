@@ -1,15 +1,29 @@
-<div class="admin-contact" [class.admin-contact--loading]="loading()">
-  <header class="admin-contact__header">
-    <div>
-      <h1 class="admin-contact__title">إعدادات صفحة الاتصال</h1>
-      <p class="admin-contact__subtitle">
-        قم بتحديث بيانات التواصل التي ستظهر للزوار في صفحة "اتصل بنا".
+<section
+  class="app-section space-y-12"
+  [class.opacity-70]="loading()"
+  [class.pointer-events-none]="loading()"
+>
+  <header
+    class="app-card app-card--tinted flex flex-col gap-4 text-right sm:flex-row sm:items-center sm:justify-between"
+  >
+    <div class="space-y-2">
+      <span class="app-badge">إعدادات المحتوى</span>
+      <h1 class="app-heading text-3xl">إعدادات صفحة الاتصال</h1>
+      <p class="app-subheading">
+        قم بتحديث بيانات التواصل التي سيشاهدها الزوار في صفحة "اتصل بنا".
       </p>
     </div>
-    <button type="button" class="admin-contact__save" (click)="save()" [disabled]="loading()">
+
+    <button
+      type="button"
+      class="app-button app-button--primary"
+      (click)="save()"
+      [disabled]="loading()"
+    >
       <span>حفظ التعديلات</span>
       @if (loading()) {
-      <svg class="admin-contact__spinner" viewBox="0 0 24 24" fill="none">
+
+      <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
         <circle
           class="opacity-25"
           cx="12"
@@ -25,121 +39,139 @@
   </header>
 
   @if (feedback()) {
-  <div class="admin-contact__feedback">{{ feedback() }}</div>
+
+  <div class="app-card app-card--tinted text-sm font-semibold text-brand-700">{{ feedback() }}</div>
   }
 
-  <form [formGroup]="form" class="admin-contact__form" novalidate>
-    <div class="admin-contact__grid">
-      <label class="admin-contact__field">
-        <span class="admin-contact__label">رقم الهاتف الأرضي</span>
+  <form [formGroup]="form" class="app-card space-y-8" novalidate>
+    <div class="app-form app-form--two-columns">
+      <label class="app-field">
+        <span class="app-field__label">رقم الهاتف الأرضي</span>
         <input
-          class="admin-contact__input"
+          class="app-input"
           type="text"
           formControlName="phone"
           placeholder="مثال: +7 495 000 0000"
           dir="ltr"
         />
         @if (form.controls.phone.invalid && form.controls.phone.touched) {
-        <span class="admin-contact__error">يجب أن يحتوي رقم الهاتف على أرقام ورموز فقط.</span>
+        <span class="app-field__error">يجب أن يحتوي رقم الهاتف على أرقام ورموز فقط.</span>
         }
       </label>
 
-      <label class="admin-contact__field">
-        <span class="admin-contact__label">رقم الموبايل</span>
+      <label class="app-field">
+        <span class="app-field__label">رقم الموبايل</span>
         <input
-          class="admin-contact__input"
+          class="app-input"
           type="text"
           formControlName="mobile"
           placeholder="مثال: +963 9X XXX XXXX"
           dir="ltr"
         />
         @if (form.controls.mobile.invalid && form.controls.mobile.touched) {
-        <span class="admin-contact__error">يجب أن يحتوي رقم الموبايل على أرقام ورموز فقط.</span>
+        <span class="app-field__error">يجب أن يحتوي رقم الموبايل على أرقام ورموز فقط.</span>
         }
       </label>
 
-      <label class="admin-contact__field">
-        <span class="admin-contact__label">البريد الإلكتروني</span>
+      <label class="app-field">
+        <span class="app-field__label">البريد الإلكتروني</span>
         <input
-          class="admin-contact__input"
+          class="app-input"
           type="email"
           formControlName="email"
           placeholder="example@email.com"
           dir="ltr"
         />
         @if (form.controls.email.invalid && form.controls.email.touched) {
-        <span class="admin-contact__error">يرجى إدخال بريد إلكتروني صالح.</span>
+
+        <span class="app-field__error">يرجى إدخال بريد إلكتروني صالح.</span>
         }
       </label>
 
-      <label class="admin-contact__field admin-contact__field--full">
-        <span class="admin-contact__label">العنوان</span>
+      <label class="app-field sm:col-span-2">
+        <span class="app-field__label">العنوان</span>
         <textarea
-          class="admin-contact__textarea"
+          class="app-textarea"
           formControlName="address"
           rows="3"
           placeholder="أدخل العنوان الكامل"
         ></textarea>
       </label>
 
-      <label class="admin-contact__field">
-        <span class="admin-contact__label">رابط الواتساب</span>
+      <label class="app-field">
+        <span class="app-field__label">رابط الواتساب</span>
         <input
-          class="admin-contact__input"
+          class="app-input"
           type="url"
           formControlName="whatsappUrl"
           placeholder="https://wa.me/..."
           dir="ltr"
         />
         @if (form.controls.whatsappUrl.invalid && form.controls.whatsappUrl.touched) {
-        <span class="admin-contact__error">يرجى إدخال رابط صحيح يبدأ بـ https://.</span>
+
+        <span class="app-field__error">يرجى إدخال رابط صحيح يبدأ بـ https://.</span>
         }
       </label>
 
-      <label class="admin-contact__field">
-        <span class="admin-contact__label">رابط التلغرام</span>
+      <label class="app-field">
+        <span class="app-field__label">رابط التلغرام</span>
         <input
-          class="admin-contact__input"
+          class="app-input"
           type="url"
           formControlName="telegramUrl"
           placeholder="https://t.me/..."
           dir="ltr"
         />
         @if (form.controls.telegramUrl.invalid && form.controls.telegramUrl.touched) {
-        <span class="admin-contact__error">يرجى إدخال رابط صحيح يبدأ بـ https://.</span>
+
+        <span class="app-field__error">يرجى إدخال رابط صحيح يبدأ بـ https://.</span>
         }
       </label>
     </div>
 
-    <section class="admin-contact__qr">
-      <div>
-        <h2 class="admin-contact__section-title">رمز QR للواتساب</h2>
-        <p class="admin-contact__section-subtitle">
+    <section class="app-card app-card--muted space-y-4">
+      <div class="flex flex-col gap-2 text-right">
+        <h2 class="text-lg font-semibold text-neutral-900">رمز QR للواتساب</h2>
+        <p class="text-sm text-neutral-500">
           يمكنك رفع صورة رمز QR ليتمكن العملاء من مسحها مباشرة.
         </p>
       </div>
-      <div class="admin-contact__qr-controls">
-        <label class="admin-contact__upload">
+
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <label class="app-upload sm:w-auto">
           <input
             id="whatsappQrInput"
             type="file"
             accept="image/*"
             (change)="onWhatsappQrChange($event)"
+            class="app-upload__control"
           />
           <span>رفع صورة جديدة</span>
         </label>
-        <button type="button" class="admin-contact__remove" (click)="clearWhatsappQr()">
+
+        <button
+          type="button"
+          class="app-button app-button--ghost !px-4 !py-2"
+          (click)="clearWhatsappQr()"
+        >
           إزالة الرمز
         </button>
       </div>
+      <div class="flex justify-center">
+        @if (whatsappQrPreview()) {
+        <img
+          [src]="whatsappQrPreview()"
+          alt="معاينة رمز QR للواتساب"
+          class="h-40 w-40 rounded-3xl border border-neutral-200 object-cover shadow-sm"
+        />
+        } @else {
+        <div
+          class="app-upload__image flex h-40 w-40 items-center justify-center border border-dashed border-neutral-200 bg-neutral-50 text-neutral-400"
+        >
+          لا توجد صورة حالياً
+        </div>
+        }
+      </div>
     </section>
-
-    <div class="admin-contact__qr-preview">
-      @if (whatsappQrPreview()) {
-      <img [src]="whatsappQrPreview()" alt="معاينة رمز QR للواتساب" />
-      } @else {
-      <div class="admin-contact__qr-empty" aria-hidden="true"></div>
-      }
-    </div>
   </form>
-</div>
+</section>

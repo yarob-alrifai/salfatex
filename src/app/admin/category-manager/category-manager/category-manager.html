@@ -1,83 +1,78 @@
-<section class="p-8 bg-gray-50 min-h-screen">
-  <!-- Header -->
-  <header class="mb-8 text-center">
-    <h2 class="text-3xl font-bold text-indigo-600">إدارة التصنيفات</h2>
-    <p class="text-gray-600 mt-2">
-      قم بإنشاء تصنيفات جديدة مع صورة تعريفية ووصف مختصر وتابع تعديلها بسهولة.
+<section class="app-section space-y-12">
+  <header class="app-card app-card--tinted space-y-4 text-right">
+    <span class="app-badge">إدارة المحتوى</span>
+    <h1 class="app-heading text-3xl">إدارة التصنيفات</h1>
+    <p class="app-subheading">
+      أنشئ تصنيفات جديدة ببيانات كاملة وصورة جذابة، ثم حدّثها أو احذفها بسهولة للحفاظ على تجربة تصفح
+      احترافية في واجهة المتجر.
     </p>
   </header>
 
   <!-- Create form -->
   <form
+    class="app-card app-form app-form--two-columns"
     [formGroup]="form"
     (ngSubmit)="createCategory()"
-    class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-xl shadow"
   >
-    <label class="flex flex-col text-right">
-      <span class="mb-1 font-medium text-gray-700">اسم التصنيف</span>
-      <input
-        formControlName="name"
-        placeholder="الأقمشة"
-        class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-      />
-    </label>
+    <div class="app-field">
+      <label class="app-field__label" for="category-name">اسم التصنيف</label>
 
-    <label class="flex flex-col text-right md:col-span-2">
-      <span class="mb-1 font-medium text-gray-700">الوصف</span>
+      <input id="category-name" formControlName="name" placeholder="الأقمشة" class="app-input" />
+    </div>
+
+    <div class="app-field sm:col-span-2">
+      <label class="app-field__label" for="category-description">الوصف</label>
+
       <textarea
+        id="category-description"
         formControlName="description"
         rows="3"
-        placeholder="تفاصيل عن التصنيف"
-        class="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        placeholder="تفاصيل مختصرة حول التصنيف"
+        class="app-textarea"
       ></textarea>
-    </label>
 
-    <label class="flex flex-col text-right">
-      <span class="mb-1 font-medium text-gray-700">صورة التصنيف</span>
-      <input
-        type="file"
-        accept="image/*"
-        (change)="onImageChange($event)"
-        class="border border-dashed border-indigo-300 rounded-lg p-3 bg-indigo-50 text-sm"
-      />
+      <p class="app-field__hint">الوصف يساعد العملاء على فهم التصنيف بسرعة.</p>
+    </div>
 
-      <ng-container *ngIf="mainPreviewUrl as preview">
-        <span class="text-sm text-gray-500 mt-2">معاينة الصورة بعد القص</span>
-        <img
-          [src]="preview"
-          alt="معاينة صورة التصنيف"
-          class="mt-2 w-32 h-32 rounded-lg object-cover self-end border border-gray-200"
+    <div class="app-field sm:col-span-2">
+      <span class="app-field__label">صورة التصنيف</span>
+      <label class="app-upload">
+        <span>اضغط أو اسحب ملفاً بصيغة ‎PNG‎ أو ‎JPG‎ بدقة عالية.</span>
+        <input
+          type="file"
+          accept="image/*"
+          (change)="onImageChange($event)"
+          class="app-upload__control"
         />
-      </ng-container>
-    </label>
+        <span class="app-field__hint">يفضل أن تكون الصورة مربعة بقياس 800×800 بكسل.</span>
+      </label>
+      <div class="app-upload__preview" *ngIf="mainPreviewUrl as preview">
+        <img [src]="preview" alt="معاينة صورة التصنيف" class="app-upload__image" />
+      </div>
+    </div>
 
-    <button
-      type="submit"
-      class="md:col-span-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg shadow transition"
-    >
-      ➕ حفظ التصنيف
-    </button>
-
-    <p class="md:col-span-2 text-center text-green-600 font-medium" *ngIf="feedback()">
-      {{ feedback() }}
-    </p>
+    <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
+      <p
+        class="rounded-2xl bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-600"
+        *ngIf="feedback()"
+      >
+        {{ feedback() }}
+      </p>
+      <button type="submit" class="app-button app-button--primary sm:ml-auto">
+        <span>➕</span>
+        <span>حفظ التصنيف</span>
+      </button>
+    </div>
   </form>
 
-  <div
-    *ngIf="showMainCropper"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-  >
-    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-6 space-y-4">
-      <header class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-gray-800">قص صورة التصنيف</h3>
-        <button
-          type="button"
-          (click)="cancelMainCrop()"
-          class="text-gray-500 hover:text-gray-700 text-xl"
-          aria-label="إغلاق أداة القص"
-        >
-          ✕
-        </button>
+  <div class="app-modal" *ngIf="showMainCropper">
+    <div class="app-modal__content space-y-6">
+      <button type="button" class="app-modal__close" (click)="cancelMainCrop()">✕</button>
+      <header class="space-y-2 text-right">
+        <h3 class="text-2xl font-semibold text-neutral-900">قص صورة التصنيف</h3>
+        <p class="text-sm text-neutral-500">
+          حرّك وحدد الجزء الأفضل لعرض التصنيف بوضوح ضمن واجهة المتجر.
+        </p>
       </header>
       <image-cropper
         [imageChangedEvent]="mainImageChangedEvent"
@@ -90,21 +85,17 @@
         (imageCropped)="onMainImageCropped($event)"
         (imageLoaded)="onMainImageLoaded()"
         (loadImageFailed)="onMainImageLoadFailed()"
-        class="block h-96"
+        class="block h-96 rounded-3xl border border-neutral-200 bg-neutral-50"
       ></image-cropper>
       <div class="flex justify-end gap-3">
-        <button
-          type="button"
-          (click)="cancelMainCrop()"
-          class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
-        >
+        <button type="button" class="app-button app-button--secondary" (click)="cancelMainCrop()">
           إلغاء
         </button>
         <button
           type="button"
           [disabled]="!mainCropReady"
           (click)="confirmMainCrop()"
-          class="px-4 py-2 rounded-lg bg-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          class="app-button app-button--primary"
         >
           اعتماد القص
         </button>
@@ -113,65 +104,78 @@
   </div>
 
   <!-- Category table -->
-  <section class="mt-10 space-y-6" *ngIf="filteredCategories$ | async as categories">
-    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-      <div class="relative w-full md:w-80">
-        <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">🔍</span>
-        <input
-          type="search"
-          [formControl]="searchControl"
-          placeholder="ابحث عن تصنيف..."
-          class="w-full border border-gray-300 rounded-lg py-2 pr-3 pl-10 text-right focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        />
-      </div>
 
-      <span class="text-sm text-gray-600">إجمالي التصنيفات: {{ categories.length }}</span>
+  <section class="space-y-6" *ngIf="filteredCategories$ | async as categories">
+    <div class="app-toolbar">
+      <div class="space-y-1 text-right">
+        <h2 class="text-xl font-semibold text-neutral-900">قائمة التصنيفات</h2>
+        <p class="text-sm text-neutral-500">تتبع التصنيفات الحالية وعدّلها حسب الحاجة.</p>
+      </div>
+      <div class="app-toolbar__actions">
+        <div class="relative w-full sm:w-72">
+          <span
+            class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-neutral-400"
+            >🔍</span
+          >
+          <input
+            type="search"
+            [formControl]="searchControl"
+            placeholder="ابحث عن تصنيف..."
+            class="app-input pr-12 text-right"
+          />
+        </div>
+        <span class="app-count">إجمالي التصنيفات: {{ categories.length }}</span>
+      </div>
     </div>
-    <div class="bg-white rounded-xl shadow overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 text-right">
-          <thead class="bg-gray-100 text-gray-700 text-sm">
+
+    <div class="app-table-container">
+      <ng-container *ngIf="categories.length; else noCategories">
+        <table class="app-table">
+          <thead>
             <tr>
-              <th class="px-4 py-3 font-semibold">الصورة</th>
-              <th class="px-4 py-3 font-semibold">الاسم</th>
-              <th class="px-4 py-3 font-semibold">الوصف</th>
-              <th class="px-4 py-3 font-semibold">الإجراءات</th>
+              <th scope="col">الصورة</th>
+              <th scope="col">الاسم</th>
+              <th scope="col">الوصف</th>
+              <th scope="col" class="text-center">الإجراءات</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200 text-sm text-gray-700">
-            <tr *ngFor="let category of categories" class="hover:bg-gray-50">
-              <td class="px-4 py-3">
+          <tbody class="divide-y divide-neutral-100">
+            <tr *ngFor="let category of categories">
+              <td class="px-4 py-4">
                 <div class="flex justify-end">
                   <img
                     *ngIf="category.imageUrl; else placeholder"
                     [src]="category.imageUrl"
                     [alt]="category.name"
-                    class="w-14 h-14 rounded-lg object-cover border border-gray-200"
+                    class="h-16 w-16 rounded-2xl border border-neutral-200 object-cover shadow-sm"
                   />
                   <ng-template #placeholder>
                     <span
-                      class="inline-flex items-center justify-center w-14 h-14 rounded-lg bg-gray-100 text-gray-400 text-xl"
+                      class="flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-100 text-2xl text-neutral-400"
+                      >🖼️</span
                     >
-                      🖼️
-                    </span>
                   </ng-template>
                 </div>
               </td>
-              <td class="px-4 py-3 font-medium text-gray-900">{{ category.name }}</td>
-              <td class="px-4 py-3 text-gray-600">{{ category.description || 'لا يوجد وصف' }}</td>
-              <td class="px-4 py-3">
-                <div class="flex items-center justify-end gap-2">
+              <td class="px-4 py-4 text-base font-semibold text-neutral-900">
+                {{ category.name }}
+              </td>
+              <td class="px-4 py-4 text-sm text-neutral-600">
+                {{ category.description || 'لا يوجد وصف' }}
+              </td>
+              <td class="px-4 py-4">
+                <div class="flex items-center justify-center gap-2">
                   <button
                     type="button"
                     (click)="openEdit(category)"
-                    class="bg-amber-500 hover:bg-amber-600 text-white py-1 px-3 rounded-lg shadow transition"
+                    class="app-button app-button--secondary !px-4 !py-2 text-xs"
                   >
                     ✏️ تعديل
                   </button>
                   <button
                     type="button"
                     (click)="deleteCategory(category)"
-                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg shadow transition"
+                    class="app-button app-button--ghost !px-4 !py-2 text-xs text-rose-600 hover:text-rose-600"
                   >
                     🗑️ حذف
                   </button>
@@ -180,131 +184,98 @@
             </tr>
           </tbody>
         </table>
-      </div>
-
-      <div *ngIf="!categories.length" class="p-6 text-center text-gray-500">
-        لا توجد تصنيفات مطابقة لبحثك.
-      </div>
+      </ng-container>
     </div>
   </section>
 
-  <!-- Edit modal -->
-  <div
-    class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur"
-    *ngIf="isEditModalOpen()"
-  >
-    <div
-      class="w-full max-w-2xl bg-white max-h-[90vh] rounded-2xl shadow-xl p-6 space-y-6 overflow-y-auto"
-    >
-      <div class="flex items-center justify-between">
-        <h3 class="text-xl font-semibold text-gray-800">تعديل التصنيف</h3>
-        <button
-          type="button"
-          (click)="closeEditModal()"
-          class="text-gray-500 hover:text-gray-700"
-          aria-label="إغلاق"
-        >
-          ✖️
-        </button>
-      </div>
+  <ng-template #noCategories>
+    <div class="app-empty">لا توجد تصنيفات مطابقة لبحثك الحالي.</div>
+  </ng-template>
 
+  <div class="app-modal" *ngIf="isEditModalOpen()">
+    <div class="app-modal__content space-y-6">
+      <button type="button" class="app-modal__close" (click)="closeEditModal()">✕</button>
+      <header class="space-y-2 text-right">
+        <h3 class="text-2xl font-semibold text-neutral-900">تعديل التصنيف</h3>
+        <p class="text-sm text-neutral-500">حدّث بيانات التصنيف ثم احفظ التغييرات مباشرة.</p>
+      </header>
       <form
-        class="grid grid-cols-1 md:grid-cols-2 gap-4"
+        class="app-form app-form--two-columns"
         [formGroup]="editForm"
         (ngSubmit)="saveCategoryEdits()"
       >
-        <label class="flex flex-col text-right">
-          <span class="mb-1 font-medium text-gray-700">اسم التصنيف</span>
-          <input
-            formControlName="name"
-            class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          />
-        </label>
+        <div class="app-field">
+          <label class="app-field__label" for="edit-name">اسم التصنيف</label>
+          <input id="edit-name" formControlName="name" class="app-input" />
+        </div>
 
-        <label class="flex flex-col text-right md:col-span-2">
-          <span class="mb-1 font-medium text-gray-700">الوصف</span>
+        <div class="app-field sm:col-span-2">
+          <label class="app-field__label" for="edit-description">الوصف</label>
           <textarea
+            id="edit-description"
             formControlName="description"
             rows="3"
-            class="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            class="app-textarea"
           ></textarea>
-        </label>
+        </div>
 
         <ng-container *ngIf="selectedCategory() as category">
-          <div class="flex flex-col text-right md:col-span-2 gap-2">
-            <span class="font-medium text-gray-700">الصورة الحالية</span>
-            <img
-              *ngIf="category.imageUrl; else noCategoryImage"
-              [src]="category.imageUrl"
-              [alt]="category.name"
-              class="w-32 h-32 object-cover rounded-lg border border-gray-200 self-end"
-            />
+          <div class="app-field sm:col-span-2">
+            <span class="app-field__label">الصورة الحالية</span>
+            <div class="flex justify-end">
+              <img
+                *ngIf="category.imageUrl; else noCategoryImage"
+                [src]="category.imageUrl"
+                [alt]="category.name"
+                class="h-24 w-24 rounded-2xl border border-neutral-200 object-cover shadow-sm"
+              />
+            </div>
+
             <ng-template #noCategoryImage>
-              <span class="text-sm text-gray-500">لا توجد صورة حالية لهذا التصنيف.</span>
+              <p class="app-field__hint">لا توجد صورة حالية لهذا التصنيف.</p>
             </ng-template>
           </div>
         </ng-container>
 
-        <label class="flex flex-col text-right md:col-span-2">
-          <span class="mb-1 font-medium text-gray-700">تغيير الصورة</span>
-          <input
-            type="file"
-            accept="image/*"
-            (change)="onEditImageChange($event)"
-            class="border border-dashed border-indigo-300 rounded-lg p-3 bg-indigo-50 text-sm"
-          />
-          <span class="text-xs text-gray-500 mt-1"
-            >اترك الحقل فارغًا للاحتفاظ بالصورة الحالية.</span
-          >
-
-          <ng-container *ngIf="editPreviewUrl as preview">
-            <span class="text-sm text-gray-500 mt-2">معاينة الصورة بعد القص</span>
-            <img
-              [src]="preview"
-              alt="معاينة الصورة الجديدة"
-              class="mt-2 w-32 h-32 rounded-lg object-cover self-end border border-gray-200"
+        <div class="app-field sm:col-span-2">
+          <span class="app-field__label">تغيير الصورة</span>
+          <label class="app-upload">
+            <span>اختَر صورة جديدة أو اترك الحقل فارغاً للاحتفاظ بالصورة الحالية.</span>
+            <input
+              type="file"
+              accept="image/*"
+              (change)="onEditImageChange($event)"
+              class="app-upload__control"
             />
-          </ng-container>
-        </label>
+          </label>
+          <div class="app-upload__preview" *ngIf="editPreviewUrl as preview">
+            <img [src]="preview" alt="معاينة الصورة الجديدة" class="app-upload__image" />
+          </div>
+        </div>
 
-        <div class="md:col-span-2 flex items-center justify-end gap-2">
+        <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
           <button
             type="button"
+            class="app-button app-button--ghost !px-4 !py-2"
             (click)="closeEditModal()"
-            class="px-4 py-2 rounded-lg border border-gray-300 text-sm hover:bg-gray-100"
           >
             إلغاء
           </button>
-          <button
-            type="submit"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg shadow transition"
-          >
+          <button type="submit" class="app-button app-button--primary !px-5 !py-2">
             💾 حفظ التعديلات
           </button>
+          <p class="app-field__error" *ngIf="editFeedback()">{{ editFeedback() }}</p>
         </div>
-
-        <p class="md:col-span-2 text-center text-red-600 font-medium" *ngIf="editFeedback()">
-          {{ editFeedback() }}
-        </p>
       </form>
     </div>
   </div>
 
-  <div
-    *ngIf="showEditCropper"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-  >
-    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-6 space-y-4">
-      <header class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-gray-800">قص صورة التصنيف</h3>
-        <button
-          type="button"
-          (click)="cancelEditCrop()"
-          class="text-gray-500 hover:text-gray-700 text-xl"
-          aria-label="إغلاق أداة القص"
-        >
-          ✕
-        </button>
+  <div class="app-modal" *ngIf="showEditCropper">
+    <div class="app-modal__content space-y-6">
+      <button type="button" class="app-modal__close" (click)="cancelEditCrop()">✕</button>
+      <header class="space-y-2 text-right">
+        <h3 class="text-2xl font-semibold text-neutral-900">قص صورة التصنيف</h3>
+        <p class="text-sm text-neutral-500">تأكد من أن الصورة تظهر بأفضل شكل قبل الحفظ.</p>
       </header>
       <image-cropper
         [imageChangedEvent]="editImageChangedEvent"
@@ -317,21 +288,17 @@
         (imageCropped)="onEditImageCropped($event)"
         (imageLoaded)="onEditImageLoaded()"
         (loadImageFailed)="onEditImageLoadFailed()"
-        class="block h-96"
+        class="block h-96 rounded-3xl border border-neutral-200 bg-neutral-50"
       ></image-cropper>
       <div class="flex justify-end gap-3">
-        <button
-          type="button"
-          (click)="cancelEditCrop()"
-          class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
-        >
+        <button type="button" class="app-button app-button--secondary" (click)="cancelEditCrop()">
           إلغاء
         </button>
         <button
           type="button"
+          class="app-button app-button--primary"
           [disabled]="!editCropReady"
           (click)="confirmEditCrop()"
-          class="px-4 py-2 rounded-lg bg-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           اعتماد القص
         </button>

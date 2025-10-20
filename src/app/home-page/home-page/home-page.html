@@ -1,16 +1,17 @@
-<section class="space-y-16 bg-slate-50 pb-20">
-  <section class="bg-gradient-to-br from-amber-50 via-white to-amber-100">
-    <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-3xl space-y-6 text-center">
-        <h1 class="text-3xl font-bold text-slate-900 sm:text-4xl">
-          ابحثوا عن منتجاتكم المفضّلة مباشرة
-        </h1>
-        <p class="text-lg leading-relaxed text-slate-600">
-          اكتبوا اسم المنتج أو نوعه للوصول السريع إلى النتائج المتاحة في متجر سالفاتكس.
+<section class="space-y-20 pb-24">
+  <section class="relative isolate overflow-hidden">
+    <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-brand-200/40 via-white/0"></div>
+    <div class="app-section">
+      <div class="app-hero mx-auto max-w-4xl text-center">
+        <span class="app-badge mx-auto mb-4">سالفاتكس</span>
+        <h1 class="app-heading">ابحثوا عن منتجات النظافة الموثوقة فورًا</h1>
+        <p class="app-subheading mt-4">
+          اكتبوا اسم المنتج أو نوعه للوصول السريع إلى مجموعتنا المتكاملة من الورقيات ومواد النظافة
+          المصممة للمنشآت الاحترافية.
         </p>
 
         <form
-          class="mx-auto flex max-w-2xl flex-col gap-3 sm:flex-row"
+          class="mx-auto mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row"
           (ngSubmit)="onSubmit($event)"
         >
           <label class="sr-only" for="home-search">ابحثوا عن منتج</label>
@@ -18,26 +19,19 @@
             id="home-search"
             name="home-search"
             type="search"
-            class="w-full rounded-full border border-amber-200 bg-white px-6 py-3 text-right text-base text-slate-900 shadow-sm focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
+            class="app-input rounded-full border-brand-200/60 bg-white/90 text-base"
             placeholder="ابحثوا عن منتج..."
             [ngModel]="searchTerm"
             (ngModelChange)="onSearchTermChange($event)"
           />
-          <button
-            type="submit"
-            class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-amber-500/30 transition hover:-translate-y-0.5 hover:shadow-xl"
-          >
-            ابحث الآن
-          </button>
+
+          <button type="submit" class="app-button app-button--primary">ابحث الآن</button>
         </form>
       </div>
 
-      <div class="mx-auto mt-10 max-w-5xl" *ngIf="searchResults$ | async as search">
+      <div class="mx-auto mt-12 max-w-5xl" *ngIf="searchResults$ | async as search">
         <div *ngIf="search.hasSearched">
-          <div
-            *ngIf="search.isLoading"
-            class="rounded-3xl border border-dashed border-amber-200 bg-white/80 px-6 py-10 text-center text-sm text-amber-600"
-          >
+          <div *ngIf="search.isLoading" class="app-card app-card--tinted text-sm text-brand-700">
             جارٍ البحث عن "{{ search.term }}"...
           </div>
 
@@ -48,7 +42,7 @@
             >
               <article
                 *ngFor="let product of search.results; trackBy: trackProduct"
-                class="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/95 p-4 text-right shadow-sm transition hover:-translate-y-1 hover:border-amber-400 hover:shadow-lg"
+                class="app-card flex h-full flex-col gap-4 text-right transition hover:-translate-y-1 hover:shadow-brand"
               >
                 <a
                   class="flex flex-col gap-4"
@@ -67,11 +61,12 @@
                     [alt]="product.name"
                   />
                   <div class="space-y-2">
-                    <h3 class="text-lg font-semibold text-slate-900">{{ product.name }}</h3>
-                    <p class="text-sm font-semibold text-amber-600">
+                    <h3 class="text-lg font-semibold text-neutral-900">{{ product.name }}</h3>
+                    <p class="text-sm font-semibold text-brand-600">
                       {{ getMinimumPrice(product) | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
                     </p>
-                    <p class="text-xs text-slate-500" *ngIf="product.color">
+
+                    <p class="text-xs text-neutral-500" *ngIf="product.color">
                       الألوان المتوفرة: {{ product.color }}
                     </p>
                   </div>
@@ -83,103 +78,109 @@
       </div>
 
       <ng-template #homeNoResults>
-        <div
-          class="rounded-3xl border border-dashed border-amber-200 bg-white/80 px-6 py-10 text-center text-sm text-amber-600"
-        >
-          لا توجد منتجات مطابقة لعبارة البحث الحالية.
-        </div>
+        <div class="app-empty text-brand-600">لا توجد منتجات مطابقة لعبارة البحث الحالية.</div>
       </ng-template>
     </div>
   </section>
 
   <app-categories></app-categories>
 
-  <section class="bg-white">
-    <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+  <section>
+    <div class="app-section">
       <div class="mx-auto max-w-3xl text-center">
-        <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">لماذا تختارون سالفاتكس؟</h2>
-        <p class="mt-4 text-lg leading-relaxed text-slate-600">
-          نقدم لكم حلولاً متكاملة للمحارم ومواد التنظيف بجودة استثنائية وتنوع يلائم احتياجات المنازل
-          والشركات. فريقنا المختص يحرص على اختيار أفضل العلامات التجارية لضمان نظافة تدوم وراحة بال
-          حقيقية.
+        <span class="app-badge mx-auto">قيمنا</span>
+        <h2 class="app-heading mt-4">لماذا تختارون سالفاتكس؟</h2>
+        <p class="app-subheading mt-4">
+          حلول متكاملة للمحارم ومواد التنظيف بجودة استثنائية وتنوع يلائم احتياجات المنشآت الصغيرة
+          والكبيرة مع التزام كامل بالسرعة والدقة.
         </p>
       </div>
 
-      <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        <article class="feature-card">
-          <h3 class="feature-title">جودة موثوقة</h3>
-          <p class="feature-text">
-            منتجات مختارة بعناية من مزودين معتمدين لضمان نعومة المحارم وكفاءة مواد التنظيف في كل
+      <div class="app-card-grid mt-12 sm:grid-cols-2 lg:grid-cols-3">
+        <article class="app-card">
+          <h3 class="text-xl font-semibold text-neutral-900">جودة موثوقة</h3>
+          <p class="mt-3 text-sm leading-relaxed text-neutral-600">
+            منتجات مختارة بعناية من مزودين معتمدين لضمان نعومة الورقيات وكفاءة مواد التنظيف في كل
             استعمال.
           </p>
         </article>
-        <article class="feature-card">
-          <h3 class="feature-title">تشكيلة شاملة</h3>
-          <p class="feature-text">
-            كل ما تحتاجونه من محارم منزلية، ورقية، وصناعية بالإضافة إلى منظفات متعددة الأغراض في
-            مكان واحد.
+
+        <article class="app-card">
+          <h3 class="text-xl font-semibold text-neutral-900">تشكيلة شاملة</h3>
+          <p class="mt-3 text-sm leading-relaxed text-neutral-600">
+            كل ما تحتاجونه من محارم منزلية وصناعية بالإضافة إلى منظفات متعددة الأغراض في مكان واحد.
           </p>
         </article>
-        <article class="feature-card">
-          <h3 class="feature-title">توصيل سريع ومرن</h3>
-          <p class="feature-text">
-            خدمات شحن مرنة تغطي مختلف المناطق مع متابعة دقيقة للطلبات حتى وصولها إلى بابكم.
+
+        <article class="app-card">
+          <h3 class="text-xl font-semibold text-neutral-900">توصيل سريع ومرن</h3>
+          <p class="mt-3 text-sm leading-relaxed text-neutral-600">
+            خدمات شحن تغطي مختلف المناطق مع متابعة دقيقة للطلبات حتى وصولها إلى منشأتكم.
           </p>
         </article>
-        <article class="feature-card">
-          <h3 class="feature-title">دعم عملاء مخصص</h3>
-          <p class="feature-text">
-            فريق خدمة العملاء جاهز للإجابة عن استفساراتكم وتقديم التوصيات الأنسب لاحتياجاتكم اليومية
-            والمهنية.
+
+        <article class="app-card">
+          <h3 class="text-xl font-semibold text-neutral-900">دعم عملاء مخصص</h3>
+          <p class="mt-3 text-sm leading-relaxed text-neutral-600">
+            فريق خدمة العملاء جاهز للإجابة عن الاستفسارات وتقديم التوصيات الأنسب لاحتياجاتكم
+            اليومية.
           </p>
         </article>
-        <article class="feature-card">
-          <h3 class="feature-title">أسعار تنافسية</h3>
-          <p class="feature-text">
-            عروض دائمة وخطط توريد مرنة تضمن لكم أفضل قيمة مقابل كل درهم تستثمرونه في نظافة منشأتكم.
+
+        <article class="app-card">
+          <h3 class="text-xl font-semibold text-neutral-900">أسعار تنافسية</h3>
+          <p class="mt-3 text-sm leading-relaxed text-neutral-600">
+            عروض دائمة وخطط توريد مرنة تضمن لكم أفضل قيمة مقابل كل استثمار في نظافة منشأتكم.
           </p>
         </article>
-        <article class="feature-card">
-          <h3 class="feature-title">التزام بالاستدامة</h3>
-          <p class="feature-text">
-            نعتمد على منتجات صديقة للبيئة وخيارات قابلة لإعادة التدوير لتقليل الأثر البيئي وتعزيز
-            الاستدامة.
+
+        <article class="app-card">
+          <h3 class="text-xl font-semibold text-neutral-900">التزام بالاستدامة</h3>
+          <p class="mt-3 text-sm leading-relaxed text-neutral-600">
+            منتجات صديقة للبيئة وخيارات قابلة لإعادة التدوير لتقليل الأثر البيئي وتعزيز الاستدامة.
           </p>
         </article>
       </div>
     </div>
   </section>
 
-  <section class="bg-slate-900 py-16 text-slate-100">
-    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-neutral-900"></div>
+    <div class="app-section relative z-10 text-neutral-100">
       <div class="grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:items-center">
         <div class="space-y-6">
+          <span class="app-badge border-white/20 bg-white/10 text-white">حلول للشركات</span>
           <h3 class="text-2xl font-semibold sm:text-3xl">حلول متخصصة للشركات والمؤسسات</h3>
-          <p class="text-base leading-relaxed text-slate-200">
-            نوفر باقات توريد دورية للمكاتب والفنادق والمطاعم، تشمل محارم احترافية ومواد تنظيف عالية
-            التركيز لضمان معايير نظافة متقدمة. يمكنكم الاعتماد علينا كشريك موثوق لإدارة مخزون
-            النظافة باحترافية.
+
+          <p class="text-base leading-relaxed text-neutral-200">
+            نوفر باقات توريد دورية للمكاتب والفنادق والمطاعم تشمل محارم احترافية ومواد تنظيف مركزة
+            لضمان معايير نظافة متقدمة. يمكنكم الاعتماد علينا كشريك موثوق لإدارة مخزون النظافة
+            باحترافية.
           </p>
-          <ul class="grid gap-3 text-sm text-slate-100/90 sm:grid-cols-2">
-            <li class="feature-item">جداول توريد مرنة حسب استهلاككم</li>
-            <li class="feature-item">تدريب على أفضل ممارسات النظافة والتعقيم</li>
-            <li class="feature-item">حسومات خاصة للطلبيات الكبيرة</li>
-            <li class="feature-item">دعم ميداني ومتابعة دورية</li>
+
+          <ul class="grid gap-3 text-sm text-neutral-100/90 sm:grid-cols-2">
+            <li class="app-list__item bg-white/5 text-neutral-100">
+              جداول توريد مرنة حسب استهلاككم
+            </li>
+            <li class="app-list__item bg-white/5 text-neutral-100">
+              تدريب على أفضل ممارسات النظافة والتعقيم
+            </li>
+            <li class="app-list__item bg-white/5 text-neutral-100">حسومات خاصة للطلبيات الكبيرة</li>
+            <li class="app-list__item bg-white/5 text-neutral-100">دعم ميداني ومتابعة دورية</li>
           </ul>
         </div>
 
         <div
-          class="rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-lg shadow-black/20"
+          class="app-card border-white/10 bg-white/10 text-center text-neutral-100 shadow-black/30"
         >
-          <p class="text-sm uppercase tracking-[0.2em] text-slate-200">جاهزون لخدمتكم</p>
+          <p class="text-sm uppercase tracking-[0.3em] text-neutral-200">جاهزون لخدمتكم</p>
           <h4 class="mt-4 text-3xl font-bold text-white">ابدأوا تعاونكم معنا اليوم</h4>
-          <p class="mt-4 text-sm leading-relaxed text-slate-200">
+
+          <p class="mt-4 text-sm leading-relaxed text-neutral-200">
             تواصلوا معنا لتصميم خطة توريد مخصصة تضمن لكم نظافة متفوقة ومصاريف محسوبة.
           </p>
-          <a
-            routerLink="/contact"
-            class="mt-6 inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-md shadow-white/20 transition hover:-translate-y-0.5 hover:bg-slate-100"
-          >
+
+          <a routerLink="/contact" class="app-button app-button--secondary mt-6">
             احجزوا استشارتكم المجانية
           </a>
         </div>
@@ -187,28 +188,30 @@
     </div>
   </section>
 
-  <section class="bg-white py-16">
-    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-      <div class="grid gap-10 lg:grid-cols-3">
-        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-8 shadow-sm">
-          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">إحصائيات</p>
-          <p class="mt-4 text-4xl font-bold text-slate-900">+500</p>
-          <p class="mt-3 text-sm text-slate-600">
-            منتج من المحارم ومواد التنظيف في مستودعاتنا الجاهزة للشحن.
+  <section>
+    <div class="app-section">
+      <div class="grid gap-8 lg:grid-cols-3">
+        <div class="app-stat">
+          <p class="app-stat__title">إحصائيات</p>
+          <p class="app-stat__value">+500</p>
+          <p class="app-stat__description">
+            منتج من المحارم ومواد التنظيف متوفرة في مستودعاتنا الجاهزة للشحن.
           </p>
         </div>
-        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-8 shadow-sm">
-          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">التزام</p>
-          <p class="mt-4 text-4xl font-bold text-slate-900">24/7</p>
-          <p class="mt-3 text-sm text-slate-600">
-            خدمة دعم ومتابعة للطلبات لضمان تجربة تسوق مميزة على مدار الساعة.
+
+        <div class="app-stat">
+          <p class="app-stat__title">التزام</p>
+          <p class="app-stat__value">24/7</p>
+          <p class="app-stat__description">
+            خدمة دعم ومتابعة للطلبات لضمان تجربة سلسة على مدار الساعة.
           </p>
         </div>
-        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-8 shadow-sm">
-          <p class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">شركاء</p>
-          <p class="mt-4 text-4xl font-bold text-slate-900">+120</p>
-          <p class="mt-3 text-sm text-slate-600">
-            شركة ومؤسسة تعتمد علينا في تزويدها بالمحارم ومنتجات النظافة المتخصصة.
+
+        <div class="app-stat">
+          <p class="app-stat__title">شركاء</p>
+          <p class="app-stat__value">+120</p>
+          <p class="app-stat__description">
+            شركات ومؤسسات تعتمد علينا لتوريد منتجات النظافة المتخصصة.
           </p>
         </div>
       </div>

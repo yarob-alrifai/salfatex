@@ -1,26 +1,63 @@
-<section class="login-wrapper">
-  <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
-    <h1>تسجيل الدخول للإدارة</h1>
+<section
+  class="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-500 via-brand-600 to-neutral-900 p-6"
+>
+  <form
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    class="w-full max-w-md space-y-6 rounded-4xl border border-white/20 bg-white/90 p-10 text-right shadow-2xl backdrop-blur"
+  >
+    <header class="space-y-2 text-right">
+      <h1 class="text-2xl font-bold text-neutral-900">تسجيل الدخول للإدارة</h1>
+      <p class="text-sm text-neutral-500">
+        أدخل بريدك الإلكتروني وكلمة المرور للوصول إلى لوحة التحكم.
+      </p>
+    </header>
 
-    <label>
-      البريد الإلكتروني
-      <input type="email" formControlName="email" placeholder="example@email.com" />
-      <small *ngIf="form.controls.email.invalid && form.controls.email.touched">
+    <label class="app-field">
+      <span class="app-field__label">البريد الإلكتروني</span>
+      <input
+        type="email"
+        formControlName="email"
+        placeholder="example@email.com"
+        class="app-input"
+        dir="ltr"
+      />
+      <small
+        class="app-field__error"
+        *ngIf="form.controls.email.invalid && form.controls.email.touched"
+      >
         الرجاء إدخال بريد إلكتروني صحيح.
       </small>
     </label>
 
-    <label>
-      كلمة المرور
-      <input type="password" formControlName="password" placeholder="••••••" />
-      <small *ngIf="form.controls.password.invalid && form.controls.password.touched">
+    <label class="app-field">
+      <span class="app-field__label">كلمة المرور</span>
+      <input
+        type="password"
+        formControlName="password"
+        placeholder="••••••"
+        class="app-input"
+        dir="ltr"
+      />
+      <small
+        class="app-field__error"
+        *ngIf="form.controls.password.invalid && form.controls.password.touched"
+      >
         يجب أن لا تقل كلمة المرور عن 6 أحرف.
       </small>
     </label>
 
-    <p class="error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
-
-    <button type="submit" [disabled]="loading">
+    <p
+      class="rounded-2xl bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600"
+      *ngIf="errorMessage()"
+    >
+      {{ errorMessage() }}
+    </p>
+    <button
+      type="submit"
+      class="app-button app-button--primary w-full justify-center"
+      [disabled]="loading"
+    >
       {{ loading ? 'جاري التحقق...' : 'دخول' }}
     </button>
   </form>

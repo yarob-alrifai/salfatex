@@ -1,12 +1,10 @@
 <button
   type="button"
-  class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-500 via-indigo-500 to-violet-500 px-4 py-2 text-sm font-semibold text-slate-50 shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:shadow-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-200"
+  class="app-button"
   (click)="goBack()"
   [attr.aria-label]="displayLabel()"
   [attr.data-uses-fallback]="canGoBack() ? null : ''"
-  [ngClass]="{
-    'bg-slate-900/90 hover:bg-slate-900 text-white shadow-slate-900/40': !canGoBack()
-  }"
+  [ngClass]="{ 'app-button--primary': canGoBack(), 'app-button--dark': !canGoBack() }"
 >
   <span class="text-lg" aria-hidden="true">{{ icon }}</span>
   <span class="text-sm">{{ displayLabel() }}</span>

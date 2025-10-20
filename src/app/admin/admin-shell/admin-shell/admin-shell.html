@@ -1,41 +1,41 @@
-<div class="flex h-screen bg-gray-100">
-  <!-- Sidebar -->
-  <aside class="w-64 bg-white shadow-xl flex flex-col p-6 border-r border-gray-200">
-    <!-- Branding -->
-    <div class="text-center pb-6 border-b border-gray-200">
-      <h2 class="text-2xl font-bold text-indigo-600">لوحة التحكم</h2>
-      <p class="text-sm text-gray-500 pt-2">
+<div class="flex min-h-screen bg-neutral-50">
+  <aside
+    class="hidden w-72 flex-col border-e border-white/60 bg-white/90 p-6 shadow-soft backdrop-blur lg:flex"
+  >
+    <div class="space-y-2 border-b border-white/70 pb-6 text-right">
+      <h2 class="text-2xl font-bold text-brand-600">لوحة التحكم</h2>
+      <p class="text-sm text-neutral-500">
         {{ admin() ? admin()!.displayName || admin()!.email : '...' }}
       </p>
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 pt-6 space-y-2">
+    <nav class="mt-6 flex flex-1 flex-col gap-2 text-right" aria-label="تنقل الأدمن">
       <a
         routerLink="/admin/orders"
-        routerLinkActive="!bg-indigo-100 text-indigo-700"
-        class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+        routerLinkActive="!bg-brand-100 !text-brand-700"
+        class="rounded-2xl px-4 py-2 text-sm font-medium text-neutral-600 transition hover:bg-brand-50 hover:text-brand-600"
       >
         🛒 الطلبات
       </a>
       <a
         routerLink="/admin/products"
-        routerLinkActive="!bg-indigo-100 text-indigo-700"
-        class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+        routerLinkActive="!bg-brand-100 !text-brand-700"
+        class="rounded-2xl px-4 py-2 text-sm font-medium text-neutral-600 transition hover:bg-brand-50 hover:text-brand-600"
       >
         📦 المنتجات
       </a>
       <a
         routerLink="/admin/categories"
-        routerLinkActive="!bg-indigo-100 text-indigo-700"
-        class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+        routerLinkActive="!bg-brand-100 !text-brand-700"
+        class="rounded-2xl px-4 py-2 text-sm font-medium text-neutral-600 transition hover:bg-brand-50 hover:text-brand-600"
       >
         🗂️ التصنيفات
       </a>
       <a
         routerLink="/admin/subcategories"
-        routerLinkActive="!bg-indigo-100 text-indigo-700"
-        class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+        routerLinkActive="!bg-brand-100 !text-brand-700"
+        class="rounded-2xl px-4 py-2 text-sm font-medium text-neutral-600 transition hover:bg-brand-50 hover:text-brand-600"
       >
         📑 التصنيفات الفرعية
       </a>
@@ -44,7 +44,7 @@
     <!-- Logout Button -->
     <button
       type="button"
-      class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow transition disabled:opacity-50"
+      class="app-button app-button--dark mt-4 w-full justify-center"
       (click)="signOut()"
       [disabled]="loading()"
     >
@@ -53,7 +53,7 @@
   </aside>
 
   <!-- Main content -->
-  <main class="flex-1 p-6 overflow-y-auto">
+  <main class="flex-1 overflow-y-auto bg-white/60 p-6 shadow-inner">
     <router-outlet></router-outlet>
   </main>
 </div>

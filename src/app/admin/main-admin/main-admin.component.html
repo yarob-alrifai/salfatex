@@ -1,8 +1,8 @@
-<div class="min-h-screen bg-slate-50">
+<div class="min-h-screen bg-neutral-50">
   @if (sidebarOpen()) {
   <button
     type="button"
-    class="fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-sm transition-opacity lg:hidden"
+    class="fixed inset-0 z-30 bg-neutral-900/40 backdrop-blur-sm transition-opacity lg:hidden"
     aria-label="إغلاق القائمة الجانبية"
     (click)="closeSidebar()"
   ></button>
@@ -14,33 +14,33 @@
       class="fixed inset-y-0 left-0 z-40 w-72 transform bg-white shadow-2xl transition-transform duration-300 lg:static lg:translate-x-0 lg:shadow-none"
       [class.-translate-x-full]="!sidebarOpen()"
     >
-      <div class="flex h-full flex-col border-r border-slate-200">
+      <div class="flex h-full flex-col border-r border-neutral-200">
         <div class="flex items-center gap-3 px-6 py-6">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white"
+            class="flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-900 text-white"
           >
             <span class="text-xl font-semibold">SA</span>
           </div>
           <div>
-            <p class="text-base font-semibold text-slate-900">salfatex admin</p>
-            <p class="text-xs text-slate-500">لوحة إدارة متكاملة</p>
+            <p class="text-base font-semibold text-neutral-900">salfatex admin</p>
+            <p class="text-xs text-neutral-500">لوحة إدارة متكاملة</p>
           </div>
         </div>
 
         <nav class="flex-1 overflow-y-auto px-4 pb-8">
-          <p class="px-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
+          <p class="px-2 text-xs font-semibold uppercase tracking-widest text-neutral-400">
             التنقل الرئيسي
           </p>
           <ul class="mt-4 space-y-2 text-sm font-medium">
             <li>
               <a
                 routerLink="/admin/orders"
-                routerLinkActive="!bg-slate-900 !text-white"
-                class="flex items-center gap-3 rounded-xl px-3 py-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                routerLinkActive="!bg-neutral-900 !text-white"
+                class="flex items-center gap-3 rounded-xl px-3 py-2 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
                 (click)="closeSidebar()"
               >
                 <span
-                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600"
+                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600"
                   >🛒</span
                 >
                 <span>الطلبات</span>
@@ -49,12 +49,12 @@
             <li>
               <a
                 routerLink="/admin/products"
-                routerLinkActive="!bg-slate-900 !text-white"
-                class="flex items-center gap-3 rounded-xl px-3 py-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                routerLinkActive="!bg-neutral-900 !text-white"
+                class="flex items-center gap-3 rounded-xl px-3 py-2 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
                 (click)="closeSidebar()"
               >
                 <span
-                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600"
+                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600"
                   >📦</span
                 >
                 <span>المنتجات</span>
@@ -63,12 +63,12 @@
             <li>
               <a
                 routerLink="/admin/categories"
-                routerLinkActive="!bg-slate-900 !text-white"
-                class="flex items-center gap-3 rounded-xl px-3 py-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                routerLinkActive="!bg-neutral-900 !text-white"
+                class="flex items-center gap-3 rounded-xl px-3 py-2 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
                 (click)="closeSidebar()"
               >
                 <span
-                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600"
+                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600"
                   >🗂️</span
                 >
                 <span>التصنيفات</span>
@@ -77,12 +77,12 @@
             <li>
               <a
                 routerLink="/admin/subcategories"
-                routerLinkActive="!bg-slate-900 !text-white"
-                class="flex items-center gap-3 rounded-xl px-3 py-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                routerLinkActive="!bg-neutral-900 !text-white"
+                class="flex items-center gap-3 rounded-xl px-3 py-2 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
                 (click)="closeSidebar()"
               >
                 <span
-                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600"
+                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600"
                   >📑</span
                 >
                 <span>التصنيفات الفرعية</span>
@@ -91,12 +91,12 @@
             <li>
               <a
                 routerLink="/admin/customers"
-                routerLinkActive="!bg-slate-900 !text-white"
-                class="flex items-center gap-3 rounded-xl px-3 py-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                routerLinkActive="!bg-neutral-900 !text-white"
+                class="flex items-center gap-3 rounded-xl px-3 py-2 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
                 (click)="closeSidebar()"
               >
                 <span
-                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600"
+                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600"
                   >👥</span
                 >
                 <span>الزبائن</span>
@@ -105,12 +105,12 @@
             <li>
               <a
                 routerLink="/admin/contact"
-                routerLinkActive="!bg-slate-900 !text-white"
-                class="flex items-center gap-3 rounded-xl px-3 py-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                routerLinkActive="!bg-neutral-900 !text-white"
+                class="flex items-center gap-3 rounded-xl px-3 py-2 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
                 (click)="closeSidebar()"
               >
                 <span
-                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600"
+                  class="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600"
                   >📞</span
                 >
                 <span>بيانات التواصل</span>
@@ -119,11 +119,11 @@
           </ul>
         </nav>
 
-        <div class="border-t border-slate-200 px-6 py-5">
-          <p class="text-xs text-slate-500">جاهز للمساعدة؟</p>
+        <div class="border-t border-neutral-200 px-6 py-5">
+          <p class="text-xs text-neutral-500">جاهز للمساعدة؟</p>
           <button
             type="button"
-            class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:opacity-60"
+            class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 disabled:opacity-60"
             (click)="signOut()"
             [disabled]="loading()"
           >
@@ -152,22 +152,22 @@
 
     <div class="flex flex-1 flex-col">
       <header
-        class="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden"
+        class="flex items-center justify-between border-b border-neutral-200 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden"
       >
         <div class="flex items-center gap-3">
           <div
-            class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white"
+            class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-900 text-white"
           >
             <span class="text-lg font-semibold">SA</span>
           </div>
           <div>
-            <p class="text-sm font-semibold text-slate-900">salfatex admin</p>
-            <p class="text-xs text-slate-500">لوحة التحكم</p>
+            <p class="text-sm font-semibold text-neutral-900">salfatex admin</p>
+            <p class="text-xs text-neutral-500">لوحة التحكم</p>
           </div>
         </div>
         <button
           type="button"
-          class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+          class="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-700 shadow-sm transition hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
           (click)="toggleSidebar()"
           aria-controls="admin-sidebar"
           [attr.aria-expanded]="sidebarOpen()"

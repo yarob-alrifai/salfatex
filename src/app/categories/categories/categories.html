@@ -1,6 +1,10 @@
-<section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-  <header class="mb-12 text-center">
-    <h1 class="text-3xl font-bold text-slate-900 sm:text-4xl">الفئات الرئيسية</h1>
+<section class="app-section space-y-12">
+  <header class="text-center">
+    <span class="app-badge mx-auto">تصفح الأقسام</span>
+    <h1 class="app-heading mt-4">الفئات الرئيسية</h1>
+    <p class="app-subheading mt-3">
+      اكتشفوا تشكيلتنا المصنفة بعناية لتسهيل الوصول إلى المنتجات المناسبة لنشاطكم التجاري.
+    </p>
   </header>
 
   <div
@@ -10,7 +14,7 @@
     <a
       *ngFor="let category of categories"
       [routerLink]="['/categories', category.id]"
-      class="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/60"
+      class="group flex h-full flex-col overflow-hidden rounded-4xl border border-white/60 bg-white/90 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300"
     >
       <!-- {{ category | json }} -->
       <div class="relative aspect-[4/3] overflow-hidden">
@@ -19,38 +23,48 @@
           [src]="category.imageUrl"
           [alt]="category.name"
         />
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-neutral-900/40 via-neutral-900/10 to-transparent"
+        ></div>
+        <div class="absolute inset-4 flex items-end justify-end">
+          <span class="app-chip bg-white/90 text-sm font-semibold text-neutral-800">
+            {{ category.subcategoryCount }} تصنيف فرعي
+          </span>
+        </div>
       </div>
 
-      <div class="flex flex-1 flex-col justify-between gap-6 p-6">
+      <div class="flex flex-1 flex-col justify-between gap-6 p-6 text-right">
         <div class="space-y-3">
-          <h2 class="text-2xl font-semibold text-slate-900">
+          <h2 class="text-2xl font-semibold text-neutral-900">
             <span class="block">{{ category.name }}</span>
             <!-- <span class="block text-base font-medium text-slate-500" lang="ru">
               {{ category.name.ru }}
             </span> -->
           </h2>
 
-          <p class="text-sm leading-relaxed text-slate-600">
+          <p class="text-sm leading-relaxed text-neutral-600">
             <span class="block">{{ category.description }}</span>
             <!-- <span class="block" lang="ru">{{ category.description.ru }}</span> -->
           </p>
         </div>
 
         <dl class="grid grid-cols-2 gap-4 text-start">
-          <div class="rounded-2xl bg-slate-50 p-4 text-slate-700">
-            <dt class="text-xs font-semibold tracking-wide text-slate-500">
-              <span class="block">التصنيفات الفرعية</span>
+          <div class="app-card app-card--muted text-start">
+            <dt class="text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500">
+              التصنيفات الفرعية
             </dt>
-            <dd class="mt-2 text-2xl font-bold text-slate-900">
+
+            <dd class="mt-2 text-2xl font-bold text-neutral-900">
               {{ category.subcategoryCount }}
             </dd>
           </div>
 
-          <div class="rounded-2xl bg-slate-50 p-4 text-slate-700">
-            <dt class="text-xs font-semibold tracking-wide text-slate-500">
-              <span class="block">العناصر في المتجر</span>
+          <div class="app-card app-card--muted text-start">
+            <dt class="text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500">
+              العناصر في المتجر
             </dt>
-            <dd class="mt-2 text-2xl font-bold text-slate-900">
+
+            <dd class="mt-2 text-2xl font-bold text-neutral-900">
               {{ category.productCount }}
             </dd>
           </div>
@@ -60,6 +74,6 @@
   </div>
 
   <ng-template #loading>
-    <p class="text-center text-sm font-medium text-slate-500">...جاري تحميل الفئات</p>
+    <div class="app-empty">...جاري تحميل الفئات</div>
   </ng-template>
 </section>
