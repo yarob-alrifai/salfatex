@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Auth, User, authState, signInWithEmailAndPassword, signOut } from '@angular/fire/auth';
-import { Firestore, collection, doc, getDoc, getDocs, query, where } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 
 export interface AdminProfile {
@@ -18,27 +18,38 @@ export class AuthService {
 
   private readonly loadingSignal = signal(false);
   private readonly currentAdminSignal = signal<AdminProfile | null>(null);
+  private readonly authResolvedSignal = signal(false);
 
   readonly loading = computed(() => this.loadingSignal());
   readonly currentAdmin = computed(() => this.currentAdminSignal());
   readonly isLoggedIn = computed(() => this.currentAdminSignal() !== null);
+  readonly authResolved = computed(() => this.authResolvedSignal());
 
   constructor() {
     authState(this.auth).subscribe(async (user) => {
-      if (!user) {
+      this.authResolvedSignal.set(false);
+      try {
+        if (!user) {
+          this.currentAdminSignal.set(null);
+          return;
+        }
+
+        const adminProfile = await this.fetchAdminProfile(user);
+
+        if (!adminProfile) {
+          await signOut(this.auth);
+          this.currentAdminSignal.set(null);
+          return;
+        }
+
+        this.currentAdminSignal.set(adminProfile);
+      } catch (error) {
+        console.error('فشل التحقق من المستخدم الإداري', error);
+
         this.currentAdminSignal.set(null);
-        return;
+      } finally {
+        this.authResolvedSignal.set(true);
       }
-
-      const adminProfile = await this.fetchAdminProfile(user);
-
-      if (!adminProfile) {
-        await signOut(this.auth);
-        this.currentAdminSignal.set(null);
-        return;
-      }
-
-      this.currentAdminSignal.set(adminProfile);
     });
   }
 
@@ -46,30 +57,28 @@ export class AuthService {
     this.loadingSignal.set(true);
 
     try {
-      // تحقق من البريد وكلمة المرور مباشرة عبر Firebase Auth
-      console.log({ email, password });
       const credential = await signInWithEmailAndPassword(this.auth, email, password);
-      console.log(credential.user);
 
-      // اجلب الملف التعريفي من Firestore للتحقق من كونه "أدمن"
-      // const adminProfile = await this.fetchAdminProfile(credential.user);
+      const adminProfile = await this.fetchAdminProfile(credential.user);
 
-      // if (!adminProfile) {
-      //   await signOut(this.auth);
-      //   throw new Error('لا يمتلك هذا المستخدم صلاحيات إدارية.');
-      // }
-
-      const adminProfile = {
-        id: credential.user.uid,
-        email: credential.user.email ?? email,
-        displayName: credential.user.displayName ?? undefined,
-        role: 'admin', // or hardcode whatever default role you want
-      };
+      if (!adminProfile) {
+        await signOut(this.auth);
+        throw new Error('لا يمتلك هذا المستخدم صلاحيات إدارية.');
+      }
 
       this.currentAdminSignal.set(adminProfile);
 
+      this.authResolvedSignal.set(true);
+
       // التوجيه بعد تسجيل الدخول
       await this.router.navigate(['/admin/orders']);
+    } catch (error) {
+      this.authResolvedSignal.set(true);
+      if (error instanceof Error) {
+        throw error;
+      }
+
+      throw new Error('فشل تسجيل الدخول.');
     } finally {
       this.loadingSignal.set(false);
     }
@@ -116,6 +125,8 @@ export class AuthService {
   async signOut(): Promise<void> {
     await signOut(this.auth);
     this.currentAdminSignal.set(null);
+    this.authResolvedSignal.set(true);
+
     await this.router.navigate(['/admin/login']);
   }
 

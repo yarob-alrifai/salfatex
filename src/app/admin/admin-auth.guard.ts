@@ -1,20 +1,25 @@
 import { inject } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
-import { map, tap } from 'rxjs';
+import { combineLatest, filter, map, take, tap } from 'rxjs';
 import { AuthService } from './auth.service';
 
 const evaluateAuthState = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  return toObservable(authService.isLoggedIn).pipe(
-    tap((loggedIn) => {
+  return combineLatest([
+    toObservable(authService.authResolved),
+    toObservable(authService.isLoggedIn),
+  ]).pipe(
+    filter(([resolved]) => resolved),
+    take(1),
+    tap(([, loggedIn]) => {
       if (!loggedIn) {
         router.navigate(['/admin/login']);
       }
     }),
-    map((loggedIn) => loggedIn)
+    map(([, loggedIn]) => loggedIn)
   );
 };
 
