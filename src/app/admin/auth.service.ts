@@ -1,6 +1,15 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Auth, User, authState, signInWithEmailAndPassword, signOut } from '@angular/fire/auth';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  where,
+} from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 
 export interface AdminProfile {
@@ -134,17 +143,37 @@ export class AuthService {
     const profileDoc = doc(this.firestore, 'adminProfiles', user.uid);
     const snapshot = await getDoc(profileDoc);
 
-    if (!snapshot.exists()) {
+    let data: Partial<AdminProfile> | undefined;
+    let id: string | undefined;
+
+    if (snapshot.exists()) {
+      data = snapshot.data() as Partial<AdminProfile>;
+      id = snapshot.id;
+    } else if (user.email) {
+      const profilesByEmail = await getDocs(
+        query(
+          collection(this.firestore, 'adminProfiles'),
+          where('email', '==', user.email),
+          limit(1)
+        )
+      );
+
+      if (profilesByEmail.empty) {
+        return null;
+      }
+
+      const profileSnapshot = profilesByEmail.docs[0];
+      data = profileSnapshot.data() as Partial<AdminProfile>;
+      id = profileSnapshot.id;
+    } else {
       return null;
     }
 
-    const data = snapshot.data() as Partial<AdminProfile>;
-
     return {
-      id: snapshot.id,
-      email: data.email ?? user.email ?? '',
-      displayName: data.displayName ?? user.displayName ?? undefined,
-      role: data.role ?? 'admin',
+      id: id ?? user.uid,
+      email: data?.email ?? user.email ?? '',
+      displayName: data?.displayName ?? user.displayName ?? undefined,
+      role: data?.role ?? 'admin',
     };
   }
 }
