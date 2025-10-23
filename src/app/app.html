@@ -51,7 +51,9 @@
           >
             إتمام الطلب
           </a>
+
           <a
+            *ngIf="isAdminLoggedIn()"
             routerLink="/admin"
             routerLinkActive="!app-button--secondary !bg-brand-50 !text-brand-700"
             (click)="closeMenu()"
@@ -67,6 +69,24 @@
           >
             اتصل بنا
           </a>
+
+          <a
+            *ngIf="!isAdminLoggedIn()"
+            routerLink="/admin/login"
+            routerLinkActive="!app-button--secondary !bg-brand-50 !text-brand-700"
+            (click)="closeMenu()"
+            class="app-button app-button--ghost text-sm font-semibold"
+          >
+            تسجيل الدخول
+          </a>
+          <button
+            *ngIf="isAdminLoggedIn()"
+            type="button"
+            (click)="logout()"
+            class="app-button app-button--ghost text-sm font-semibold"
+          >
+            تسجيل الخروج
+          </button>
         </nav>
 
         <button
@@ -141,8 +161,10 @@
           >
             إتمام الطلب
           </a>
+
           <a
             routerLink="/admin"
+            *ngIf="isAdminLoggedIn()"
             routerLinkActive="!bg-brand-100 !text-brand-700"
             (click)="closeMenu()"
             class="rounded-2xl px-4 py-2 transition hover:bg-brand-50"
@@ -157,6 +179,24 @@
           >
             اتصل بنا
           </a>
+
+          <a
+            *ngIf="!isAdminLoggedIn()"
+            routerLink="/admin/login"
+            routerLinkActive="!bg-brand-100 !text-brand-700"
+            (click)="closeMenu()"
+            class="rounded-2xl px-4 py-2 transition hover:bg-brand-50"
+          >
+            تسجيل الدخول
+          </a>
+          <button
+            *ngIf="isAdminLoggedIn()"
+            type="button"
+            (click)="logout()"
+            class="rounded-2xl px-4 py-2 text-right transition hover:bg-brand-50"
+          >
+            تسجيل الخروج
+          </button>
         </nav>
       </div>
     </div>

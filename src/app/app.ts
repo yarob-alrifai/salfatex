@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   Auth,
@@ -10,6 +10,7 @@ import { Storage, ref, uploadString, getDownloadURL } from '@angular/fire/storag
 // import { CartWidgetComponent } from './component/cart-widget/cart-widget';
 import { FloatingCartButtonComponent } from './component/floating-cart-button/floating-cart-button';
 import { NgClass, NgIf } from '@angular/common';
+import { AuthService } from './admin/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -31,6 +32,9 @@ export class App implements OnInit {
   protected readonly title = signal('salfatex');
   protected readonly currentYear = new Date().getFullYear();
   protected readonly isMenuOpen = signal(false);
+  private readonly authService = inject(AuthService);
+
+  protected readonly isAdminLoggedIn = this.authService.isLoggedIn;
 
   constructor(private firestore: Firestore, private auth: Auth, private storage: Storage) {}
 
@@ -96,5 +100,10 @@ export class App implements OnInit {
 
   protected closeMenu(): void {
     this.isMenuOpen.set(false);
+  }
+
+  protected async logout(): Promise<void> {
+    await this.authService.signOut();
+    this.closeMenu();
   }
 }
