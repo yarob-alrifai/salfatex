@@ -271,7 +271,9 @@
       >
         {{ feedback() }}
       </p>
-      <button type="submit" class="app-button app-button--primary">💾 حفظ المنتج</button>
+      <button type="submit" class="app-button app-button--primary" [disabled]="isSavingProduct()">
+        💾 حفظ المنتج
+      </button>
     </div>
 
     <!-- Submit -->
@@ -655,7 +657,11 @@
           >
             إلغاء
           </button>
-          <button type="submit" class="app-button app-button--primary !px-5 !py-2">
+          <button
+            type="submit"
+            class="app-button app-button--primary !px-5 !py-2"
+            [disabled]="isUpdatingProduct()"
+          >
             حفظ التعديلات
           </button>
           <p class="app-field__error" *ngIf="editFeedback">{{ editFeedback }}</p>

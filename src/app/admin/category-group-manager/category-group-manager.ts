@@ -73,6 +73,8 @@ export class CategoryGroupManagerComponent implements OnDestroy {
   readonly editFeedback = signal('');
   readonly isEditModalOpen = signal(false);
   readonly selectedGroup = signal<CategoryGroupListItem | null>(null);
+  readonly isCreatingGroup = signal(false);
+  readonly isUpdatingGroup = signal(false);
 
   private imageFile: File | null = null;
   private imageObjectUrl: string | null = null;
@@ -92,12 +94,13 @@ export class CategoryGroupManagerComponent implements OnDestroy {
   }
 
   async createCategoryGroup() {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.isCreatingGroup()) {
       this.form.markAllAsTouched();
       return;
     }
 
     this.feedback.set('');
+    this.isCreatingGroup.set(true);
 
     try {
       await this.adminDataService.createCategoryGroup(
@@ -109,6 +112,8 @@ export class CategoryGroupManagerComponent implements OnDestroy {
       this.feedback.set('تم حفظ التصنيف الرئيسي بنجاح.');
     } catch (error: any) {
       this.feedback.set(error?.message ?? 'تعذر حفظ التصنيف الرئيسي.');
+    } finally {
+      this.isCreatingGroup.set(false);
     }
   }
 
@@ -164,12 +169,14 @@ export class CategoryGroupManagerComponent implements OnDestroy {
   async saveCategoryGroupEdits() {
     const group = this.selectedGroup();
 
-    if (!group?.id || this.editForm.invalid) {
+    if (!group?.id || this.editForm.invalid || this.isUpdatingGroup()) {
       this.editForm.markAllAsTouched();
       return;
     }
 
     this.editFeedback.set('');
+
+    this.isUpdatingGroup.set(true);
 
     try {
       await this.adminDataService.updateCategoryGroup(
@@ -181,6 +188,8 @@ export class CategoryGroupManagerComponent implements OnDestroy {
       this.closeEditModal();
     } catch (error: any) {
       this.editFeedback.set(error?.message ?? 'تعذر حفظ التعديلات.');
+    } finally {
+      this.isUpdatingGroup.set(false);
     }
   }
 

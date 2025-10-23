@@ -102,7 +102,8 @@ export class ProductManagerComponent implements OnDestroy {
   }
 
   readonly feedback = signal('');
-
+  readonly isSavingProduct = signal(false);
+  readonly isUpdatingProduct = signal(false);
   readonly pageSize = 10;
   private readonly pageIndexSubject = new BehaviorSubject(0);
   private readonly pageIndex$ = this.pageIndexSubject.asObservable();
@@ -653,7 +654,7 @@ export class ProductManagerComponent implements OnDestroy {
     this.skipCurrentGalleryImage();
   }
   async saveProduct() {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.isSavingProduct()) {
       this.form.markAllAsTouched();
       return;
     }
@@ -675,6 +676,8 @@ export class ProductManagerComponent implements OnDestroy {
       this.feedback.set('يرجى إضافة لون واحد على الأقل للمنتج.');
       return;
     }
+    this.isSavingProduct.set(true);
+
     try {
       await this.adminDataService.createProduct(
         {
@@ -695,6 +698,8 @@ export class ProductManagerComponent implements OnDestroy {
       this.feedback.set('تم إنشاء المنتج بنجاح.');
     } catch (error: any) {
       this.feedback.set(error?.message ?? 'لم يتم حفظ المنتج.');
+    } finally {
+      this.isSavingProduct.set(false);
     }
   }
 
@@ -774,7 +779,7 @@ export class ProductManagerComponent implements OnDestroy {
   }
 
   async saveProductEdits() {
-    if (this.editForm.invalid || !this.editingProduct?.id) {
+    if (this.editForm.invalid || !this.editingProduct?.id || this.isUpdatingProduct()) {
       this.editForm.markAllAsTouched();
       return;
     }
@@ -795,6 +800,8 @@ export class ProductManagerComponent implements OnDestroy {
       return;
     }
 
+    this.isUpdatingProduct.set(true);
+
     try {
       await this.adminDataService.updateProduct(
         this.editingProduct.id,
@@ -812,6 +819,8 @@ export class ProductManagerComponent implements OnDestroy {
       this.closeEditModal();
     } catch (error: any) {
       this.editFeedback = error?.message ?? 'لم يتم حفظ التعديلات.';
+    } finally {
+      this.isUpdatingProduct.set(false);
     }
   }
 }

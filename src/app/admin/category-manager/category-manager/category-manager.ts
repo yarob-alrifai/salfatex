@@ -78,6 +78,8 @@ export class CategoryManagerComponent {
   readonly editFeedback = signal('');
   readonly isEditModalOpen = signal(false);
   readonly selectedCategory = signal<CategoryListItem | null>(null);
+  readonly isCreatingCategory = signal(false);
+  readonly isUpdatingCategory = signal(false);
 
   private imageFile: File | null = null;
   private editImageFile: File | null = null;
@@ -201,12 +203,13 @@ export class CategoryManagerComponent {
   }
 
   async createCategory() {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.isCreatingCategory()) {
       this.form.markAllAsTouched();
       return;
     }
 
     this.feedback.set('');
+    this.isCreatingCategory.set(true);
 
     try {
       const { groupId, ...rest } = this.form.getRawValue();
@@ -224,6 +227,8 @@ export class CategoryManagerComponent {
       this.feedback.set('تم حفظ التصنيف بنجاح.');
     } catch (error: any) {
       this.feedback.set(error?.message ?? 'تعذر حفظ التصنيف.');
+    } finally {
+      this.isCreatingCategory.set(false);
     }
   }
 
@@ -364,12 +369,13 @@ export class CategoryManagerComponent {
   async saveCategoryEdits() {
     const category = this.selectedCategory();
 
-    if (!category?.id || this.editForm.invalid) {
+    if (!category?.id || this.editForm.invalid || this.isUpdatingCategory()) {
       this.editForm.markAllAsTouched();
       return;
     }
 
     this.editFeedback.set('');
+    this.isUpdatingCategory.set(true);
 
     try {
       const { groupId, ...rest } = this.editForm.getRawValue();
@@ -389,6 +395,8 @@ export class CategoryManagerComponent {
       this.closeEditModal();
     } catch (error: any) {
       this.editFeedback.set(error?.message ?? 'تعذر حفظ التعديلات.');
+    } finally {
+      this.isUpdatingCategory.set(false);
     }
   }
 

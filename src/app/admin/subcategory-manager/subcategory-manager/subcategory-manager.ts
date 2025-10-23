@@ -34,6 +34,9 @@ export class SubcategoryManagerComponent {
   readonly feedback = signal('');
   readonly editFeedback = signal('');
 
+  readonly isSavingSubcategory = signal(false);
+  readonly isUpdatingSubcategory = signal(false);
+
   readonly editingSubcategory = signal<Subcategory | null>(null);
   readonly isEditModalOpen = signal(false);
 
@@ -112,7 +115,7 @@ export class SubcategoryManagerComponent {
   private editPreviewObjectUrl: string | null = null;
 
   async saveSubcategory() {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.isSavingSubcategory()) {
       this.form.markAllAsTouched();
       return;
     }
@@ -120,6 +123,7 @@ export class SubcategoryManagerComponent {
     this.feedback.set('');
 
     const { name, description, categoryId } = this.form.getRawValue();
+    this.isSavingSubcategory.set(true);
 
     try {
       await this.adminDataService.createSubcategory(
@@ -130,6 +134,8 @@ export class SubcategoryManagerComponent {
       this.resetForm(categoryId);
     } catch (error: any) {
       this.feedback.set(error?.message ?? 'لم يتم الحفظ.');
+    } finally {
+      this.isSavingSubcategory.set(false);
     }
   }
 
@@ -377,12 +383,13 @@ export class SubcategoryManagerComponent {
   async saveSubcategoryEdits() {
     const subcategory = this.editingSubcategory();
 
-    if (!subcategory?.id || this.editForm.invalid) {
+    if (!subcategory?.id || this.editForm.invalid || this.isUpdatingSubcategory()) {
       this.editForm.markAllAsTouched();
       return;
     }
 
     this.editFeedback.set('');
+    this.isUpdatingSubcategory.set(true);
 
     try {
       await this.adminDataService.updateSubcategory(
@@ -395,6 +402,8 @@ export class SubcategoryManagerComponent {
       this.closeEditModal();
     } catch (error: any) {
       this.editFeedback.set(error?.message ?? 'لم يتم حفظ التعديلات.');
+    } finally {
+      this.isUpdatingSubcategory.set(false);
     }
   }
 
