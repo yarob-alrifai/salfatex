@@ -31,7 +31,7 @@
         </ng-container>
 
         <ng-template #noImages>
-          <div class="app-empty">لا توجد صور متاحة لهذا المنتج حالياً</div>
+          <div class="app-empty">Для этого товара пока нет изображений.</div>
         </ng-template>
       </div>
 
@@ -39,7 +39,7 @@
         <div class="flex flex-col gap-4">
           <div class="inline-flex items-center gap-3 text-sm text-neutral-500">
             <span class="app-chip bg-neutral-100 text-neutral-600">
-              المنتج رقم
+              Товар №
 
               <span class="font-semibold text-neutral-800">#{{ getProductNumber(product) }}</span>
             </span>
@@ -68,7 +68,7 @@
           </div>
 
           <div *ngIf="getAvailableColors(product).length" class="space-y-2 text-right">
-            <p class="text-sm font-medium text-neutral-600">اختر اللون</p>
+            <p class="text-sm font-medium text-neutral-600">Выберите цвет</p>
             <div class="flex flex-wrap justify-end gap-2">
               <button
                 type="button"
@@ -92,14 +92,14 @@
         </p>
 
         <div *ngIf="product.materials as materials" class="app-card app-card--muted">
-          <h2 class="text-lg font-semibold text-neutral-800">الخامات</h2>
+          <h2 class="text-lg font-semibold text-neutral-800">Материалы</h2>
           <p class="mt-2 text-sm leading-7 text-neutral-600">
             {{ materials }}
           </p>
         </div>
 
         <div *ngIf="product.features?.length" class="app-card app-card--muted">
-          <h3 class="text-lg font-semibold text-neutral-800">المميزات</h3>
+          <h3 class="text-lg font-semibold text-neutral-800">Преимущества</h3>
           <ul class="mt-4 space-y-2 text-sm text-neutral-600">
             <li *ngFor="let feature of product.features" class="flex items-start gap-2">
               <span class="mt-1 inline-flex h-2.5 w-2.5 flex-none rounded-full bg-brand-500"></span>
@@ -116,14 +116,14 @@
                 class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-blue-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-sky-500/30 transition duration-200 hover:from-indigo-600 hover:via-sky-600 hover:to-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 app-button app-button--primary sm:flex-1"
                 (click)="addToCart(product)"
               >
-                أضف إلى السلة
+                Добавить в корзину
               </button>
               <button
                 type="button"
                 class="app-button app-button--secondary w-full sm:flex-1"
                 (click)="addToCart(product, 5)"
               >
-                أضف 5 دفعة واحدة
+                Добавить 5 сразу
               </button>
             </div>
           </ng-container>
@@ -137,7 +137,7 @@
                   type="button"
                   class="h-11 min-w-[3.25rem] rounded-full border border-brand-200 bg-white px-4 text-sm font-semibold text-brand-600 shadow-sm transition hover:bg-brand-50"
                   (click)="decrement(product, 5)"
-                  aria-label="إنقاص 5 وحدات"
+                  aria-label="Уменьшить на 5 единиц"
                 >
                   −5
                 </button>
@@ -148,7 +148,7 @@
                     type="button"
                     class="h-11 w-11 text-xl font-semibold transition hover:text-brand-600"
                     (click)="decrement(product)"
-                    aria-label="إنقاص الكمية"
+                    aria-label="Уменьшить количество"
                   >
                     −
                   </button>
@@ -159,7 +159,7 @@
                     type="button"
                     class="h-11 w-11 text-xl font-semibold transition hover:text-brand-600"
                     (click)="increment(product)"
-                    aria-label="زيادة الكمية"
+                    aria-label="Увеличить количество"
                   >
                     +
                   </button>
@@ -168,14 +168,14 @@
                   type="button"
                   class="h-11 min-w-[3.25rem] rounded-full bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
                   (click)="increment(product, 5)"
-                  aria-label="زيادة 5 وحدات"
+                  aria-label="Увеличить на 5 единиц"
                 >
                   +5
                 </button>
               </div>
             </div>
             <a class="app-button app-button--primary w-full sm:w-auto" [routerLink]="['/checkout']">
-              إتمام الطلب
+              Оформить заказ
             </a>
           </ng-template>
         </div>
@@ -185,7 +185,7 @@
           [routerLink]="['/categories', product.categoryId]"
         >
           <span aria-hidden="true">⬅︎</span>
-          المزيد من المنتجات
+          Больше товаров
         </a>
       </div>
     </div>
@@ -193,5 +193,5 @@
 </section>
 
 <ng-template #loading>
-  <div class="app-empty">...يتم تحميل المنتج</div>
+  <div class="app-empty">...Загрузка товара</div>
 </ng-template>

@@ -121,7 +121,7 @@ export class HomePageComponent {
 
   /** ✅ Helper methods */
   formatCategoryNames(group: FeaturedCategoryGroup): string {
-    return group.categories.map((category) => category.name).join('، ');
+    return group.categories.map((category) => category.name).join(', ');
   }
 
   getMinimumPrice(product: Product): number {

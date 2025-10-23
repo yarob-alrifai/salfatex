@@ -11,8 +11,8 @@ import { NavigationService } from 'src/app/services/navigation.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BackButtonComponent {
-  @Input() label = 'العودة';
-  @Input() fallbackLabel = 'العودة إلى الرئيسية';
+  @Input() label = 'Назад';
+  @Input() fallbackLabel = 'Назад на главную';
   @Input() fallbackUrl = '/';
 
   @Input() icon = '↩︎';

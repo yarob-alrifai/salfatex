@@ -185,19 +185,19 @@ export class CartService {
     const trimmedName = details.customerName?.trim();
 
     if (!trimmedName) {
-      throw new Error('يجب إدخال اسم العميل قبل تأكيد الطلب.');
+      throw new Error('Укажите имя клиента перед подтверждением заказа.');
     }
 
     const recaptchaToken = details.recaptchaToken?.trim();
 
     if (!recaptchaToken) {
-      throw new Error('يرجى تأكيد التحقق من reCAPTCHA قبل إرسال الطلب.');
+      throw new Error('Подтвердите проверку reCAPTCHA перед отправкой заказа.');
     }
 
     const items = this.itemsSignal();
 
     if (!items.length) {
-      throw new Error('لا توجد عناصر في السلة.');
+      throw new Error('Корзина пуста. Добавьте товары, прежде чем отправлять заказ.');
     }
 
     const orderItems: OrderItem[] = items.map((item) => ({
@@ -286,11 +286,11 @@ export class CartService {
   private getUnitLabel(option: ProductUnitOption): string {
     switch (option.type) {
       case 'bundle':
-        return option.piecesCount ? `مجموعة (${option.piecesCount} قطعة)` : 'مجموعة';
+        return option.piecesCount ? `Комплект (${option.piecesCount} шт.)` : 'Комплект';
       case 'carton':
-        return option.piecesCount ? `كرتونة (${option.piecesCount} قطعة)` : 'كرتونة';
+        return option.piecesCount ? `Коробка (${option.piecesCount} шт.)` : 'Коробка';
       default:
-        return 'بالقطعة';
+        return 'Поштучно';
     }
   }
 

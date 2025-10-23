@@ -118,11 +118,11 @@ export class ProductDetailComponent {
   getUnitLabel(option: ProductUnitOption): string {
     switch (option.type) {
       case 'bundle':
-        return option.piecesCount ? `مجموعة (${option.piecesCount} قطعة)` : 'مجموعة';
+        return option.piecesCount ? `Комплект (${option.piecesCount} шт.)` : 'Комплект';
       case 'carton':
-        return option.piecesCount ? `كرتونة (${option.piecesCount} قطعة)` : 'كرتونة';
+        return option.piecesCount ? `Коробка (${option.piecesCount} шт.)` : 'Коробка';
       default:
-        return 'بالقطعة';
+        return 'Поштучно';
     }
   }
 

@@ -1,9 +1,10 @@
 <section class="app-section space-y-12">
   <header class="text-center">
-    <span class="app-badge mx-auto">تصفح الأقسام</span>
-    <h1 class="app-heading mt-4">الفئات الرئيسية</h1>
+    <span class="app-badge mx-auto">Обзор разделов</span>
+    <h1 class="app-heading mt-4">Основные категории</h1>
     <p class="app-subheading mt-3">
-      اكتشفوا تشكيلتنا المصنفة بعناية لتسهيل الوصول إلى المنتجات المناسبة لنشاطكم التجاري.
+      Откройте тщательно подобранный ассортимент, чтобы быстрее находить продукцию для вашего
+      бизнеса.
     </p>
   </header>
 
@@ -28,7 +29,7 @@
         ></div>
         <div class="absolute inset-4 flex items-end justify-end">
           <span class="app-chip bg-white/90 text-sm font-semibold text-neutral-800">
-            {{ category.subcategoryCount }} تصنيف فرعي
+            {{ category.subcategoryCount }} подкатегорий
           </span>
         </div>
       </div>
@@ -51,7 +52,7 @@
         <dl class="grid grid-cols-2 gap-4 text-start">
           <div class="app-card app-card--muted text-start">
             <dt class="text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500">
-              التصنيفات الفرعية
+              Подкатегории
             </dt>
 
             <dd class="mt-2 text-2xl font-bold text-neutral-900">
@@ -61,7 +62,7 @@
 
           <div class="app-card app-card--muted text-start">
             <dt class="text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500">
-              العناصر في المتجر
+              Товаров в каталоге
             </dt>
 
             <dd class="mt-2 text-2xl font-bold text-neutral-900">
@@ -74,6 +75,6 @@
   </div>
 
   <ng-template #loading>
-    <div class="app-empty">...جاري تحميل الفئات</div>
+    <div class="app-empty">...Загрузка категорий</div>
   </ng-template>
 </section>

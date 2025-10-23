@@ -1,6 +1,6 @@
 <section class="app-section space-y-10" *ngIf="viewModel$ | async as vm; else loading">
   <header class="space-y-6">
-    <app-back-button label="عودة إلى القائمة السابقة"></app-back-button>
+    <app-back-button label="Назад к предыдущему списку"></app-back-button>
 
     <div
       class="app-card flex flex-col gap-6 sm:flex-row sm:items-center"
@@ -26,16 +26,16 @@
       class="flex flex-col gap-4 rounded-3xl border border-white/60 bg-white/90 p-5 shadow-soft backdrop-blur sm:flex-row sm:items-center sm:justify-between"
     >
       <h2 class="text-lg font-semibold text-neutral-900">
-        المنتجات المتاحة ({{ vm.filteredProducts.length }})
+        Доступные товары ({{ vm.filteredProducts.length }})
       </h2>
 
       <label class="flex items-center gap-3">
-        <span class="app-chip bg-brand-50/80 text-brand-600">ابحث ضمن المنتجات</span>
+        <span class="app-chip bg-brand-50/80 text-brand-600">Поиск по товарам</span>
         <input
           type="search"
           name="subcategory-search"
           class="app-input app-input--small w-full sm:w-72"
-          placeholder="اكتب اسم المنتج أو لونه"
+          placeholder="Введите название или цвет товара"
           [ngModel]="vm.searchTerm"
           (ngModelChange)="updateSearch($event)"
         />
@@ -104,7 +104,7 @@
               class="app-button app-button--primary w-full"
               (click)="addToCart($event, product)"
             >
-              أضف إلى السلة
+              Добавить в корзину
             </button>
           </ng-container>
 
@@ -116,7 +116,7 @@
                 type="button"
                 class="h-8 w-8 rounded-full bg-white text-base text-brand-600 shadow-sm transition hover:bg-brand-50"
                 (click)="decrement($event, product)"
-                aria-label="إنقاص الكمية"
+                aria-label="Уменьшить количество"
               >
                 −
               </button>
@@ -126,7 +126,7 @@
                 type="button"
                 class="h-8 w-8 rounded-full bg-brand-600 text-base text-white shadow-sm transition hover:bg-brand-700"
                 (click)="increment($event, product)"
-                aria-label="زيادة الكمية"
+                aria-label="Увеличить количество"
               >
                 +
               </button>
@@ -138,16 +138,16 @@
 
     <ng-template #empty>
       <ng-container *ngIf="vm.products.length === 0; else noFilteredResults">
-        <div class="app-empty">لا توجد منتجات ضمن هذا القسم الفرعي حالياً.</div>
+        <div class="app-empty">В этом подразделе пока нет товаров.</div>
       </ng-container>
     </ng-template>
 
     <ng-template #noFilteredResults>
-      <div class="app-empty text-brand-600">لا توجد منتجات مطابقة لعبارة البحث الحالية.</div>
+      <div class="app-empty text-brand-600">Нет товаров, соответствующих текущему запросу.</div>
     </ng-template>
   </section>
 </section>
 
 <ng-template #loading>
-  <div class="app-empty">جاري تحميل بيانات القسم الفرعي...</div>
+  <div class="app-empty">Загрузка данных подраздела...</div>
 </ng-template>

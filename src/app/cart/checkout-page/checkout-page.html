@@ -5,62 +5,64 @@
     </div>
 
     <header class="text-center">
-      <span class="app-badge mx-auto">خطوة واحدة</span>
-      <h1 class="app-heading mt-4">إتمام الطلب</h1>
+      <span class="app-badge mx-auto">Один шаг</span>
+      <h1 class="app-heading mt-4">Оформление заказа</h1>
       <p class="app-subheading mt-2">
-        راجع تفاصيل طلبك وأكمل بياناتك لنتمكن من تجهيز الشحنة بأسرع وقت.
+        Проверьте детали заказа и заполните данные, чтобы мы могли подготовить отправку как можно
+        быстрее.
       </p>
     </header>
 
     <div class="app-card app-card--tinted" *ngIf="confirmation() as confirmation">
       <div class="flex flex-col gap-4 text-right">
         <div class="flex flex-col gap-1">
-          <h2 class="text-2xl font-semibold text-brand-700">شكراً لثقتكم بنا!</h2>
+          <h2 class="text-2xl font-semibold text-brand-700">Спасибо за доверие!</h2>
           <p class="text-neutral-700">
-            تم استلام طلبكم بتاريخ {{ confirmation.createdAt | date : 'medium' }} وسيتم التواصل معكم
-            قريباً لتأكيد التفاصيل. قريباً لتأكيد التفاصيل، وسيتم توصيل الطلب خلال ثلاثة أيام عمل.
+            Мы получили ваш заказ {{ confirmation.createdAt | date : 'medium' }}. Скоро мы свяжемся
+            с вами для подтверждения деталей, а доставка будет выполнена в течение трёх рабочих
+            дней.
           </p>
         </div>
 
         <p *ngIf="confirmation.orderNumber" class="text-sm font-semibold text-brand-900">
-          رقم الطلب: <span class="font-bold">{{ confirmation.orderNumber }}</span>
+          Номер заказа: <span class="font-bold">{{ confirmation.orderNumber }}</span>
         </p>
 
         <div class="grid gap-6 rounded-3xl bg-white/80 p-6 shadow-inner sm:grid-cols-2">
           <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-neutral-900">بيانات الزبون</h3>
+            <h3 class="text-lg font-semibold text-neutral-900">Данные клиента</h3>
             <dl class="grid gap-3 text-sm text-neutral-600">
               <div>
-                <dt class="font-semibold text-neutral-800">الاسم</dt>
+                <dt class="font-semibold text-neutral-800">Имя</dt>
                 <dd>{{ confirmation.info.name }}</dd>
               </div>
               <div>
-                <dt class="font-semibold text-neutral-800">البريد الإلكتروني</dt>
+                <dt class="font-semibold text-neutral-800">Электронная почта</dt>
                 <dd>{{ confirmation.info.email }}</dd>
               </div>
               <div>
-                <dt class="font-semibold text-neutral-800">اسم المطعم</dt>
+                <dt class="font-semibold text-neutral-800">Название ресторана</dt>
                 <dd>{{ confirmation.info.restaurantName }}</dd>
               </div>
 
               <div>
-                <dt class="font-semibold text-neutral-800">رقم الهاتف</dt>
+                <dt class="font-semibold text-neutral-800">Телефон</dt>
                 <dd>{{ confirmation.info.phone }}</dd>
               </div>
 
               <div>
-                <dt class="font-semibold text-neutral-800">العنوان</dt>
+                <dt class="font-semibold text-neutral-800">Адрес</dt>
                 <dd>{{ confirmation.info.address }}</dd>
               </div>
               <div *ngIf="confirmation.info.notes">
-                <dt class="font-semibold text-neutral-800">ملاحظات</dt>
+                <dt class="font-semibold text-neutral-800">Примечания</dt>
                 <dd>{{ confirmation.info.notes }}</dd>
               </div>
             </dl>
           </div>
 
           <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-neutral-900">ملخص الطلب</h3>
+            <h3 class="text-lg font-semibold text-neutral-900">Сводка заказа</h3>
             <ul class="space-y-3">
               <li
                 class="flex items-start justify-between gap-4 rounded-2xl border border-white/70 bg-white px-4 py-3 text-sm"
@@ -81,7 +83,7 @@
             <p
               class="flex items-center justify-between rounded-2xl bg-brand-600/10 px-4 py-3 text-sm font-semibold text-neutral-900"
             >
-              <span>الإجمالي:</span>
+              <span>Итого:</span>
               {{ confirmation.snapshot.total | currency : 'USD' : 'symbol' : '1.0-0' }}
             </p>
           </div>
@@ -93,9 +95,9 @@
       <div class="grid w-full gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <section class="app-card flex flex-col gap-6">
           <div class="flex items-center justify-between gap-3">
-            <h2 class="text-xl font-semibold text-neutral-900">المنتجات المختارة</h2>
+            <h2 class="text-xl font-semibold text-neutral-900">Выбранные товары</h2>
             <a routerLink="/cart" class="text-sm font-medium text-brand-600 hover:text-brand-700"
-              >تعديل السلة</a
+              >Изменить корзину</a
             >
           </div>
 
@@ -122,7 +124,7 @@
           <div
             class="flex flex-col gap-2 rounded-2xl bg-neutral-900 px-6 py-4 text-right text-white sm:flex-row sm:items-center sm:justify-between"
           >
-            <span class="text-sm font-medium text-neutral-200">الإجمالي الكلي</span>
+            <span class="text-sm font-medium text-neutral-200">Общая сумма</span>
             <strong class="text-2xl font-semibold">{{
               totalPrice() | currency : 'USD' : 'symbol' : '1.0-0'
             }}</strong>
@@ -131,13 +133,15 @@
 
         <section class="app-card flex flex-col gap-6">
           <div class="flex flex-col gap-1 text-right">
-            <h2 class="text-xl font-semibold text-neutral-900">معلومات الزبون</h2>
-            <p class="text-sm text-neutral-500">املأ الحقول التالية لإتمام الطلب.</p>
+            <h2 class="text-xl font-semibold text-neutral-900">Данные клиента</h2>
+            <p class="text-sm text-neutral-500">
+              Заполните поля ниже, чтобы завершить оформление заказа.
+            </p>
           </div>
 
           <form class="grid gap-5" [formGroup]="form" (ngSubmit)="submit()" novalidate>
             <label class="app-input-group">
-              <span>الاسم الكامل</span>
+              <span>Полное имя</span>
 
               <input type="text" formControlName="name" required class="app-input" />
             </label>
@@ -146,11 +150,11 @@
               class="app-input-error"
               *ngIf="form.controls.name.invalid && form.controls.name.touched"
             >
-              الرجاء إدخال الاسم.
+              Пожалуйста, укажите имя.
             </div>
 
             <label class="app-input-group">
-              <span>البريد الإلكتروني</span>
+              <span>Электронная почта</span>
 
               <input type="email" formControlName="email" required class="app-input" />
             </label>
@@ -159,11 +163,11 @@
               class="app-input-error"
               *ngIf="form.controls.email.invalid && form.controls.email.touched"
             >
-              الرجاء إدخال بريد إلكتروني صالح.
+              Укажите действительный адрес электронной почты.
             </div>
 
             <label class="app-input-group">
-              <span>رقم الهاتف</span>
+              <span>Номер телефона</span>
 
               <input type="tel" formControlName="phone" required class="app-input" />
             </label>
@@ -172,11 +176,11 @@
               class="app-input-error"
               *ngIf="form.controls.phone.invalid && form.controls.phone.touched"
             >
-              الرجاء إدخال رقم هاتف صالح.
+              Введите корректный номер телефона.
             </div>
 
             <label class="app-input-group">
-              <span>اسم المطعم</span>
+              <span>Название ресторана</span>
 
               <input type="text" formControlName="restaurantName" required class="app-input" />
             </label>
@@ -185,11 +189,11 @@
               class="app-input-error"
               *ngIf="form.controls.restaurantName.invalid && form.controls.restaurantName.touched"
             >
-              الرجاء إدخال اسم المطعم.
+              Укажите название ресторана.
             </div>
 
             <label class="app-input-group">
-              <span>عنوان التوصيل</span>
+              <span>Адрес доставки</span>
 
               <textarea formControlName="address" rows="3" required class="app-input"></textarea>
             </label>
@@ -198,17 +202,17 @@
               class="app-input-error"
               *ngIf="form.controls.address.invalid && form.controls.address.touched"
             >
-              الرجاء إدخال العنوان.
+              Пожалуйста, укажите адрес.
             </div>
 
             <label class="app-input-group">
-              <span>ملاحظات إضافية</span>
+              <span>Дополнительные примечания</span>
 
               <textarea formControlName="notes" rows="3" class="app-input"></textarea>
             </label>
 
             <div class="app-input-group app-input-group--captcha">
-              <span>رمز التحقق</span>
+              <span>Проверочный код</span>
 
               <div class="recaptcha-container" #recaptchaContainer></div>
             </div>
@@ -220,7 +224,7 @@
                 form.controls.recaptchaToken.touched
               "
             >
-              الرجاء تأكيد أنك لست روبوتاً.
+              Подтвердите, что вы не робот.
             </div>
             <div class="app-input-error" *ngIf="recaptchaLoadError()">
               {{ recaptchaLoadError() }}
@@ -231,7 +235,7 @@
               class="app-button app-button--primary mt-2"
               [disabled]="submitting()"
             >
-              {{ submitting() ? 'جاري إرسال الطلب...' : 'إرسال الطلب' }}
+              {{ submitting() ? 'Отправляем заказ...' : 'Отправить заказ' }}
             </button>
 
             <p class="app-input-error" *ngIf="errorMessage()">
@@ -247,9 +251,11 @@
 <ng-template #empty>
   <div class="app-card text-center" *ngIf="!confirmation()">
     <p class="text-lg font-semibold text-neutral-800">
-      السلة فارغة. الرجاء إضافة منتجات قبل إتمام الطلب.
+      Корзина пуста. Пожалуйста, добавьте товары перед оформлением заказа.
     </p>
 
-    <a routerLink="/categories" class="app-button app-button--primary mt-6"> العودة إلى التسوق </a>
+    <a routerLink="/categories" class="app-button app-button--primary mt-6">
+      Вернуться к покупкам
+    </a>
   </div>
 </ng-template>

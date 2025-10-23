@@ -132,7 +132,7 @@ export class CheckoutPageComponent implements AfterViewInit {
     };
 
     if (!snapshot.items.length) {
-      this.errorMessage.set('السلة فارغة. الرجاء إضافة منتجات قبل إتمام الطلب.');
+      this.errorMessage.set('Корзина пуста. Добавьте товары перед оформлением заказа.');
       return;
     }
 
@@ -169,7 +169,7 @@ export class CheckoutPageComponent implements AfterViewInit {
       this.resetRecaptcha();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'تعذر إرسال الطلب. حاول مرة أخرى لاحقاً.';
+        error instanceof Error ? error.message : 'Не удалось отправить заказ. Попробуйте позже.';
       this.errorMessage.set(message);
     } finally {
       this.submitting.set(false);
@@ -324,7 +324,7 @@ export class CheckoutPageComponent implements AfterViewInit {
 
     if (!this.recaptchaSiteKey) {
       this.recaptchaLoadError.set(
-        'لم يتم ضبط مفتاح reCAPTCHA. يرجى التواصل مع فريق الدعم لإعداد الخدمة.'
+        'Ключ reCAPTCHA не настроен. Свяжитесь с командой поддержки, чтобы активировать сервис.'
       );
       return;
     }
@@ -334,7 +334,7 @@ export class CheckoutPageComponent implements AfterViewInit {
       const grecaptcha = window.grecaptcha;
 
       if (!grecaptcha?.render) {
-        throw new Error('تعذر تهيئة خدمة reCAPTCHA.');
+        throw new Error('Не удалось инициализировать reCAPTCHA.');
       }
 
       this.recaptchaWidgetId = grecaptcha.render(container, {
@@ -345,14 +345,15 @@ export class CheckoutPageComponent implements AfterViewInit {
       });
       this.recaptchaLoadError.set(null);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'تعذر تحميل خدمة reCAPTCHA.';
+      const message =
+        error instanceof Error ? error.message : 'Не удалось загрузить службу reCAPTCHA.';
       this.recaptchaLoadError.set(message);
     }
   }
 
   private loadRecaptchaScript(): Promise<void> {
     if (typeof window === 'undefined') {
-      return Promise.reject(new Error('خدمة reCAPTCHA غير مدعومة في هذا السياق.'));
+      return Promise.reject(new Error('reCAPTCHA недоступна в текущем окружении.'));
     }
 
     const grecaptcha = window.grecaptcha;
@@ -382,7 +383,7 @@ export class CheckoutPageComponent implements AfterViewInit {
         existingScript.addEventListener('load', () => resolve(), { once: true });
         existingScript.addEventListener(
           'error',
-          () => reject(new Error('تعذر تحميل خدمة reCAPTCHA.')),
+          () => reject(new Error('Не удалось загрузить службу reCAPTCHA.')),
           { once: true }
         );
         return;
@@ -390,7 +391,7 @@ export class CheckoutPageComponent implements AfterViewInit {
 
       const script = document.createElement('script');
       script.id = RECAPTCHA_SCRIPT_ID;
-      script.src = 'https://www.google.com/recaptcha/api.js?hl=ar';
+      script.src = 'https://www.google.com/recaptcha/api.js?hl=ru';
       script.async = true;
       script.defer = true;
       script.onload = () => {
@@ -402,7 +403,7 @@ export class CheckoutPageComponent implements AfterViewInit {
         }
         resolve();
       };
-      script.onerror = () => reject(new Error('تعذر تحميل خدمة reCAPTCHA.'));
+      script.onerror = () => reject(new Error('Не удалось загрузить службу reCAPTCHA.'));
       document.body.appendChild(script);
     });
 
@@ -427,7 +428,7 @@ export class CheckoutPageComponent implements AfterViewInit {
     this.form.controls.recaptchaToken.reset('', { emitEvent: false });
     this.form.controls.recaptchaToken.markAsTouched();
     this.form.controls.recaptchaToken.setErrors({ required: true });
-    this.recaptchaLoadError.set('انتهت صلاحية التحقق. يرجى المحاولة مرة أخرى.');
+    this.recaptchaLoadError.set('Срок действия проверки истёк. Попробуйте ещё раз.');
     if (this.recaptchaWidgetId !== null) {
       window.grecaptcha?.reset(this.recaptchaWidgetId);
     }
@@ -436,7 +437,7 @@ export class CheckoutPageComponent implements AfterViewInit {
   private onRecaptchaError(): void {
     this.form.controls.recaptchaToken.reset('', { emitEvent: false });
     this.form.controls.recaptchaToken.markAsTouched();
-    this.recaptchaLoadError.set('حدث خطأ أثناء التحقق. يرجى إعادة المحاولة.');
+    this.recaptchaLoadError.set('Произошла ошибка при проверке. Повторите попытку.');
     if (this.recaptchaWidgetId !== null) {
       window.grecaptcha?.reset(this.recaptchaWidgetId);
     }

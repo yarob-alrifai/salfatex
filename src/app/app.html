@@ -9,7 +9,7 @@
           Salfatex
         </a>
 
-        <nav class="hidden items-center gap-1 lg:flex" aria-label="التنقل الرئيسي">
+        <nav class="hidden items-center gap-1 lg:flex" aria-label="Основная навигация">
           <a
             routerLink="/"
             routerLinkActive="!app-button--secondary !bg-brand-50 !text-brand-700"
@@ -17,7 +17,7 @@
             (click)="closeMenu()"
             class="app-button app-button--ghost text-sm font-semibold"
           >
-            الرئيسية
+            Главная
           </a>
           <a
             routerLink="/categories"
@@ -25,7 +25,7 @@
             (click)="closeMenu()"
             class="app-button app-button--ghost text-sm font-semibold"
           >
-            الفئات
+            Категории
           </a>
           <a
             routerLink="/about"
@@ -33,7 +33,7 @@
             (click)="closeMenu()"
             class="app-button app-button--ghost text-sm font-semibold"
           >
-            من نحن
+            О нас
           </a>
           <a
             routerLink="/cart"
@@ -41,7 +41,7 @@
             (click)="closeMenu()"
             class="app-button app-button--ghost text-sm font-semibold"
           >
-            السلة
+            Корзина
           </a>
           <a
             routerLink="/checkout"
@@ -49,7 +49,7 @@
             (click)="closeMenu()"
             class="app-button app-button--ghost text-sm font-semibold"
           >
-            إتمام الطلب
+            Оформление заказа
           </a>
 
           <a
@@ -59,7 +59,7 @@
             (click)="closeMenu()"
             class="app-button app-button--ghost text-sm font-semibold"
           >
-            لوحة الأدمن
+            Панель администратора
           </a>
           <a
             routerLink="/contact"
@@ -67,7 +67,7 @@
             (click)="closeMenu()"
             class="app-button app-button--ghost text-sm font-semibold"
           >
-            اتصل بنا
+            Связаться с нами
           </a>
 
           <a
@@ -77,7 +77,7 @@
             (click)="closeMenu()"
             class="app-button app-button--ghost text-sm font-semibold"
           >
-            تسجيل الدخول
+            Войти
           </a>
           <button
             *ngIf="isAdminLoggedIn()"
@@ -85,7 +85,7 @@
             (click)="logout()"
             class="app-button app-button--ghost text-sm font-semibold"
           >
-            تسجيل الخروج
+            Выйти
           </button>
         </nav>
 
@@ -95,9 +95,9 @@
           (click)="toggleMenu()"
           [attr.aria-expanded]="isMenuOpen()"
           aria-controls="primary-navigation"
-          aria-label="عرض القائمة"
+          aria-label="Показать меню"
         >
-          <span class="sr-only">عرض القائمة</span>
+          <span class="sr-only">Показать меню</span>
           <span aria-hidden="true" class="flex flex-col items-center justify-center gap-1">
             <span
               class="block h-0.5 w-6 rounded-full bg-current transition-transform duration-200"
@@ -118,7 +118,7 @@
       <div *ngIf="isMenuOpen()" class="pb-4 lg:hidden" id="primary-navigation">
         <nav
           class="flex flex-col gap-2 rounded-3xl border border-white/70 bg-white/80 p-3 text-sm font-semibold text-neutral-700 shadow-lg shadow-white/40 backdrop-blur"
-          aria-label="القائمة الجانبية"
+          aria-label="Боковое меню"
         >
           <a
             routerLink="/"
@@ -127,7 +127,7 @@
             (click)="closeMenu()"
             class="rounded-2xl px-4 py-2 transition hover:bg-brand-50"
           >
-            الرئيسية
+            Главная
           </a>
           <a
             routerLink="/categories"
@@ -135,7 +135,7 @@
             (click)="closeMenu()"
             class="rounded-2xl px-4 py-2 transition hover:bg-brand-50"
           >
-            الفئات
+            Категории
           </a>
           <a
             routerLink="/about"
@@ -143,7 +143,7 @@
             (click)="closeMenu()"
             class="rounded-2xl px-4 py-2 transition hover:bg-brand-50"
           >
-            من نحن
+            О нас
           </a>
           <a
             routerLink="/cart"
@@ -151,7 +151,7 @@
             (click)="closeMenu()"
             class="rounded-2xl px-4 py-2 transition hover:bg-brand-50"
           >
-            السلة
+            Корзина
           </a>
           <a
             routerLink="/checkout"
@@ -159,7 +159,7 @@
             (click)="closeMenu()"
             class="rounded-2xl px-4 py-2 transition hover:bg-brand-50"
           >
-            إتمام الطلب
+            Оформление заказа
           </a>
 
           <a
@@ -169,7 +169,7 @@
             (click)="closeMenu()"
             class="rounded-2xl px-4 py-2 transition hover:bg-brand-50"
           >
-            لوحة الأدمن
+            Панель администратора
           </a>
           <a
             routerLink="/contact"
@@ -177,7 +177,7 @@
             (click)="closeMenu()"
             class="rounded-2xl px-4 py-2 transition hover:bg-brand-50"
           >
-            اتصل بنا
+            Связаться с нами
           </a>
 
           <a
@@ -187,7 +187,7 @@
             (click)="closeMenu()"
             class="rounded-2xl px-4 py-2 transition hover:bg-brand-50"
           >
-            تسجيل الدخول
+            Войти
           </a>
           <button
             *ngIf="isAdminLoggedIn()"
@@ -195,7 +195,7 @@
             (click)="logout()"
             class="rounded-2xl px-4 py-2 text-right transition hover:bg-brand-50"
           >
-            تسجيل الخروج
+            Выйти
           </button>
         </nav>
       </div>
@@ -208,7 +208,7 @@
 
   <footer class="app-shell__footer">
     <p class="font-semibold tracking-wide">© {{ title() }} {{ currentYear }}</p>
-    <p class="mt-1 text-xs text-neutral-500">جميع الحقوق محفوظة.</p>
+    <p class="mt-1 text-xs text-neutral-500">Все права защищены.</p>
   </footer>
   <app-floating-cart-button></app-floating-cart-button>
 </div>
