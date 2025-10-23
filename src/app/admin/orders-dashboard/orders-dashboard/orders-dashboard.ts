@@ -362,7 +362,7 @@ export class OrdersDashboardComponent {
             }
           </style>
         </head>
-        <body dir="rtl">
+        <body dir="ltr">
           <div class="section">
             <h1>طلب رقم ${orderNumber}</h1>
             <div class="meta">

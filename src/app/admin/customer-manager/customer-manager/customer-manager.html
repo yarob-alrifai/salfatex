@@ -1,5 +1,5 @@
 <section class="app-section space-y-12">
-  <header class="app-card app-card--tinted space-y-4 text-right">
+  <header class="app-card app-card--tinted space-y-4 text-left">
     <span class="app-badge">إدارة العملاء</span>
     <h1 class="app-heading text-3xl">الزبائن</h1>
     <p class="app-subheading">
@@ -24,7 +24,7 @@
   <section *ngIf="viewModel$ | async as vm; else loading" class="space-y-6">
     <div class="app-card space-y-6">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div class="space-y-2 text-right">
+        <div class="space-y-2 text-left">
           <h2 class="text-xl font-semibold text-neutral-900">قائمة الزبائن</h2>
           <p class="text-sm text-neutral-500">
             إجمالي الزبائن: {{ vm.total }}
@@ -40,7 +40,7 @@
             type="search"
             [formControl]="searchControl"
             placeholder="ابحث بالاسم، المطعم، البريد أو الهاتف"
-            class="app-input pr-12 text-right"
+            class="app-input pr-12 text-left"
           />
         </div>
       </div>
@@ -158,7 +158,7 @@
   </section>
 
   <section class="app-card space-y-6" *ngIf="editingCustomer() as editing">
-    <header class="space-y-2 text-right">
+    <header class="space-y-2 text-left">
       <h3 class="text-xl font-semibold text-neutral-900">تعديل بيانات الزبون</h3>
       <p class="text-sm text-neutral-500">حدّث معلومات التواصل والشحن حسب الحاجة.</p>
     </header>
@@ -242,7 +242,7 @@
     <button type="button" class="app-modal__close" (click)="closeModal()" aria-label="إغلاق">
       ✕
     </button>
-    <header class="space-y-2 text-right">
+    <header class="space-y-2 text-left">
       <h3 class="text-2xl font-semibold text-neutral-900">{{ customer.customerName }}</h3>
       <p class="text-sm text-neutral-500">عرض سريع لمعلومات الزبون المختار.</p>
     </header>

@@ -67,9 +67,9 @@
             </button>
           </div>
 
-          <div *ngIf="getAvailableColors(product).length" class="space-y-2 text-right">
+          <div *ngIf="getAvailableColors(product).length" class="space-y-2 text-left">
             <p class="text-sm font-medium text-neutral-600">Выберите цвет</p>
-            <div class="flex flex-wrap justify-end gap-2">
+            <div class="flex flex-wrap justify-start gap-2">
               <button
                 type="button"
                 *ngFor="let color of getAvailableColors(product)"

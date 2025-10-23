@@ -1,5 +1,5 @@
 <section class="app-section space-y-12">
-  <header class="app-card app-card--tinted space-y-4 text-right">
+  <header class="app-card app-card--tinted space-y-4 text-left">
     <span class="app-badge">إدارة المحتوى</span>
     <h1 class="app-heading text-3xl">إدارة المنتجات</h1>
     <p class="app-subheading">
@@ -10,7 +10,7 @@
 
   <form [formGroup]="form" (ngSubmit)="saveProduct()" class="space-y-8">
     <section class="app-card space-y-6">
-      <header class="space-y-2 text-right">
+      <header class="space-y-2 text-left">
         <h2 class="text-xl font-semibold text-neutral-900">المعلومات الأساسية</h2>
         <p class="text-sm text-neutral-500">حدّد التصنيف، الاسم، والألوان الخاصة بالمنتج.</p>
       </header>
@@ -81,7 +81,7 @@
     </section>
 
     <section class="app-card space-y-6">
-      <header class="space-y-2 text-right">
+      <header class="space-y-2 text-left">
         <h2 class="text-xl font-semibold text-neutral-900">خيارات التسعير</h2>
         <p class="text-sm text-neutral-500">
           فعّل خيارات البيع المناسبة وقم بتعيين الأسعار لكل وحدة.
@@ -180,7 +180,7 @@
     <!-- Description -->
 
     <section class="app-card space-y-6">
-      <header class="space-y-2 text-right">
+      <header class="space-y-2 text-left">
         <h2 class="text-xl font-semibold text-neutral-900">الوصف والوسائط</h2>
         <p class="text-sm text-neutral-500">
           أضف وصفاً تفصيلياً وحدّث الصور لإبراز المنتج بأفضل شكل.
@@ -212,7 +212,7 @@
               class="app-upload__control"
             />
           </label>
-          <div class="relative mt-4 flex justify-end" *ngIf="mainImagePreview">
+          <div class="relative mt-4 flex justify-start" *ngIf="mainImagePreview">
             <img
               [src]="mainImagePreview"
               alt="معاينة الصورة الرئيسية"
@@ -241,7 +241,7 @@
               class="app-upload__control"
             />
           </label>
-          <div class="mt-4 flex flex-wrap justify-end gap-4" *ngIf="galleryImagePreviews.length">
+          <div class="mt-4 flex flex-wrap justify-start gap-4" *ngIf="galleryImagePreviews.length">
             <ng-container *ngFor="let preview of galleryImagePreviews; let i = index">
               <div class="relative">
                 <img
@@ -264,7 +264,7 @@
       </div>
     </section>
 
-    <div class="flex flex-wrap items-center justify-end gap-3">
+    <div class="flex flex-wrap items-center justify-start gap-3">
       <p
         class="rounded-2xl bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-600"
         *ngIf="feedback()"
@@ -282,7 +282,7 @@
   <div class="app-modal" *ngIf="showMainCropper">
     <div class="app-modal__content space-y-6">
       <button type="button" class="app-modal__close" (click)="cancelMainCrop()">✕</button>
-      <header class="space-y-2 text-right">
+      <header class="space-y-2 text-left">
         <h3 class="text-2xl font-semibold text-neutral-900">قص الصورة الرئيسية</h3>
         <p class="text-sm text-neutral-500">اضبط الإطار لضمان ظهور الصورة بشكل متناسق.</p>
       </header>
@@ -299,7 +299,7 @@
         (loadImageFailed)="onMainImageLoadFailed()"
         class="block h-96 rounded-3xl border border-neutral-200 bg-neutral-50"
       ></image-cropper>
-      <div class="flex justify-end gap-3">
+      <div class="flex justify-start gap-3">
         <button type="button" class="app-button app-button--secondary" (click)="cancelMainCrop()">
           إلغاء
         </button>
@@ -318,7 +318,7 @@
   <div class="app-modal" *ngIf="showGalleryCropper && currentGalleryFile">
     <div class="app-modal__content space-y-6">
       <button type="button" class="app-modal__close" (click)="cancelGalleryCropping()">✕</button>
-      <header class="space-y-1 text-right">
+      <header class="space-y-1 text-left">
         <h3 class="text-2xl font-semibold text-neutral-900">قص صور المعرض</h3>
         <p class="text-sm text-neutral-500">
           الصورة {{ galleryImagePreviews.length + 1 }} من {{ totalGalleryToCrop }} —
@@ -339,7 +339,7 @@
         class="block h-96 rounded-3xl border border-neutral-200 bg-neutral-50"
       ></image-cropper>
 
-      <div class="flex flex-wrap justify-end gap-3">
+      <div class="flex flex-wrap justify-start gap-3">
         <button
           type="button"
           class="app-button app-button--ghost !px-4 !py-2"
@@ -371,7 +371,7 @@
 
   <section class="space-y-6" *ngIf="productsView$ | async as view">
     <div class="app-toolbar">
-      <div class="space-y-1 text-right">
+      <div class="space-y-1 text-left">
         <h2 class="text-xl font-semibold text-neutral-900">قائمة المنتجات</h2>
         <p class="text-sm text-neutral-500">استعرض المنتجات، حدثها أو احذفها بسهولة.</p>
       </div>
@@ -385,7 +385,7 @@
             type="search"
             [formControl]="searchControl"
             placeholder="ابحث عن منتج..."
-            class="app-input pr-12 text-right"
+            class="app-input pr-12 text-left"
           />
         </div>
         <span class="app-count">إجمالي المنتجات: {{ view.total }}</span>
@@ -418,7 +418,7 @@
               </td>
               <td class="px-4 py-4">
                 <ng-container *ngIf="product.unitOptions?.length; else singlePrice">
-                  <ul class="space-y-2 text-right">
+                  <ul class="space-y-2 text-left">
                     <li
                       *ngFor="let option of product.unitOptions"
                       class="rounded-2xl border border-brand-200/60 bg-brand-50/60 px-3 py-2 text-sm"
@@ -476,7 +476,7 @@
         <strong>{{ view.total }}</strong>
         منتج
       </span>
-      <div class="flex items-center justify-end gap-2">
+      <div class="flex items-center justify-start gap-2">
         <button
           type="button"
           class="app-button app-button--ghost !px-4 !py-2 text-xs"
@@ -517,7 +517,7 @@
   <div class="app-modal" *ngIf="isEditModalOpen">
     <div class="app-modal__content space-y-6 max-h-[90vh] overflow-y-auto">
       <button type="button" class="app-modal__close" (click)="closeEditModal()">✕</button>
-      <header class="space-y-2 text-right">
+      <header class="space-y-2 text-left">
         <h3 class="text-2xl font-semibold text-neutral-900">تعديل المنتج</h3>
         <p class="text-sm text-neutral-500">قم بتحديث بيانات المنتج والصور ثم احفظ التغييرات.</p>
       </header>

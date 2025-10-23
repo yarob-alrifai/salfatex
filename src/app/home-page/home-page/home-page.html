@@ -42,7 +42,7 @@
             >
               <article
                 *ngFor="let product of search.results; trackBy: trackProduct"
-                class="app-card flex h-full flex-col gap-4 text-right transition hover:-translate-y-1 hover:shadow-brand"
+                class="app-card flex h-full flex-col gap-4 text-left transition hover:-translate-y-1 hover:shadow-brand"
               >
                 <a
                   class="flex flex-col gap-4"
@@ -85,7 +85,7 @@
 
   <section *ngIf="featuredGroups$ | async as featuredGroups">
     <div class="app-section space-y-12">
-      <div class="space-y-3 text-right">
+      <div class="space-y-3 text-left">
         <span class="app-badge">Основные разделы</span>
         <h2 class="app-heading text-3xl">Просматривайте товары по главным категориям</h2>
         <p class="app-subheading">
@@ -95,11 +95,11 @@
       </div>
 
       <div class="space-y-16" *ngFor="let group of featuredGroups; trackBy: trackGroup">
-        <div class="space-y-3 text-right">
+        <div class="space-y-3 text-left">
           <div
-            class="flex flex-col items-start gap-3 text-right sm:flex-row sm:items-center sm:justify-between sm:text-right"
+            class="flex flex-col items-start gap-3 text-left sm:flex-row sm:items-center sm:justify-between sm:text-left"
           >
-            <div class="space-y-2 sm:text-right">
+            <div class="space-y-2 sm:text-left">
               <h3 class="text-2xl font-semibold text-neutral-900">{{ group.name }}</h3>
               <p class="text-sm text-neutral-600" *ngIf="group.description">
                 {{ group.description }}
@@ -118,7 +118,7 @@
           <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <article
               *ngFor="let category of group.categories; trackBy: trackGroupCategory"
-              class="app-card flex h-full flex-col gap-4 text-right transition hover:-translate-y-1 hover:shadow-brand"
+              class="app-card flex h-full flex-col gap-4 text-left transition hover:-translate-y-1 hover:shadow-brand"
             >
               <a class="flex flex-col gap-4" [routerLink]="['/categories', category.id]">
                 <img

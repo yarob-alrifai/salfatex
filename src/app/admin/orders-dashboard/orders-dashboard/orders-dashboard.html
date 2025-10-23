@@ -96,7 +96,7 @@
 
       <div class="mt-4 overflow-x-auto">
         <ng-container *ngIf="paginatedOrders$ | async as view; else loading">
-          <table class="min-w-full divide-y divide-neutral-100 text-right text-sm">
+          <table class="min-w-full divide-y divide-neutral-100 text-left text-sm">
             <thead
               class="bg-neutral-50 text-xs font-semibold uppercase tracking-wide text-neutral-500"
             >
@@ -177,7 +177,7 @@
               طلب
             </span>
 
-            <div class="flex items-center justify-end gap-2">
+            <div class="flex items-center justify-start gap-2">
               <button
                 type="button"
                 class="inline-flex items-center rounded-full border border-neutral-200 px-4 py-2 text-xs font-medium text-neutral-600 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
@@ -243,7 +243,7 @@
       </button>
 
       <div class="space-y-6">
-        <header class="flex flex-col gap-2 text-right">
+        <header class="flex flex-col gap-2 text-left">
           <span class="text-xs font-semibold uppercase tracking-wide text-neutral-400">
             رقم الطلب {{ selectedOrder.orderNumber || selectedOrder.id || 'غير متوفر' }}
           </span>
@@ -401,7 +401,7 @@
                   ></textarea>
                 </label>
 
-                <div class="flex items-center justify-end gap-3 md:col-span-2">
+                <div class="flex items-center justify-start gap-3 md:col-span-2">
                   <button
                     type="button"
                     (click)="cancelEdit()"

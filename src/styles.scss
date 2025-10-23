@@ -33,6 +33,7 @@ body {
 
   // Reset the user agent margin.
   margin: 0;
+  direction: ltr;
 }
 /* You can add global styles to this file, and also import other style files */
 
@@ -98,7 +99,7 @@ body {
   }
 
   .app-hero {
-    @apply relative overflow-hidden rounded-4xl bg-white/80 p-10 text-right shadow-card backdrop-blur;
+    @apply relative overflow-hidden rounded-4xl bg-white/80 p-10 text-left shadow-card backdrop-blur;
   }
 
   .app-hero::before {
@@ -171,7 +172,7 @@ body {
   }
 
   .app-stat {
-    @apply app-card text-right;
+    @apply app-card text-left;
   }
 
   .app-stat__title {
@@ -187,7 +188,7 @@ body {
   }
 
   .app-table {
-    @apply min-w-full divide-y divide-neutral-200 text-right text-sm text-neutral-700;
+    @apply min-w-full divide-y divide-neutral-200 text-left text-sm text-neutral-700;
   }
 
   .app-table thead {
@@ -212,11 +213,11 @@ body {
   }
 
   .app-input-group {
-    @apply flex flex-col gap-2 text-right text-sm font-medium text-neutral-700;
+    @apply flex flex-col gap-2 text-left text-sm font-medium text-neutral-700;
   }
 
   .app-input-error {
-    @apply text-right text-sm font-medium text-rose-600;
+    @apply text-left text-sm font-medium text-rose-600;
   }
 
   .app-form {
@@ -228,7 +229,7 @@ body {
   }
 
   .app-field {
-    @apply flex flex-col gap-2 text-right;
+    @apply flex flex-col gap-2 text-left;
   }
 
   .app-field__label {
@@ -260,7 +261,7 @@ body {
   }
 
   .app-upload__preview {
-    @apply flex justify-end;
+    @apply flex justify-start;
   }
 
   .app-upload__image {

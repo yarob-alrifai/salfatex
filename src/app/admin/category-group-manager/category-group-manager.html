@@ -1,5 +1,5 @@
 <section class="app-section space-y-12">
-  <header class="app-card app-card--tinted space-y-4 text-right">
+  <header class="app-card app-card--tinted space-y-4 text-left">
     <span class="app-badge">إدارة المحتوى</span>
     <h1 class="app-heading text-3xl">التصنيفات الرئيسية</h1>
     <p class="app-subheading">
@@ -63,7 +63,7 @@
 
   <section class="space-y-6" *ngIf="filteredGroups$ | async as groups">
     <div class="app-toolbar">
-      <div class="space-y-1 text-right">
+      <div class="space-y-1 text-left">
         <h2 class="text-xl font-semibold text-neutral-900">قائمة التصنيفات الرئيسية</h2>
         <p class="text-sm text-neutral-500">تابع التصنيفات الرئيسية المرتبطة بالأقسام.</p>
       </div>
@@ -77,7 +77,7 @@
             type="search"
             [formControl]="searchControl"
             placeholder="ابحث عن تصنيف رئيسي..."
-            class="app-input pr-12 text-right"
+            class="app-input pr-12 text-left"
           />
         </div>
         <span class="app-count">إجمالي التصنيفات الرئيسية: {{ groups.length }}</span>
@@ -99,7 +99,7 @@
           <tbody class="divide-y divide-neutral-100">
             <tr *ngFor="let group of groups; trackBy: trackGroup">
               <td class="px-4 py-4">
-                <div class="flex justify-end">
+                <div class="flex justify-start">
                   <img
                     *ngIf="group.imageUrl; else groupPlaceholder"
                     [src]="group.imageUrl"
@@ -154,7 +154,7 @@
   <div class="app-modal" *ngIf="isEditModalOpen()">
     <div class="app-modal__content space-y-6">
       <button type="button" class="app-modal__close" (click)="closeEditModal()">✕</button>
-      <header class="space-y-2 text-right">
+      <header class="space-y-2 text-left">
         <h3 class="text-2xl font-semibold text-neutral-900">تعديل التصنيف الرئيسي</h3>
         <p class="text-sm text-neutral-500">حدّث بيانات التصنيف الرئيسي ثم احفظ التغييرات.</p>
       </header>

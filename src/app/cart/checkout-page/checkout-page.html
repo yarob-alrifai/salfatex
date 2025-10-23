@@ -1,6 +1,6 @@
 <section class="py-10 lg:py-16">
   <div class="app-section flex flex-col gap-8">
-    <div class="flex justify-end">
+    <div class="flex justify-start">
       <app-back-button icon="←" fallbackUrl="/"></app-back-button>
     </div>
 
@@ -14,7 +14,7 @@
     </header>
 
     <div class="app-card app-card--tinted" *ngIf="confirmation() as confirmation">
-      <div class="flex flex-col gap-4 text-right">
+      <div class="flex flex-col gap-4 text-left">
         <div class="flex flex-col gap-1">
           <h2 class="text-2xl font-semibold text-brand-700">Спасибо за доверие!</h2>
           <p class="text-neutral-700">
@@ -68,7 +68,7 @@
                 class="flex items-start justify-between gap-4 rounded-2xl border border-white/70 bg-white px-4 py-3 text-sm"
                 *ngFor="let item of confirmation.snapshot.items; trackBy: trackByProduct"
               >
-                <div class="text-right">
+                <div class="text-left">
                   <span class="block font-semibold text-neutral-900">{{ item.product.name }}</span>
                   <span class="text-xs text-neutral-500">{{ item.unit.label }}</span>
                   <span class="text-neutral-500">× {{ item.quantity }}</span>
@@ -103,10 +103,10 @@
 
           <ul class="space-y-4">
             <li
-              class="flex flex-col gap-4 rounded-2xl border border-white/70 bg-white/80 p-4 text-right shadow-sm sm:flex-row sm:items-center sm:justify-between"
+              class="flex flex-col gap-4 rounded-2xl border border-white/70 bg-white/80 p-4 text-left shadow-sm sm:flex-row sm:items-center sm:justify-between"
               *ngFor="let item of items(); trackBy: trackByProduct"
             >
-              <div class="space-y-1 text-right">
+              <div class="space-y-1 text-left">
                 <p class="text-base font-semibold text-neutral-900">{{ item.product.name }}</p>
                 <p class="text-xs text-neutral-500">{{ item.unit.label }}</p>
                 <p class="text-sm text-neutral-500">
@@ -122,7 +122,7 @@
           </ul>
 
           <div
-            class="flex flex-col gap-2 rounded-2xl bg-neutral-900 px-6 py-4 text-right text-white sm:flex-row sm:items-center sm:justify-between"
+            class="flex flex-col gap-2 rounded-2xl bg-neutral-900 px-6 py-4 text-left text-white sm:flex-row sm:items-center sm:justify-between"
           >
             <span class="text-sm font-medium text-neutral-200">Общая сумма</span>
             <strong class="text-2xl font-semibold">{{
@@ -132,7 +132,7 @@
         </section>
 
         <section class="app-card flex flex-col gap-6">
-          <div class="flex flex-col gap-1 text-right">
+          <div class="flex flex-col gap-1 text-left">
             <h2 class="text-xl font-semibold text-neutral-900">Данные клиента</h2>
             <p class="text-sm text-neutral-500">
               Заполните поля ниже, чтобы завершить оформление заказа.

@@ -6,7 +6,7 @@
   }
 
   &__link {
-    @apply mt-3 inline-flex items-center justify-end gap-2 text-sm font-semibold text-brand-600 transition hover:text-brand-700;
+    @apply mt-3 inline-flex items-center justify-start gap-2 text-sm font-semibold text-brand-600 transition hover:text-brand-700;
   }
 
   &__text {

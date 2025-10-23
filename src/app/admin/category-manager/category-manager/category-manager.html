@@ -1,5 +1,5 @@
 <section class="app-section space-y-12">
-  <header class="app-card app-card--tinted space-y-4 text-right">
+  <header class="app-card app-card--tinted space-y-4 text-left">
     <span class="app-badge">إدارة المحتوى</span>
     <h1 class="app-heading text-3xl">إدارة التصنيفات</h1>
     <p class="app-subheading">
@@ -85,7 +85,7 @@
   <div class="app-modal" *ngIf="showMainCropper">
     <div class="app-modal__content space-y-6">
       <button type="button" class="app-modal__close" (click)="cancelMainCrop()">✕</button>
-      <header class="space-y-2 text-right">
+      <header class="space-y-2 text-left">
         <h3 class="text-2xl font-semibold text-neutral-900">قص صورة التصنيف</h3>
         <p class="text-sm text-neutral-500">
           حرّك وحدد الجزء الأفضل لعرض التصنيف بوضوح ضمن واجهة المتجر.
@@ -104,7 +104,7 @@
         (loadImageFailed)="onMainImageLoadFailed()"
         class="block h-96 rounded-3xl border border-neutral-200 bg-neutral-50"
       ></image-cropper>
-      <div class="flex justify-end gap-3">
+      <div class="flex justify-start gap-3">
         <button type="button" class="app-button app-button--secondary" (click)="cancelMainCrop()">
           إلغاء
         </button>
@@ -124,7 +124,7 @@
 
   <section class="space-y-6" *ngIf="filteredCategories$ | async as categories">
     <div class="app-toolbar">
-      <div class="space-y-1 text-right">
+      <div class="space-y-1 text-left">
         <h2 class="text-xl font-semibold text-neutral-900">قائمة التصنيفات</h2>
         <p class="text-sm text-neutral-500">تتبع التصنيفات الحالية وعدّلها حسب الحاجة.</p>
       </div>
@@ -138,7 +138,7 @@
             type="search"
             [formControl]="searchControl"
             placeholder="ابحث عن تصنيف..."
-            class="app-input pr-12 text-right"
+            class="app-input pr-12 text-left"
           />
         </div>
         <span class="app-count">إجمالي التصنيفات: {{ categories.length }}</span>
@@ -161,7 +161,7 @@
           <tbody class="divide-y divide-neutral-100">
             <tr *ngFor="let category of categories">
               <td class="px-4 py-4">
-                <div class="flex justify-end">
+                <div class="flex justify-start">
                   <img
                     *ngIf="category.imageUrl; else placeholder"
                     [src]="category.imageUrl"
@@ -219,7 +219,7 @@
   <div class="app-modal" *ngIf="isEditModalOpen()">
     <div class="app-modal__content space-y-6">
       <button type="button" class="app-modal__close" (click)="closeEditModal()">✕</button>
-      <header class="space-y-2 text-right">
+      <header class="space-y-2 text-left">
         <h3 class="text-2xl font-semibold text-neutral-900">تعديل التصنيف</h3>
         <p class="text-sm text-neutral-500">حدّث بيانات التصنيف ثم احفظ التغييرات مباشرة.</p>
       </header>
@@ -256,7 +256,7 @@
         <ng-container *ngIf="selectedCategory() as category">
           <div class="app-field sm:col-span-2">
             <span class="app-field__label">الصورة الحالية</span>
-            <div class="flex justify-end">
+            <div class="flex justify-start">
               <img
                 *ngIf="category.imageUrl; else noCategoryImage"
                 [src]="category.imageUrl"
@@ -311,7 +311,7 @@
   <div class="app-modal" *ngIf="showEditCropper">
     <div class="app-modal__content space-y-6">
       <button type="button" class="app-modal__close" (click)="cancelEditCrop()">✕</button>
-      <header class="space-y-2 text-right">
+      <header class="space-y-2 text-left">
         <h3 class="text-2xl font-semibold text-neutral-900">قص صورة التصنيف</h3>
         <p class="text-sm text-neutral-500">تأكد من أن الصورة تظهر بأفضل شكل قبل الحفظ.</p>
       </header>
@@ -328,7 +328,7 @@
         (loadImageFailed)="onEditImageLoadFailed()"
         class="block h-96 rounded-3xl border border-neutral-200 bg-neutral-50"
       ></image-cropper>
-      <div class="flex justify-end gap-3">
+      <div class="flex justify-start gap-3">
         <button type="button" class="app-button app-button--secondary" (click)="cancelEditCrop()">
           إلغاء
         </button>
