@@ -17,7 +17,7 @@ import {
   getDoc,
 } from '@angular/fire/firestore';
 import { Observable, firstValueFrom } from 'rxjs';
-import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
+import { Storage, deleteObject, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
 import { Category } from './models/category.model';
 import { Subcategory } from './models/subcategory.model';
 import { Product } from './models/product.model';
@@ -191,12 +191,29 @@ export class AdminDataService {
       updateDoc(snapshot.ref, { groupId: deleteField() })
     );
 
+    const categoryGroupRef = doc(this.firestore, 'categoryGroups', categoryGroupId);
+    const snapshot = await getDoc(categoryGroupRef);
+    const imageUrl = snapshot.data()?.['imageUrl'];
+
     await Promise.all(detachments);
-    await deleteDoc(doc(this.firestore, 'categoryGroups', categoryGroupId));
+
+    if (typeof imageUrl === 'string' && imageUrl.trim().length) {
+      await this.deleteFile(imageUrl);
+    }
+
+    await deleteDoc(categoryGroupRef);
   }
 
   async deleteCategory(categoryId: string) {
-    await deleteDoc(doc(this.firestore, 'categories', categoryId));
+    const reference = doc(this.firestore, 'categories', categoryId);
+    const snapshot = await getDoc(reference);
+    const imageUrl = snapshot.data()?.['imageUrl'];
+
+    if (typeof imageUrl === 'string' && imageUrl.trim().length) {
+      await this.deleteFile(imageUrl);
+    }
+
+    await deleteDoc(reference);
   }
 
   // RED ================================================ CREATE SUBCATEGORY ====================================
@@ -235,7 +252,15 @@ export class AdminDataService {
   }
 
   async deleteSubcategory(subcategoryId: string) {
-    await deleteDoc(doc(this.firestore, 'subcategories', subcategoryId));
+    const reference = doc(this.firestore, 'subcategories', subcategoryId);
+    const snapshot = await getDoc(reference);
+    const imageUrl = snapshot.data()?.['imageUrl'];
+
+    if (typeof imageUrl === 'string' && imageUrl.trim().length) {
+      await this.deleteFile(imageUrl);
+    }
+
+    await deleteDoc(reference);
   }
 
   // RED ================================================ CREATE PRODUCT ====================================
@@ -272,7 +297,26 @@ export class AdminDataService {
   }
 
   async deleteProduct(productId: string) {
-    await deleteDoc(doc(this.firestore, 'products', productId));
+    const reference = doc(this.firestore, 'products', productId);
+    const snapshot = await getDoc(reference);
+    const data = snapshot.data();
+    const imageUrls: string[] = [];
+
+    if (typeof data?.['mainImageUrl'] === 'string' && data['mainImageUrl'].trim().length) {
+      imageUrls.push(data['mainImageUrl']);
+    }
+
+    if (Array.isArray(data?.['galleryUrls'])) {
+      for (const url of data['galleryUrls']) {
+        if (typeof url === 'string' && url.trim().length) {
+          imageUrls.push(url);
+        }
+      }
+    }
+
+    await Promise.all(imageUrls.map((url) => this.deleteFile(url)));
+
+    await deleteDoc(reference);
   }
 
   async updateProduct(
@@ -405,5 +449,14 @@ export class AdminDataService {
     const storageRef = ref(this.storage, path);
     await uploadBytes(storageRef, file);
     return getDownloadURL(storageRef);
+  }
+
+  private async deleteFile(url: string): Promise<void> {
+    try {
+      const storageRef = ref(this.storage, url);
+      await deleteObject(storageRef);
+    } catch (error) {
+      console.warn('Failed to delete file from storage', error);
+    }
   }
 }
