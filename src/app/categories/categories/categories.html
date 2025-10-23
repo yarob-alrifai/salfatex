@@ -28,7 +28,7 @@
           class="absolute inset-0 bg-gradient-to-t from-neutral-900/40 via-neutral-900/10 to-transparent"
         ></div>
         <div class="absolute inset-4 flex items-start justify-start">
-          <span class="app-chip bg-white/90 text-sm font-semibold text-neutral-800">
+          <span class="app-chip bg-white/90 text-xs font-medium text-neutral-800">
             {{ category.subcategoryCount }} подкатегорий
           </span>
         </div>
@@ -49,23 +49,27 @@
           </p>
         </div>
 
-        <dl class="grid grid-cols-2 gap-4 text-start">
-          <div class="app-card app-card--muted text-start">
-            <dt class="text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500">
+        <dl class="grid gap-3 text-start">
+          <div
+            class="app-card app-card--muted flex flex-col gap-1 p-4 text-start sm:flex-row sm:items-center sm:justify-between"
+          >
+            <dt class="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-neutral-500">
               Подкатегории
             </dt>
 
-            <dd class="mt-2 text-2xl font-bold text-neutral-900">
+            <dd class="text-lg font-semibold text-neutral-900">
               {{ category.subcategoryCount }}
             </dd>
           </div>
 
-          <div class="app-card app-card--muted text-start">
-            <dt class="text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500">
+          <div
+            class="app-card app-card--muted flex flex-col gap-1 p-4 text-start sm:flex-row sm:items-center sm:justify-between"
+          >
+            <dt class="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-neutral-500">
               Товаров в каталоге
             </dt>
 
-            <dd class="mt-2 text-2xl font-bold text-neutral-900">
+            <dd class="text-lg font-semibold text-neutral-900">
               {{ category.productCount }}
             </dd>
           </div>
