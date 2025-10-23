@@ -16,12 +16,14 @@
     <label class="app-field">
       <span class="app-field__label">البريد الإلكتروني</span>
       <input
+        id="email"
         type="email"
         formControlName="email"
         placeholder="example@email.com"
         class="app-input"
         dir="ltr"
       />
+
       <small
         class="app-field__error"
         *ngIf="form.controls.email.invalid && form.controls.email.touched"
