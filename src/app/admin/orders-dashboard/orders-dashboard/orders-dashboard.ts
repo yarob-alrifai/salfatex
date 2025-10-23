@@ -195,6 +195,254 @@ export class OrdersDashboardComponent {
     this.closeOrderDetails();
   }
 
+  printOrder(order: AdminOrder, event?: Event) {
+    event?.stopPropagation();
+    if (!order) {
+      return;
+    }
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const printWindow = window.open('', '_blank', 'width=900,height=620');
+    if (!printWindow) {
+      this.error.set('تعذر فتح نافذة الطباعة. يرجى السماح بالنوافذ المنبثقة والمحاولة مرة أخرى.');
+      return;
+    }
+
+    const formatCurrency = (value: number | null | undefined) =>
+      new Intl.NumberFormat('ar-SA', {
+        style: 'currency',
+        currency: 'SAR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      }).format(value ?? 0);
+
+    const escapeHtml = (value: unknown) =>
+      String(value ?? '—')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+    const formatMultiline = (value: unknown) => escapeHtml(value).replace(/\n/g, '<br />');
+
+    const formattedCreatedAt = this.parseDate(order.createdAt).toLocaleString('ar-SA');
+    const generatedAt = new Date().toLocaleString('ar-SA');
+    const orderNumber = escapeHtml(order.orderNumber ?? order.id ?? 'غير متوفر');
+    const status = escapeHtml(order.status ?? '—');
+    const customerName = escapeHtml(order.customerName ?? 'عميل بدون اسم');
+    const customerEmail = escapeHtml(order.customerEmail ?? '—');
+    const customerPhone = escapeHtml(order.customerPhone ?? '—');
+    const restaurantName = escapeHtml(order.restaurantName ?? '—');
+    const shippingAddress = formatMultiline(order.shippingAddress ?? 'لا يوجد عنوان مسجل');
+    const notes = formatMultiline(order.notes ?? 'لا توجد ملاحظات');
+
+    const items = Array.isArray(order.items) ? order.items : [];
+    const itemsRows = items
+      .map((item, index) => {
+        const quantity = item.quantity ?? 1;
+        const unit = item.unitPrice ?? (quantity ? (item.price ?? 0) / quantity : item.price ?? 0);
+        const lineTotal = item.price ?? unit * quantity;
+
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${escapeHtml(item.name ?? '—')}</td>
+            <td>${escapeHtml(quantity)}</td>
+            <td>${escapeHtml(item.unitLabel ?? item.unitType ?? '—')}</td>
+            <td>${formatCurrency(unit)}</td>
+            <td>${formatCurrency(lineTotal)}</td>
+          </tr>
+        `;
+      })
+      .join('');
+
+    const itemsTable =
+      itemsRows ||
+      '<tr><td colspan="6" style="padding: 16px; text-align: center; color: #64748b;">لا توجد منتجات مسجلة في هذا الطلب.</td></tr>';
+
+    const total = formatCurrency(this.getOrderTotal(order));
+
+    printWindow.document.open();
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="ar">
+        <head>
+          <meta charset="utf-8" />
+          <title>طباعة الطلب ${orderNumber}</title>
+          <style>
+            body {
+              font-family: 'Segoe UI', Tahoma, sans-serif;
+              background-color: #f1f5f9;
+              margin: 0;
+              padding: 32px;
+              color: #0f172a;
+            }
+            .section {
+              background-color: #ffffff;
+              border-radius: 16px;
+              padding: 24px;
+              margin-bottom: 24px;
+              border: 1px solid #e2e8f0;
+              box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+            }
+            h1 {
+              margin: 0 0 12px;
+              font-size: 24px;
+            }
+            h2 {
+              margin: 0 0 16px;
+              font-size: 20px;
+              color: #0f172a;
+            }
+            .meta {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 12px 24px;
+              font-size: 14px;
+              color: #475569;
+            }
+            .info-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+              gap: 16px;
+            }
+            .label {
+              font-size: 12px;
+              color: #64748b;
+              margin-bottom: 4px;
+            }
+            .value {
+              font-size: 15px;
+              font-weight: 600;
+              color: #1f2937;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 16px;
+              font-size: 14px;
+            }
+            thead {
+              background-color: #eef2ff;
+            }
+            th,
+            td {
+              padding: 12px;
+              border: 1px solid #e2e8f0;
+              text-align: right;
+            }
+            .total {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-top: 16px;
+              font-size: 16px;
+              font-weight: 600;
+              color: #0f172a;
+            }
+            .muted {
+              color: #94a3b8;
+              font-size: 12px;
+            }
+            @media print {
+              body {
+                background-color: #ffffff;
+                padding: 0;
+              }
+              .section {
+                box-shadow: none;
+                border: 1px solid #cbd5f5;
+                margin-bottom: 16px;
+                border-radius: 12px;
+              }
+            }
+          </style>
+        </head>
+        <body dir="rtl">
+          <div class="section">
+            <h1>طلب رقم ${orderNumber}</h1>
+            <div class="meta">
+              <span>الحالة: <strong>${status}</strong></span>
+              <span>تاريخ الطلب: ${formattedCreatedAt}</span>
+              <span>تاريخ الطباعة: ${generatedAt}</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>بيانات العميل</h2>
+            <div class="info-grid">
+              <div>
+                <p class="label">الاسم</p>
+                <p class="value">${customerName}</p>
+              </div>
+              <div>
+                <p class="label">البريد الإلكتروني</p>
+                <p class="value">${customerEmail}</p>
+              </div>
+              <div>
+                <p class="label">رقم الهاتف</p>
+                <p class="value" dir="ltr">${customerPhone}</p>
+              </div>
+              <div>
+                <p class="label">اسم المطعم</p>
+                <p class="value">${restaurantName}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>تفاصيل المنتجات</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>م</th>
+                  <th>المنتج</th>
+                  <th>الكمية</th>
+                  <th>الوحدة</th>
+                  <th>سعر الوحدة</th>
+                  <th>الإجمالي</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsTable}
+              </tbody>
+            </table>
+            <div class="total">
+              <span>الإجمالي الكلي</span>
+              <strong>${total}</strong>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>عنوان الشحن</h2>
+            <p class="value" style="white-space: pre-line;">${shippingAddress}</p>
+          </div>
+
+          <div class="section">
+            <h2>ملاحظات إضافية</h2>
+            <p class="value" style="white-space: pre-line;">${notes}</p>
+          </div>
+
+          <p class="muted">تم إنشاء هذه الصفحة لغرض الطباعة فقط.</p>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+
+    setTimeout(() => {
+      try {
+        printWindow.print();
+      } finally {
+        printWindow.close();
+      }
+    }, 300);
+  }
+
   goToPage(index: number, totalPages: number) {
     if (!totalPages) {
       return;

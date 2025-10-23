@@ -1,15 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import {
-  Firestore,
-  collection,
-  doc,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  setDoc,
-  where,
-} from '@angular/fire/firestore';
+import { Firestore, collection, doc, runTransaction, setDoc } from '@angular/fire/firestore';
+
 import { Timestamp } from 'firebase/firestore';
 import type { AdminOrder, OrderItem } from '../admin/admin-data.service';
 import { Product, ProductUnitOption, ProductUnitType } from '../models/catalog.models';
@@ -309,16 +300,23 @@ export class CartService {
     const monthNumber = date.getMonth() + 1;
     const month = monthNumber.toString().padStart(2, '0');
     const orderMonth = `${year}${month}`;
-    const ordersRef = collection(this.firestore, 'orders');
-    const latestOrderQuery = query(
-      ordersRef,
-      where('orderMonth', '==', orderMonth),
-      orderBy('orderSequence', 'desc'),
-      limit(1)
-    );
-    const snapshot = await getDocs(latestOrderQuery);
-    const lastSequence = snapshot.empty ? 0 : Number(snapshot.docs[0].data()['orderSequence'] ?? 0);
-    const orderSequence = lastSequence + 1;
+    const counterRef = doc(this.firestore, 'orderCounters', orderMonth);
+    const orderSequence = await runTransaction(this.firestore, async (transaction) => {
+      const snapshot = await transaction.get(counterRef);
+      const lastSequence = snapshot.exists() ? Number(snapshot.data()?.['sequence'] ?? 0) : 0;
+      const nextSequence = lastSequence + 1;
+
+      transaction.set(
+        counterRef,
+        {
+          sequence: nextSequence,
+          updatedAt: createdAt,
+        },
+        { merge: true }
+      );
+
+      return nextSequence;
+    });
     const orderNumber = this.composeOrderNumber(year, month, orderSequence);
 
     return { orderNumber, orderSequence, orderMonth };

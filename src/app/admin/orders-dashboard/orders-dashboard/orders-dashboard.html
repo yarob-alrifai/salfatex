@@ -424,6 +424,13 @@
                 <div class="flex flex-wrap gap-2">
                   <button
                     type="button"
+                    class="rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
+                    (click)="printOrder(selectedOrder, $event)"
+                  >
+                    طباعة الطلب
+                  </button>
+                  <button
+                    type="button"
                     class="rounded-full bg-indigo-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
                     (click)="editOrder(selectedOrder)"
                   >
