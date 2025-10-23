@@ -1,15 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Auth, User, authState, signInWithEmailAndPassword, signOut } from '@angular/fire/auth';
-import {
-  Firestore,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  limit,
-  query,
-  where,
-} from '@angular/fire/firestore';
+
 import { Router } from '@angular/router';
 
 export interface AdminProfile {
@@ -22,7 +13,7 @@ export interface AdminProfile {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly auth = inject(Auth);
-  private readonly firestore = inject(Firestore);
+
   private readonly router = inject(Router);
 
   private readonly loadingSignal = signal(false);
@@ -35,7 +26,7 @@ export class AuthService {
   readonly authResolved = computed(() => this.authResolvedSignal());
 
   constructor() {
-    authState(this.auth).subscribe(async (user) => {
+    authState(this.auth).subscribe((user) => {
       this.authResolvedSignal.set(false);
       try {
         if (!user) {
@@ -43,15 +34,7 @@ export class AuthService {
           return;
         }
 
-        const adminProfile = await this.fetchAdminProfile(user);
-
-        if (!adminProfile) {
-          await signOut(this.auth);
-          this.currentAdminSignal.set(null);
-          return;
-        }
-
-        this.currentAdminSignal.set(adminProfile);
+        this.currentAdminSignal.set(this.mapUserToAdminProfile(user));
       } catch (error) {
         console.error('فشل التحقق من المستخدم الإداري', error);
 
@@ -67,15 +50,9 @@ export class AuthService {
 
     try {
       const credential = await signInWithEmailAndPassword(this.auth, email, password);
+      console.log({ user: credential });
 
-      const adminProfile = await this.fetchAdminProfile(credential.user);
-
-      if (!adminProfile) {
-        await signOut(this.auth);
-        throw new Error('لا يمتلك هذا المستخدم صلاحيات إدارية.');
-      }
-
-      this.currentAdminSignal.set(adminProfile);
+      this.currentAdminSignal.set(this.mapUserToAdminProfile(credential.user));
 
       this.authResolvedSignal.set(true);
 
@@ -139,41 +116,12 @@ export class AuthService {
     await this.router.navigate(['/admin/login']);
   }
 
-  private async fetchAdminProfile(user: User): Promise<AdminProfile | null> {
-    const profileDoc = doc(this.firestore, 'adminProfiles', user.uid);
-    const snapshot = await getDoc(profileDoc);
-
-    let data: Partial<AdminProfile> | undefined;
-    let id: string | undefined;
-
-    if (snapshot.exists()) {
-      data = snapshot.data() as Partial<AdminProfile>;
-      id = snapshot.id;
-    } else if (user.email) {
-      const profilesByEmail = await getDocs(
-        query(
-          collection(this.firestore, 'adminProfiles'),
-          where('email', '==', user.email),
-          limit(1)
-        )
-      );
-
-      if (profilesByEmail.empty) {
-        return null;
-      }
-
-      const profileSnapshot = profilesByEmail.docs[0];
-      data = profileSnapshot.data() as Partial<AdminProfile>;
-      id = profileSnapshot.id;
-    } else {
-      return null;
-    }
-
+  private mapUserToAdminProfile(user: User): AdminProfile {
     return {
-      id: id ?? user.uid,
-      email: data?.email ?? user.email ?? '',
-      displayName: data?.displayName ?? user.displayName ?? undefined,
-      role: data?.role ?? 'admin',
+      id: user.uid,
+      email: user.email ?? '',
+      displayName: user.displayName ?? undefined,
+      role: 'admin',
     };
   }
 }
