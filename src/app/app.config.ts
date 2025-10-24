@@ -10,6 +10,7 @@ import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { connectAuthEmulator, getAuth, provideAuth } from '@angular/fire/auth';
 import { connectFirestoreEmulator, getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { connectStorageEmulator, getStorage, provideStorage } from '@angular/fire/storage';
+import { browserLocalPersistence, setPersistence } from 'firebase/auth';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -30,7 +31,13 @@ export const appConfig: ApplicationConfig = {
         // version: '2',
       })
     ),
-    provideAuth(() => getAuth()),
+    provideAuth(() => {
+      const auth = getAuth();
+
+      void setPersistence(auth, browserLocalPersistence);
+
+      return auth;
+    }),
     provideFirestore(() => getFirestore()),
     provideStorage(() => getStorage()),
 
