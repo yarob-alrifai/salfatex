@@ -233,7 +233,9 @@
 
 <ng-container *ngIf="isModalOpen() && selectedOrder() as selectedOrder">
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/60 p-4">
-    <div class="relative w-full max-w-4xl rounded-3xl bg-white p-8 shadow-2xl">
+    <div
+      class="relative w-full max-w-4xl rounded-3xl bg-white p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+    >
       <button
         type="button"
         class="absolute left-6 top-6 rounded-full bg-neutral-100 p-2 text-neutral-500 transition hover:bg-neutral-200 hover:text-neutral-700"
