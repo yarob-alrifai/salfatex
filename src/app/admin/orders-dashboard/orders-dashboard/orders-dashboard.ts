@@ -3,6 +3,7 @@ import { Component, inject, computed, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
 import { AdminDataService, AdminOrder } from '../../admin-data.service';
+import { ContactInfo, EMPTY_CONTACT_INFO } from '../../../models/contact-info.model';
 
 @Component({
   selector: 'app-orders-dashboard',
@@ -15,6 +16,7 @@ export class OrdersDashboardComponent {
   private readonly fb = inject(FormBuilder);
   private readonly adminDataService = inject(AdminDataService);
   private readonly pageIndexSubject = new BehaviorSubject(0);
+  readonly contactInfo = signal<ContactInfo>(EMPTY_CONTACT_INFO);
 
   readonly filterForm = this.fb.nonNullable.group({
     status: [''],
@@ -122,6 +124,11 @@ export class OrdersDashboardComponent {
       };
     })
   );
+
+  constructor() {
+    void this.loadContactInfo();
+  }
+
   async confirmStatus(order: AdminOrder, status: AdminOrder['status']) {
     if (!order.id) {
       return;
@@ -195,13 +202,18 @@ export class OrdersDashboardComponent {
     this.closeOrderDetails();
   }
 
+  private async loadContactInfo(): Promise<void> {
+    try {
+      const info = await this.adminDataService.getContactInfo();
+      this.contactInfo.set(info);
+    } catch (error) {
+      console.error('Failed to load contact info for invoices', error);
+    }
+  }
+
   printOrder(order: AdminOrder, event?: Event) {
     event?.stopPropagation();
-    if (!order) {
-      return;
-    }
-
-    if (typeof window === 'undefined') {
+    if (!order || typeof window === 'undefined') {
       return;
     }
 
@@ -211,13 +223,38 @@ export class OrdersDashboardComponent {
       return;
     }
 
+    const toNumber = (value: unknown) => {
+      if (typeof value === 'number') {
+        return Number.isFinite(value) ? value : 0;
+      }
+
+      const parsed = Number(value ?? 0);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
+    const formatNumber = (
+      value: unknown,
+      minimumFractionDigits = 2,
+      maximumFractionDigits = minimumFractionDigits
+    ) =>
+      new Intl.NumberFormat('ru-RU', {
+        minimumFractionDigits,
+        maximumFractionDigits,
+      }).format(toNumber(value));
+
+    const formatQuantity = (value: unknown) => {
+      const numeric = toNumber(value);
+      const digits = Number.isInteger(numeric) ? 0 : 3;
+      return formatNumber(numeric, digits, digits);
+    };
+
     const formatCurrency = (value: number | null | undefined) =>
-      new Intl.NumberFormat('ar-SA', {
+      new Intl.NumberFormat('ru-RU', {
         style: 'currency',
         currency: 'SAR',
-        minimumFractionDigits: 0,
+        minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      }).format(value ?? 0);
+      }).format(toNumber(value));
 
     const escapeHtml = (value: unknown) =>
       String(value ?? '—')
@@ -229,206 +266,568 @@ export class OrdersDashboardComponent {
 
     const formatMultiline = (value: unknown) => escapeHtml(value).replace(/\n/g, '<br />');
 
-    const formattedCreatedAt = this.parseDate(order.createdAt).toLocaleString('ar-SA');
-    const generatedAt = new Date().toLocaleString('ar-SA');
+    const createdAtDate = this.parseDate(order.createdAt);
+    const formattedCreatedAt = createdAtDate.toLocaleString('ru-RU');
+    const formattedInvoiceDate = createdAtDate.toLocaleDateString('ru-RU', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+    const generatedAt = new Date().toLocaleString('ru-RU');
+
+    const rawCustomerName = order.customerName?.trim() || 'عميل بدون اسم';
+    const rawCustomerEmail = order.customerEmail?.trim() || '';
+    const rawCustomerPhone = order.customerPhone?.trim() || '';
+    const rawRestaurantName = order.restaurantName?.trim() || '';
+
     const orderNumber = escapeHtml(order.orderNumber ?? order.id ?? 'غير متوفر');
     const status = escapeHtml(order.status ?? '—');
-    const customerName = escapeHtml(order.customerName ?? 'عميل بدون اسم');
-    const customerEmail = escapeHtml(order.customerEmail ?? '—');
-    const customerPhone = escapeHtml(order.customerPhone ?? '—');
-    const restaurantName = escapeHtml(order.restaurantName ?? '—');
+    const customerName = escapeHtml(rawCustomerName);
+    const customerEmail = rawCustomerEmail ? escapeHtml(rawCustomerEmail) : '—';
+    const customerPhone = rawCustomerPhone ? escapeHtml(rawCustomerPhone) : '—';
+    const restaurantName = rawRestaurantName ? escapeHtml(rawRestaurantName) : '—';
     const shippingAddress = formatMultiline(order.shippingAddress ?? 'لا يوجد عنوان مسجل');
     const notes = formatMultiline(order.notes ?? 'لا توجد ملاحظات');
 
-    const items = Array.isArray(order.items) ? order.items : [];
-    const itemsRows = items
-      .map((item, index) => {
-        const quantity = item.quantity ?? 1;
-        const unit = item.unitPrice ?? (quantity ? (item.price ?? 0) / quantity : item.price ?? 0);
-        const lineTotal = item.price ?? unit * quantity;
+    const contactInfo = this.contactInfo();
+    const trimmedAddress = contactInfo.address.trim();
+    const supplierNameSource = trimmedAddress ? trimmedAddress.split('\n')[0] : 'سلفاتكس للتجارة';
+    const supplierName = escapeHtml(supplierNameSource);
+    const supplierAddressBlock = trimmedAddress ? formatMultiline(trimmedAddress) : '—';
+    const supplierPhone = contactInfo.phone.trim()
+      ? `Тел.: ${escapeHtml(contactInfo.phone.trim())}`
+      : '';
+    const supplierMobile = contactInfo.mobile.trim()
+      ? `Моб.: ${escapeHtml(contactInfo.mobile.trim())}`
+      : '';
+    const supplierEmail = contactInfo.email.trim()
+      ? `E-mail: ${escapeHtml(contactInfo.email.trim())}`
+      : '';
 
-        return `
+    const supplierDetails = [
+      `<strong>${supplierName}</strong>`,
+      supplierAddressBlock !== '—' ? supplierAddressBlock : '',
+      supplierPhone,
+      supplierMobile,
+      supplierEmail,
+    ]
+      .filter((line) => Boolean(line))
+      .join('<br />');
+
+    const supplierDetailsBlock = supplierDetails || `<strong>${supplierName}</strong>`;
+
+    const payerParts: string[] = [customerName];
+    if (rawCustomerPhone) {
+      payerParts.push(`Тел.: ${escapeHtml(rawCustomerPhone)}`);
+    }
+    if (rawCustomerEmail) {
+      payerParts.push(`E-mail: ${escapeHtml(rawCustomerEmail)}`);
+    }
+    const payerDetails = payerParts.length ? payerParts.join('<br />') : '—';
+
+    const consigneeParts: string[] = [];
+    if (rawRestaurantName) {
+      consigneeParts.push(escapeHtml(rawRestaurantName));
+    } else {
+      consigneeParts.push(customerName);
+    }
+    if (order.shippingAddress?.trim()) {
+      consigneeParts.push(formatMultiline(order.shippingAddress.trim()));
+    }
+    const consigneeDetails = consigneeParts.length ? consigneeParts.join('<br />') : '—';
+
+    const items = Array.isArray(order.items) ? order.items : [];
+    const itemsRows = items.length
+      ? items
+          .map((item, index) => {
+            const quantity = toNumber(item.quantity ?? 0);
+            const pieces = toNumber(item.piecesCount ?? 0);
+            const unit = item.unitLabel ?? item.unitType ?? '—';
+            const unitPrice =
+              item.unitPrice ??
+              (quantity ? toNumber(item.price ?? 0) / quantity : toNumber(item.price ?? 0));
+            const lineTotal = item.price ?? unitPrice * quantity;
+            const piecesDisplay = pieces > 0 ? formatQuantity(pieces) : '—';
+
+            return `
+              <tr>
+                <td class="text-center">${index + 1}</td>
+                <td>
+                  <div class="item-name">${escapeHtml(item.name ?? '—')}</div>
+                  <div class="item-meta">لون: ${escapeHtml(item.color ?? '—')}</div>
+                </td>
+                <td class="text-center">${escapeHtml(unit)}</td>
+                <td class="text-center">${formatQuantity(quantity)}</td>
+                <td class="text-center">${piecesDisplay}</td>
+                <td class="text-right">${formatCurrency(unitPrice)}</td>
+                <td class="text-right">${formatCurrency(lineTotal)}</td>
+              </tr>
+            `;
+          })
+          .join('')
+      : `
+
+
+
+   
           <tr>
-            <td>${index + 1}</td>
-            <td>${escapeHtml(item.name ?? '—')}</td>
-            <td>${escapeHtml(quantity)}</td>
-            <td>${escapeHtml(item.unitLabel ?? item.unitType ?? '—')}</td>
-            <td>${formatCurrency(unit)}</td>
-            <td>${formatCurrency(lineTotal)}</td>
+                      <td colspan="7" class="empty-row">لا توجد منتجات مسجلة في هذا الطلب.</td>
+
           </tr>
         `;
-      })
-      .join('');
 
-    const itemsTable =
-      itemsRows ||
-      '<tr><td colspan="6" style="padding: 16px; text-align: center; color: #64748b;">لا توجد منتجات مسجلة في هذا الطلب.</td></tr>';
+    const totalQuantity = items.reduce((sum, item) => sum + toNumber(item.quantity ?? 0), 0);
+    const totalPieces = items.reduce((sum, item) => sum + toNumber(item.piecesCount ?? 0), 0);
+    const total = this.getOrderTotal(order);
+    const formattedTotal = formatCurrency(total);
 
-    const total = formatCurrency(this.getOrderTotal(order));
+    const summaryFooter = items.length
+      ? `
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-right">Итого:</td>
+              <td class="text-center">${formatQuantity(totalQuantity)}</td>
+              <td class="text-center">${totalPieces > 0 ? formatQuantity(totalPieces) : '—'}</td>
+              <td class="text-right">—</td>
+              <td class="text-right">${formattedTotal}</td>
+            </tr>
+            <tr>
+              <td colspan="6" class="text-right">В том числе НДС</td>
+              <td class="text-right">—</td>
+            </tr>
+          </tfoot>
+        `
+      : '';
+
+    const summaryText = items.length
+      ? `Всего наименований ${items.length}, на сумму ${formattedTotal}.`
+      : 'لا توجد منتجات مسجلة في هذا الطلب.';
+    const amountInWords = items.length ? `К оплате: ${formattedTotal}` : '';
+    const amountInWordsLine = amountInWords ? `<p>${amountInWords}</p>` : '';
+
+    const bankName = supplierName;
+    const placeholder = '—';
+    const metaLine = `Статус заказа: ${status} · Дата заказа: ${formattedCreatedAt} · Дата печати: ${generatedAt}`;
 
     printWindow.document.open();
     printWindow.document.write(`
       <!DOCTYPE html>
-      <html lang="ar">
+      <html lang="ru">
         <head>
           <meta charset="utf-8" />
           <title>طباعة الطلب ${orderNumber}</title>
           <style>
+           * {
+              box-sizing: border-box;
+            }
             body {
-              font-family: 'Segoe UI', Tahoma, sans-serif;
-              background-color: #f1f5f9;
+             
+            
+
               margin: 0;
-              padding: 32px;
+              font-family: 'PT Sans', 'Arial', sans-serif;
+
               color: #0f172a;
+
+               background: #ffffff;
             }
-            .section {
-              background-color: #ffffff;
-              border-radius: 16px;
-              padding: 24px;
-              margin-bottom: 24px;
-              border: 1px solid #e2e8f0;
-              box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+            .invoice-wrapper {
+              width: 210mm;
+              margin: 0 auto;
+              padding: 18mm 15mm;
+
+
+
             }
-            h1 {
-              margin: 0 0 12px;
-              font-size: 24px;
-            }
-            h2 {
-              margin: 0 0 16px;
-              font-size: 20px;
-              color: #0f172a;
-            }
-            .meta {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 12px 24px;
-              font-size: 14px;
-              color: #475569;
-            }
-            .info-grid {
+           .header-grid {
               display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+              grid-template-columns: 1.3fr 1fr;
               gap: 16px;
+
+              margin-bottom: 24px;
+         
+              
+
             }
-            .label {
+           .header-box {
+              border: 1px solid #1f2937;
+              padding: 12px 14px;
+              min-height: 120px;
               font-size: 12px;
-              color: #64748b;
-              margin-bottom: 4px;
+              line-height: 1.5;
+
+
             }
-            .value {
-              font-size: 15px;
-              font-weight: 600;
-              color: #1f2937;
+           .header-box strong {
+              font-size: 13px;
+
+
             }
-            table {
+           
+            
+
+             .bank-table {
               width: 100%;
               border-collapse: collapse;
-              margin-top: 16px;
-              font-size: 14px;
+              font-size: 12px;
             }
-            thead {
-              background-color: #eef2ff;
+            .bank-table th,
+            .bank-table td {
+              border: 1px solid #1f2937;
+              padding: 6px 8px;
+              text-align: left;
+              vertical-align: top;
             }
-            th,
-            td {
-              padding: 12px;
-              border: 1px solid #e2e8f0;
+            .invoice-title {
+              text-align: center;
+              margin-bottom: 16px;
+            }
+            .invoice-title h1 {
+              margin: 0;
+              font-size: 22px;
+              font-weight: 700;
+              text-transform: uppercase;
+            }
+            .invoice-title p {
+              margin: 6px 0 0;
+              font-size: 12px;
+
+
+
+              color: #475569;
+            }
+          
+            
+
+            .invoice-title .meta-line {
+              margin-top: 8px;
+              font-size: 11px;
+              color: #334155;
+
+
+            }
+ .counterparties {
+              width: 100%;
+              border-collapse: collapse;              font-size: 12px;
+                          margin-bottom: 18px;
+
+
+
+
+
+            }
+             .counterparties th,
+            .counterparties td {
+              border: 1px solid #1f2937;
+              padding: 8px 10px;
+              text-align: left;
+            }
+            .items-table {
+              width: 100%;
+              border-collapse: collapse;
+              
+              
+
+
+               font-size: 12px;
+              margin-bottom: 18px;
+            }
+            .items-table th,
+            .items-table td {
+              border: 1px solid #1f2937;
+              padding: 8px 10px;
+            }
+            .items-table thead tr:first-child {
+              background: #f3f4f6;
+            }
+            .items-table th {
+              text-align: center;
+              font-weight: 700;
+            }
+            .items-table td {
+              vertical-align: top;
+
+
+
+
+
+              
+            }
+              .items-table .text-center {
+              text-align: center;
+
+
+
+
+
+
+            }
+          
+            
+                        .items-table .text-right {
+
               text-align: right;
             }
-            .total {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-top: 16px;
-              font-size: 16px;
+           
+            
+
+
+                        .items-table .item-name {
+
+
               font-weight: 600;
-              color: #0f172a;
+   margin-bottom: 4px;
             }
-            .muted {
-              color: #94a3b8;
+            .items-table .item-meta {
+              font-size: 11px;
+              color: #475569;
+            }
+            .items-table tfoot td {
+              font-weight: 700;
+              
+              
+              }
+           .items-table .empty-row {
+              text-align: center;
+              color: #64748b;
+            }
+            .summary-block {
+
+
+
               font-size: 12px;
+                margin-bottom: 18px;
+              line-height: 1.6;
+            }
+            .summary-block p {
+              margin: 4px 0;
+            }
+            .info-columns {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 16px;
+              margin-bottom: 24px;
+            }
+            .info-columns .info-box {
+              border: 1px solid #1f2937;
+              padding: 12px 14px;
+              min-height: 110px;
+              background: #fafafa;
+              font-size: 12px;
+              line-height: 1.6;
+            }
+            .info-columns h3 {
+              margin: 0 0 8px;
+              font-size: 13px;
+              text-transform: uppercase;
+            }
+            .signature-block {
+              margin-top: 24px;
+              font-size: 12px;
+            }
+            .signature-line {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin-bottom: 12px;
+            }
+            .signature-line .line {
+              flex: 1;
+              height: 1px;
+              background: #0f172a;
+            }
+            .signature-line .line-name {
+              flex: 0 0 140px;
+            }
+            .footer-note {
+              font-size: 11px;
+              color: #64748b;
+              text-align: right;
+              margin-top: 24px;
+
+
+
+
+
+
             }
             @media print {
               body {
-                background-color: #ffffff;
-                padding: 0;
+                         margin: 0;
+
               }
-              .section {
-                box-shadow: none;
-                border: 1px solid #cbd5f5;
-                margin-bottom: 16px;
-                border-radius: 12px;
+             .invoice-wrapper {
+                padding: 12mm 10mm;
+                width: auto;
+
+
               }
             }
           </style>
         </head>
         <body dir="ltr">
-          <div class="section">
-            <h1>طلب رقم ${orderNumber}</h1>
-            <div class="meta">
-              <span>الحالة: <strong>${status}</strong></span>
-              <span>تاريخ الطلب: ${formattedCreatedAt}</span>
-              <span>تاريخ الطباعة: ${generatedAt}</span>
-            </div>
-          </div>
+         
+        
 
-          <div class="section">
-            <h2>بيانات العميل</h2>
-            <div class="info-grid">
-              <div>
-                <p class="label">الاسم</p>
-                <p class="value">${customerName}</p>
+
+
+
+
+ <div class="invoice-wrapper">
+            <div class="header-grid">
+              <div class="header-box">
+                ${supplierDetailsBlock}
+
+
+
+
+
               </div>
-              <div>
-                <p class="label">البريد الإلكتروني</p>
-                <p class="value">${customerEmail}</p>
-              </div>
-              <div>
-                <p class="label">رقم الهاتف</p>
-                <p class="value" dir="ltr">${customerPhone}</p>
-              </div>
-              <div>
-                <p class="label">اسم المطعم</p>
-                <p class="value">${restaurantName}</p>
+       
+              
+
+
+
+
+
+
+ <div class="header-box">
+                <table class="bank-table">
+                  <tr>
+                    <th>Банк получателя</th>
+                    <td>${bankName}</td>
+                  </tr>
+                  <tr>
+                    <th>БИК</th>
+                    <td>${placeholder}</td>
+                  </tr>
+                  <tr>
+                    <th>Сч. №</th>
+                    <td>${placeholder}</td>
+                  </tr>
+                  <tr>
+                    <th>Получатель</th>
+                    <td>${supplierName}</td>
+                  </tr>
+                  <tr>
+                    <th>Сч. №</th>
+                    <td>${placeholder}</td>
+                  </tr>
+                </table>
+
+
+
+
               </div>
             </div>
-          </div>
+       
 
-          <div class="section">
-            <h2>تفاصيل المنتجات</h2>
-            <table>
+    
+            
+ <div class="invoice-title">
+              <h1>Счет № ${orderNumber} от ${formattedInvoiceDate}</h1>
+              <p>Образец заполнения платежного поручения</p>
+              <p class="meta-line">${metaLine}</p>
+            </div>
+
+            <table class="counterparties">
+              <tr>
+                <th>Поставщик</th>
+                <td>${supplierDetailsBlock}</td>
+              </tr>
+              <tr>
+                <th>Плательщик</th>
+                <td>${payerDetails}</td>
+              </tr>
+              <tr>
+                <th>Заказчик</th>
+                <td>${consigneeDetails}</td>
+              </tr>
+            </table>
+
+            <table class="items-table">
+
+
+
               <thead>
                 <tr>
-                  <th>م</th>
-                  <th>المنتج</th>
-                  <th>الكمية</th>
-                  <th>الوحدة</th>
-                  <th>سعر الوحدة</th>
-                  <th>الإجمالي</th>
+                
+                
+
+
+ <th rowspan="2">№</th>
+                  <th rowspan="2" class="col-name">Наименование товаров (описание выполненных работ, оказанных услуг)</th>
+                  <th rowspan="2">Ед. изм.</th>
+                  <th colspan="2">Количество</th>
+                  <th rowspan="2">Цена, SAR</th>
+                  <th rowspan="2">Сумма, SAR</th>
+                </tr>
+                <tr>
+                  <th>Кол-во</th>
+                  <th>Кол-во (шт.)</th>
+
+
+
+
+
+
                 </tr>
               </thead>
               <tbody>
-                ${itemsTable}
+                ${itemsRows}
               </tbody>
+                            ${summaryFooter}
+
             </table>
-            <div class="total">
-              <span>الإجمالي الكلي</span>
-              <strong>${total}</strong>
+           <div class="summary-block">
+              <p>${summaryText}</p>
+              ${amountInWordsLine}
             </div>
-          </div>
 
-          <div class="section">
-            <h2>عنوان الشحن</h2>
-            <p class="value" style="white-space: pre-line;">${shippingAddress}</p>
-          </div>
+        
+            
 
-          <div class="section">
-            <h2>ملاحظات إضافية</h2>
-            <p class="value" style="white-space: pre-line;">${notes}</p>
-          </div>
 
-          <p class="muted">تم إنشاء هذه الصفحة لغرض الطباعة فقط.</p>
-        </body>
+ <div class="info-columns">
+              <div class="info-box">
+                <h3>Адрес доставки</h3>
+                <p>${shippingAddress}</p>
+              </div>
+              <div class="info-box">
+                <h3>Примечания</h3>
+                <p>${notes}</p>
+              </div>
+            </div>
+
+
+
+
+
+         
+              <div class="signature-block">
+              <div class="signature-line">
+                <span>Руководитель предприятия</span>
+                <div class="line"></div>
+                <span>(Подпись)</span>
+                <div class="line line-name"></div>
+                <span>(ФИО)</span>
+              </div>
+              <div class="signature-line">
+                <span>Главный бухгалтер</span>
+                <div class="line"></div>
+                <span>(Подпись)</span>
+                <div class="line line-name"></div>
+                <span>(ФИО)</span>
+              </div>
+            </div>
+
+
+
+
+
+   <p class="footer-note">Документ сформирован автоматически. ${generatedAt}</p>
+          </div>
+                  </body>
       </html>
     `);
     printWindow.document.close();
