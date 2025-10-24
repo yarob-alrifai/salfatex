@@ -12,6 +12,7 @@
               class="h-full w-full rounded-3xl object-cover object-center"
               [src]="getMainImage(product)"
               [alt]="product.name"
+              loading="lazy"
             />
           </div>
 
@@ -25,6 +26,7 @@
                 class="h-28 w-full rounded-2xl object-cover object-center shadow-sm ring-1 ring-white/60 transition duration-200 hover:scale-[1.02]"
                 [src]="image"
                 [alt]="product.name"
+                loading="lazy"
               />
             </div>
           </ng-container>

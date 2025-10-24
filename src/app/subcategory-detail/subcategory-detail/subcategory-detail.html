@@ -10,6 +10,7 @@
         class="h-44 w-full rounded-3xl object-cover shadow-sm sm:h-48 sm:w-48"
         [src]="subcategory.imageUrl"
         [alt]="subcategory.name"
+        loading="lazy"
       />
 
       <div class="space-y-3 text-left">
@@ -66,6 +67,7 @@
             class="h-44 w-full rounded-2xl object-cover transition duration-200 group-hover:scale-[1.02]"
             [src]="product.mainImageUrl"
             [alt]="product.name"
+            loading="lazy"
           />
 
           <div class="space-y-2">
