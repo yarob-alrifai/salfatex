@@ -12,6 +12,8 @@ export interface AdminProfile {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private static readonly STORAGE_KEY = 'salfatex-admin-profile';
+
   private readonly auth = inject(Auth);
 
   private readonly router = inject(Router);
@@ -26,19 +28,28 @@ export class AuthService {
   readonly authResolved = computed(() => this.authResolvedSignal());
 
   constructor() {
+    this.restorePersistedAdmin();
+
     authState(this.auth).subscribe((user) => {
       this.authResolvedSignal.set(false);
       try {
         if (!user) {
           this.currentAdminSignal.set(null);
+          this.persistAdminProfile(null);
+
           return;
         }
 
         this.currentAdminSignal.set(this.mapUserToAdminProfile(user));
+        const profile = this.mapUserToAdminProfile(user);
+
+        this.currentAdminSignal.set(profile);
+        this.persistAdminProfile(profile);
       } catch (error) {
         console.error('فشل التحقق من المستخدم الإداري', error);
 
         this.currentAdminSignal.set(null);
+        this.persistAdminProfile(null);
       } finally {
         this.authResolvedSignal.set(true);
       }
@@ -52,7 +63,10 @@ export class AuthService {
       const credential = await signInWithEmailAndPassword(this.auth, email, password);
       console.log({ user: credential });
 
-      this.currentAdminSignal.set(this.mapUserToAdminProfile(credential.user));
+      const profile = this.mapUserToAdminProfile(credential.user);
+
+      this.currentAdminSignal.set(profile);
+      this.persistAdminProfile(profile);
 
       this.authResolvedSignal.set(true);
 
@@ -111,6 +125,8 @@ export class AuthService {
   async signOut(): Promise<void> {
     await signOut(this.auth);
     this.currentAdminSignal.set(null);
+    this.persistAdminProfile(null);
+
     this.authResolvedSignal.set(true);
 
     await this.router.navigate(['/admin/login']);
@@ -123,5 +139,38 @@ export class AuthService {
       displayName: user.displayName ?? undefined,
       role: 'admin',
     };
+  }
+
+  private persistAdminProfile(profile: AdminProfile | null): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (profile) {
+      window.localStorage.setItem(AuthService.STORAGE_KEY, JSON.stringify(profile));
+    } else {
+      window.localStorage.removeItem(AuthService.STORAGE_KEY);
+    }
+  }
+
+  private restorePersistedAdmin(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const persistedProfile = window.localStorage.getItem(AuthService.STORAGE_KEY);
+
+    if (!persistedProfile) {
+      return;
+    }
+
+    try {
+      const admin = JSON.parse(persistedProfile) as AdminProfile;
+
+      this.currentAdminSignal.set(admin);
+    } catch (error) {
+      console.warn('تعذر استعادة بيانات المشرف المخزنة.', error);
+      window.localStorage.removeItem(AuthService.STORAGE_KEY);
+    }
   }
 }
