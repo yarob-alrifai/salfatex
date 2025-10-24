@@ -275,23 +275,25 @@ export class OrdersDashboardComponent {
     });
     const generatedAt = new Date().toLocaleString('ru-RU');
 
-    const rawCustomerName = order.customerName?.trim() || 'عميل بدون اسم';
+    const rawCustomerName = order.customerName?.trim() || 'Клиент без имени';
     const rawCustomerEmail = order.customerEmail?.trim() || '';
     const rawCustomerPhone = order.customerPhone?.trim() || '';
     const rawRestaurantName = order.restaurantName?.trim() || '';
 
-    const orderNumber = escapeHtml(order.orderNumber ?? order.id ?? 'غير متوفر');
+    const orderNumber = escapeHtml(order.orderNumber ?? order.id ?? 'не указано');
     const status = escapeHtml(order.status ?? '—');
     const customerName = escapeHtml(rawCustomerName);
     const customerEmail = rawCustomerEmail ? escapeHtml(rawCustomerEmail) : '—';
     const customerPhone = rawCustomerPhone ? escapeHtml(rawCustomerPhone) : '—';
     const restaurantName = rawRestaurantName ? escapeHtml(rawRestaurantName) : '—';
-    const shippingAddress = formatMultiline(order.shippingAddress ?? 'لا يوجد عنوان مسجل');
-    const notes = formatMultiline(order.notes ?? 'لا توجد ملاحظات');
+    const shippingAddress = formatMultiline(order.shippingAddress ?? 'Адрес не указан');
+    const notes = formatMultiline(order.notes ?? 'Примечания отсутствуют');
 
     const contactInfo = this.contactInfo();
     const trimmedAddress = contactInfo.address.trim();
-    const supplierNameSource = trimmedAddress ? trimmedAddress.split('\n')[0] : 'سلفاتكس للتجارة';
+    const supplierNameSource = trimmedAddress
+      ? trimmedAddress.split('\n')[0]
+      : 'Сальфатекс Трейдинг';
     const supplierName = escapeHtml(supplierNameSource);
     const supplierAddressBlock = trimmedAddress ? formatMultiline(trimmedAddress) : '—';
     const supplierPhone = contactInfo.phone.trim()
@@ -354,7 +356,7 @@ export class OrdersDashboardComponent {
                 <td class="text-center">${index + 1}</td>
                 <td>
                   <div class="item-name">${escapeHtml(item.name ?? '—')}</div>
-                  <div class="item-meta">لون: ${escapeHtml(item.color ?? '—')}</div>
+                  <div class="item-meta">Цвет: ${escapeHtml(item.color ?? '—')}</div>
                 </td>
                 <td class="text-center">${escapeHtml(unit)}</td>
                 <td class="text-center">${formatQuantity(quantity)}</td>
@@ -371,7 +373,7 @@ export class OrdersDashboardComponent {
 
    
           <tr>
-                      <td colspan="7" class="empty-row">لا توجد منتجات مسجلة في هذا الطلب.</td>
+                      <td colspan="7" class="empty-row">В этом заказе нет товаров.</td>
 
           </tr>
         `;
@@ -401,7 +403,7 @@ export class OrdersDashboardComponent {
 
     const summaryText = items.length
       ? `Всего наименований ${items.length}, на сумму ${formattedTotal}.`
-      : 'لا توجد منتجات مسجلة في هذا الطلب.';
+      : 'В этом заказе нет товаров.';
     const amountInWords = items.length ? `К оплате: ${formattedTotal}` : '';
     const amountInWordsLine = amountInWords ? `<p>${amountInWords}</p>` : '';
 
@@ -415,7 +417,7 @@ export class OrdersDashboardComponent {
       <html lang="ru">
         <head>
           <meta charset="utf-8" />
-          <title>طباعة الطلب ${orderNumber}</title>
+          <title>Печать заказа ${orderNumber}</title>
           <style>
            * {
               box-sizing: border-box;
