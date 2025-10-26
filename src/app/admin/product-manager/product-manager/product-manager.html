@@ -566,6 +566,96 @@
           ></textarea>
         </div>
 
+        <fieldset class="sm:col-span-2 grid gap-4 lg:grid-cols-3" formGroupName="unitOptions">
+          <legend class="sr-only">خيارات البيع</legend>
+
+          <div class="app-card app-card--muted space-y-4">
+            <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
+              <span>بيع بالقطعة</span>
+              <input type="checkbox" formControlName="pieceEnabled" class="h-4 w-4" />
+            </label>
+
+            <div class="app-field">
+              <label class="app-field__label" for="edit-piece-price">سعر القطعة</label>
+              <input
+                id="edit-piece-price"
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="piecePrice"
+                class="app-input"
+                [disabled]="!editForm.get('unitOptions.pieceEnabled')?.value"
+              />
+            </div>
+          </div>
+
+          <div class="app-card app-card--muted space-y-4">
+            <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
+              <span>بيع بالمجموعة</span>
+              <input type="checkbox" formControlName="bundleEnabled" class="h-4 w-4" />
+            </label>
+
+            <div class="app-field">
+              <label class="app-field__label" for="edit-bundle-price">سعر المجموعة</label>
+              <input
+                id="edit-bundle-price"
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="bundlePrice"
+                class="app-input"
+                [disabled]="!editForm.get('unitOptions.bundleEnabled')?.value"
+              />
+            </div>
+
+            <div class="app-field">
+              <label class="app-field__label" for="edit-bundle-count">عدد القطع في المجموعة</label>
+              <input
+                id="edit-bundle-count"
+                type="number"
+                min="0"
+                step="1"
+                formControlName="bundlePiecesCount"
+                class="app-input"
+                [disabled]="!editForm.get('unitOptions.bundleEnabled')?.value"
+              />
+            </div>
+          </div>
+
+          <div class="app-card app-card--muted space-y-4">
+            <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
+              <span>بيع بالكرتونة</span>
+              <input type="checkbox" formControlName="cartonEnabled" class="h-4 w-4" />
+            </label>
+
+            <div class="app-field">
+              <label class="app-field__label" for="edit-carton-price">سعر الكرتونة</label>
+              <input
+                id="edit-carton-price"
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="cartonPrice"
+                class="app-input"
+                [disabled]="!editForm.get('unitOptions.cartonEnabled')?.value"
+              />
+            </div>
+
+            <div class="app-field">
+              <label class="app-field__label" for="edit-carton-count">عدد القطع في الكرتونة</label>
+              <input
+                id="edit-carton-count"
+                type="number"
+                min="0"
+                step="1"
+                formControlName="cartonPiecesCount"
+                class="app-input"
+                [disabled]="!editForm.get('unitOptions.cartonEnabled')?.value"
+              />
+            </div>
+          </div>
+        </fieldset>
+
         <div class="sm:col-span-2 grid gap-6 lg:grid-cols-2">
           <div class="space-y-4">
             <span class="app-field__label">الصورة الرئيسية الحالية</span>
