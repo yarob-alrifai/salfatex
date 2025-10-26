@@ -556,6 +556,31 @@
           <input id="edit-name" formControlName="name" class="app-input" />
         </div>
 
+        <div class="app-field sm:col-span-2" formArrayName="colors">
+          <div class="flex items-center justify-between">
+            <span class="app-field__label">ألوان المنتج</span>
+            <button type="button" class="app-chip--action" (click)="addColorControl('edit')">
+              إضافة لون آخر
+            </button>
+          </div>
+          <div class="space-y-3">
+            <div
+              class="flex flex-col gap-2 sm:flex-row sm:items-center"
+              *ngFor="let control of editColorControls; index as i"
+            >
+              <input class="app-input sm:flex-1" placeholder="لون المنتج" [formControl]="control" />
+              <button
+                type="button"
+                class="app-button app-button--ghost !px-4 !py-2 text-xs text-rose-600 hover:text-rose-600"
+                (click)="removeColorControl('edit', i)"
+                aria-label="إزالة اللون"
+              >
+                حذف
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div class="app-field sm:col-span-2">
           <label class="app-field__label" for="edit-description">الوصف</label>
           <textarea
