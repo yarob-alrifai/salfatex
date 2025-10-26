@@ -86,21 +86,23 @@ export class SubcategoryDetailComponent {
     );
   }
 
-  increment(event: Event, product: Product): void {
+  increment(event: Event, product: Product, step: number = 1): void {
     event.stopPropagation();
     this.cart.increment(
       product.id,
       this.getSelectedUnitType(product),
-      this.getSelectedColor(product)
+      this.getSelectedColor(product),
+      step
     );
   }
 
-  decrement(event: Event, product: Product): void {
+  decrement(event: Event, product: Product, step: number = 1): void {
     event.stopPropagation();
     this.cart.decrement(
       product.id,
       this.getSelectedUnitType(product),
-      this.getSelectedColor(product)
+      this.getSelectedColor(product),
+      step
     );
   }
 

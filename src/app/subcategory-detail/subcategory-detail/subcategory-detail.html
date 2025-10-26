@@ -76,6 +76,26 @@
               {{ getSelectedUnitPrice(product) | currency : 'SYP' : 'symbol-narrow' : '1.0-0' }}
             </p>
 
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                *ngFor="let option of getAvailableUnitOptions(product); trackBy: trackUnitType"
+                class="rounded-full border px-3 py-1 text-sm transition"
+                [class.bg-brand-600]="isSelectedUnit(product, option)"
+                [class.text-white]="isSelectedUnit(product, option)"
+                [class.border-brand-600]="isSelectedUnit(product, option)"
+                [class.text-brand-600]="!isSelectedUnit(product, option)"
+                [class.border-brand-200]="!isSelectedUnit(product, option)"
+                (click)="
+                  selectUnit(product.id, option.type);
+                  $event.preventDefault();
+                  $event.stopPropagation()
+                "
+              >
+                {{ getUnitLabel(option) }}
+              </button>
+            </div>
+
             <div
               *ngIf="getAvailableColors(product).length"
               class="flex flex-wrap justify-start gap-2 text-xs text-neutral-600"
@@ -112,25 +132,48 @@
 
           <ng-template #quantityControls>
             <div
-              class="flex items-center justify-between rounded-full border border-brand-200 bg-brand-50/70 px-3 py-1.5 text-sm font-semibold text-brand-700"
+              class="flex w-full flex-col justify-center gap-3 sm:flex-row sm:items-center sm:gap-4"
             >
               <button
                 type="button"
-                class="h-8 w-8 rounded-full bg-white text-base text-brand-600 shadow-sm transition hover:bg-brand-50"
-                (click)="decrement($event, product)"
-                aria-label="Уменьшить количество"
+                class="h-11 min-w-[3.25rem] rounded-full border border-brand-200 bg-white px-4 text-sm font-semibold text-brand-600 shadow-sm transition hover:bg-brand-50"
+                (click)="decrement($event, product, 5)"
+                aria-label="Уменьшить на 5 единиц"
               >
-                −
+                −5
               </button>
 
-              <span class="min-w-[2rem] text-center">{{ getQuantity(product) }}</span>
+              <div
+                class="inline-flex items-center justify-center rounded-full border border-brand-200 bg-brand-50/70 text-brand-700 shadow-sm"
+              >
+                <button
+                  type="button"
+                  class="h-11 w-11 text-xl font-semibold transition hover:text-brand-600"
+                  (click)="decrement($event, product)"
+                  aria-label="Уменьшить количество"
+                >
+                  −
+                </button>
+                <span class="min-w-[3rem] text-center text-base font-semibold">
+                  {{ getQuantity(product) }}
+                </span>
+                <button
+                  type="button"
+                  class="h-11 w-11 text-xl font-semibold transition hover:text-brand-600"
+                  (click)="increment($event, product)"
+                  aria-label="Увеличить количество"
+                >
+                  +
+                </button>
+              </div>
+
               <button
                 type="button"
-                class="h-8 w-8 rounded-full bg-brand-600 text-base text-white shadow-sm transition hover:bg-brand-700"
-                (click)="increment($event, product)"
-                aria-label="Увеличить количество"
+                class="h-11 min-w-[3.25rem] rounded-full bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+                (click)="increment($event, product, 5)"
+                aria-label="Увеличить на 5 единиц"
               >
-                +
+                +5
               </button>
             </div>
           </ng-template>
