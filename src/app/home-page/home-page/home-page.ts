@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CategoriesComponent } from '../../categories/categories/categories';
 import { FormsModule } from '@angular/forms';
+import { getProductMinimumPrice } from 'src/app/models/product-helpers';
+
 import { Category, CategoryGroup, Product, Subcategory } from 'src/app/models/catalog.models';
 import {
   BehaviorSubject,
@@ -125,10 +127,7 @@ export class HomePageComponent {
   }
 
   getMinimumPrice(product: Product): number {
-    if (product.unitOptions?.length) {
-      return Math.min(...product.unitOptions.map((option) => option.price));
-    }
-    return product.price;
+    return getProductMinimumPrice(product);
   }
 }
 

@@ -31,6 +31,8 @@ export interface OrderItem {
   quantity: number;
   price: number;
   color?: string;
+  fabric?: string;
+
   unitType?: ProductUnitType;
   unitLabel?: string;
   unitPrice?: number;

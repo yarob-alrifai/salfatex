@@ -12,6 +12,7 @@ export interface CartItem {
   quantity: number;
   unit: CartUnitSelection;
   color?: string;
+  fabric?: string;
 }
 
 export interface CartSnapshot {

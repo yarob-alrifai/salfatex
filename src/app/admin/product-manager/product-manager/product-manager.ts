@@ -10,13 +10,16 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
   Validators,
+  FormGroup,
 } from '@angular/forms';
 import { BehaviorSubject, combineLatest, map, startWith } from 'rxjs';
 import { AdminDataService } from '../../admin-data.service';
 import { Product } from '../../models/product.model';
 import { ImageCroppedEvent, ImageCropperComponent, LoadedImage } from 'ngx-image-cropper';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { ProductUnitOption } from 'src/app/models/catalog.models';
+
+import { ProductFabric, ProductUnitOption } from 'src/app/models/catalog.models';
+import { getProductFabrics } from 'src/app/models/product-helpers';
 
 interface UnitOptionsFormValue {
   pieceEnabled: boolean;
@@ -28,6 +31,29 @@ interface UnitOptionsFormValue {
   cartonPrice: number;
   cartonPiecesCount: number;
 }
+
+interface FabricFormValue {
+  name: string;
+  colors: string[];
+  unitOptions: UnitOptionsFormValue;
+}
+
+type UnitOptionsFormGroup = FormGroup<{
+  pieceEnabled: FormControl<boolean>;
+  piecePrice: FormControl<number>;
+  bundleEnabled: FormControl<boolean>;
+  bundlePrice: FormControl<number>;
+  bundlePiecesCount: FormControl<number>;
+  cartonEnabled: FormControl<boolean>;
+  cartonPrice: FormControl<number>;
+  cartonPiecesCount: FormControl<number>;
+}>;
+
+type FabricFormGroup = FormGroup<{
+  name: FormControl<string>;
+  colors: FormArray<FormControl<string>>;
+  unitOptions: UnitOptionsFormGroup;
+}>;
 
 @Component({
   selector: 'app-product-manager',
@@ -61,11 +87,14 @@ export class ProductManagerComponent implements OnDestroy {
   };
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
-    colors: this.createColorsArray(),
+
     description: ['', Validators.required],
     categoryId: ['', Validators.required],
     subcategoryId: [''],
-    unitOptions: this.createUnitOptionsGroup(),
+
+    fabrics: this.fb.array([this.createFabricGroup()], {
+      validators: [this.atLeastOneFabric.bind(this)],
+    }),
   });
 
   private mainImage: File | null = null;
@@ -197,32 +226,57 @@ export class ProductManagerComponent implements OnDestroy {
 
   readonly editForm = this.fb.nonNullable.group({
     name: ['', Validators.required],
-    colors: this.createColorsArray(),
     description: ['', Validators.required],
     categoryId: ['', Validators.required],
     subcategoryId: [''],
-    unitOptions: this.createUnitOptionsGroup(),
+
+    fabrics: this.fb.array([this.createFabricGroup()], {
+      validators: [this.atLeastOneFabric.bind(this)],
+    }),
   });
 
-  get createColorControls(): FormControl<string>[] {
-    return (this.form.controls.colors as FormArray<FormControl<string>>).controls;
+  get createFabricControls(): FabricFormGroup[] {
+    return (this.form.controls.fabrics as FormArray<FabricFormGroup>).controls;
   }
 
-  get editColorControls(): FormControl<string>[] {
-    return (this.editForm.controls.colors as FormArray<FormControl<string>>).controls;
+  get editFabricControls(): FabricFormGroup[] {
+    return (this.editForm.controls.fabrics as FormArray<FabricFormGroup>).controls;
   }
 
-  private createUnitOptionsGroup() {
+  private createUnitOptionsGroup(
+    value: UnitOptionsFormValue = { ...this.defaultUnitOptions }
+  ): UnitOptionsFormGroup {
     return this.fb.nonNullable.group({
-      pieceEnabled: [this.defaultUnitOptions.pieceEnabled],
-      piecePrice: [this.defaultUnitOptions.piecePrice, [Validators.min(0)]],
-      bundleEnabled: [this.defaultUnitOptions.bundleEnabled],
-      bundlePrice: [this.defaultUnitOptions.bundlePrice, [Validators.min(0)]],
-      bundlePiecesCount: [this.defaultUnitOptions.bundlePiecesCount, [Validators.min(0)]],
-      cartonEnabled: [this.defaultUnitOptions.cartonEnabled],
-      cartonPrice: [this.defaultUnitOptions.cartonPrice, [Validators.min(0)]],
-      cartonPiecesCount: [this.defaultUnitOptions.cartonPiecesCount, [Validators.min(0)]],
-    });
+      pieceEnabled: [value.pieceEnabled],
+      piecePrice: [value.piecePrice, [Validators.min(0)]],
+      bundleEnabled: [value.bundleEnabled],
+      bundlePrice: [value.bundlePrice, [Validators.min(0)]],
+      bundlePiecesCount: [value.bundlePiecesCount, [Validators.min(0)]],
+      cartonEnabled: [value.cartonEnabled],
+      cartonPrice: [value.cartonPrice, [Validators.min(0)]],
+      cartonPiecesCount: [value.cartonPiecesCount, [Validators.min(0)]],
+    }) as UnitOptionsFormGroup;
+  }
+
+  private createFabricGroup(
+    fabric?: Partial<ProductFabric>,
+    fallbackPrice: number = 0,
+    fallbackColors: string[] = ['']
+  ): FabricFormGroup {
+    const colors = fabric?.colors?.length ? fabric.colors : fallbackColors;
+    const unitOptionsValue = this.buildUnitOptionsFormValue(fabric?.unitOptions, fallbackPrice);
+
+    return this.fb.nonNullable.group({
+      name: [fabric?.name ?? '', [Validators.required]],
+      colors: this.createColorsArray(colors),
+      unitOptions: this.createUnitOptionsGroup(unitOptionsValue),
+    }) as FabricFormGroup;
+  }
+
+  private getFabricFormArray(target: 'create' | 'edit'): FormArray<FabricFormGroup> {
+    return target === 'create'
+      ? (this.form.controls.fabrics as FormArray<FabricFormGroup>)
+      : (this.editForm.controls.fabrics as FormArray<FabricFormGroup>);
   }
 
   private resetCreateForm() {
@@ -231,9 +285,8 @@ export class ProductManagerComponent implements OnDestroy {
       description: '',
       categoryId: '',
       subcategoryId: '',
-      unitOptions: { ...this.defaultUnitOptions },
     });
-    this.setFormColors(this.form);
+    this.setFormFabrics(this.form);
   }
 
   private resetEditForm() {
@@ -242,9 +295,8 @@ export class ProductManagerComponent implements OnDestroy {
       description: '',
       categoryId: '',
       subcategoryId: '',
-      unitOptions: { ...this.defaultUnitOptions },
     });
-    this.setFormColors(this.editForm);
+    this.setFormFabrics(this.editForm);
   }
 
   private createColorControl(value: string = ''): FormControl<string> {
@@ -257,6 +309,11 @@ export class ProductManagerComponent implements OnDestroy {
     return hasColor ? null : { colorRequired: true };
   }
 
+  private atLeastOneFabric(control: AbstractControl): ValidationErrors | null {
+    const fabrics = (control as FormArray<FabricFormGroup>).controls;
+    return fabrics.length ? null : { fabricRequired: true };
+  }
+
   private createColorsArray(values: string[] = ['']): FormArray<FormControl<string>> {
     const source = values.length ? values : [''];
     return new FormArray<FormControl<string>>(
@@ -265,32 +322,78 @@ export class ProductManagerComponent implements OnDestroy {
     );
   }
 
-  private setFormColors(
+  private setFormFabrics(
     form: typeof this.form | typeof this.editForm,
-    colors: string[] = ['']
+    fabrics: ProductFabric[] = [],
+    fallbackPrice: number = 0,
+    fallbackColors: string[] = ['']
   ): void {
-    const source = colors.length ? colors : [''];
-    form.setControl('colors', this.createColorsArray(source));
+    const source = fabrics.length
+      ? fabrics
+      : [
+          {
+            name: '',
+            colors: fallbackColors,
+            unitOptions: [],
+          },
+        ];
+
+    const controls = source.map((fabric, index) =>
+      this.createFabricGroup(
+        fabric,
+        fabric.unitOptions?.[0]?.price ?? fallbackPrice,
+        fabric.colors?.length ? fabric.colors : fallbackColors
+      )
+    );
+
+    form.setControl(
+      'fabrics',
+      new FormArray<FabricFormGroup>(controls, {
+        validators: [this.atLeastOneFabric.bind(this)],
+      })
+    );
   }
 
-  addColorControl(target: 'create' | 'edit'): void {
-    const array =
-      target === 'create'
-        ? (this.form.controls.colors as FormArray<FormControl<string>>)
-        : (this.editForm.controls.colors as FormArray<FormControl<string>>);
-    array.push(this.createColorControl());
+  getFabricColorControls(target: 'create' | 'edit', index: number): FormControl<string>[] {
+    return this.getFabricFormArray(target).at(index).controls.colors.controls;
   }
 
-  removeColorControl(target: 'create' | 'edit', index: number): void {
-    const array =
-      target === 'create'
-        ? (this.form.controls.colors as FormArray<FormControl<string>>)
-        : (this.editForm.controls.colors as FormArray<FormControl<string>>);
-    if (array.length <= 1) {
-      array.at(0).reset('');
+  addFabric(target: 'create' | 'edit'): void {
+    this.getFabricFormArray(target).push(this.createFabricGroup());
+  }
+
+  removeFabric(target: 'create' | 'edit', index: number): void {
+    const fabrics = this.getFabricFormArray(target);
+    if (fabrics.length <= 1) {
+      const control = fabrics.at(0);
+      control.controls.name.setValue('');
+      control.controls.unitOptions.reset({ ...this.defaultUnitOptions });
+      const colorsArray = control.controls.colors;
+      while (colorsArray.length > 1) {
+        colorsArray.removeAt(colorsArray.length - 1);
+      }
+      colorsArray.at(0).setValue('');
       return;
     }
-    array.removeAt(index);
+    fabrics.removeAt(index);
+  }
+
+  addFabricColorControl(target: 'create' | 'edit', fabricIndex: number): void {
+    this.getFabricFormArray(target).at(fabricIndex).controls.colors.push(this.createColorControl());
+  }
+
+  removeFabricColorControl(
+    target: 'create' | 'edit',
+    fabricIndex: number,
+    colorIndex: number
+  ): void {
+    const colors = this.getFabricFormArray(target).at(fabricIndex).controls.colors;
+    if (colors.length <= 1) {
+      colors.at(0).reset('');
+
+      return;
+    }
+    colors.removeAt(colorIndex);
   }
 
   private normalizeColors(colors: string[] = []): string[] {
@@ -317,7 +420,14 @@ export class ProductManagerComponent implements OnDestroy {
     };
   }
 
-  private normalizeUnitOptions(value: UnitOptionsFormValue): {
+  private formatUnitError(message: string, context?: string): string {
+    return context ? `${message} (${context})` : message;
+  }
+
+  private normalizeUnitOptions(
+    value: UnitOptionsFormValue,
+    context?: string
+  ): {
     options: ProductUnitOption[];
     error?: string;
   } {
@@ -326,7 +436,10 @@ export class ProductManagerComponent implements OnDestroy {
     if (value.pieceEnabled) {
       const price = Number(value.piecePrice);
       if (!Number.isFinite(price) || price <= 0) {
-        return { options: [], error: 'يرجى إدخال سعر صالح للقطعة.' };
+        return {
+          options: [],
+          error: this.formatUnitError('يرجى إدخال سعر صالح للقطعة.', context),
+        };
       }
       options.push({ type: 'piece', price });
     }
@@ -334,12 +447,18 @@ export class ProductManagerComponent implements OnDestroy {
     if (value.bundleEnabled) {
       const price = Number(value.bundlePrice);
       if (!Number.isFinite(price) || price <= 0) {
-        return { options: [], error: 'يرجى إدخال سعر صالح للمجموعة.' };
+        return {
+          options: [],
+          error: this.formatUnitError('يرجى إدخال سعر صالح للمجموعة.', context),
+        };
       }
 
       const piecesCount = Math.floor(Number(value.bundlePiecesCount));
       if (!Number.isFinite(piecesCount) || piecesCount <= 0) {
-        return { options: [], error: 'يرجى إدخال عدد القطع في المجموعة.' };
+        return {
+          options: [],
+          error: this.formatUnitError('يرجى إدخال عدد القطع في المجموعة.', context),
+        };
       }
 
       options.push({ type: 'bundle', price, piecesCount });
@@ -348,26 +467,96 @@ export class ProductManagerComponent implements OnDestroy {
     if (value.cartonEnabled) {
       const price = Number(value.cartonPrice);
       if (!Number.isFinite(price) || price <= 0) {
-        return { options: [], error: 'يرجى إدخال سعر صالح للكرتونة.' };
+        return {
+          options: [],
+          error: this.formatUnitError('يرجى إدخال سعر صالح للكرتونة.', context),
+        };
       }
 
       const piecesCount = Math.floor(Number(value.cartonPiecesCount));
       if (!Number.isFinite(piecesCount) || piecesCount <= 0) {
-        return { options: [], error: 'يرجى إدخال عدد القطع في الكرتونة.' };
+        return {
+          options: [],
+          error: this.formatUnitError('يرجى إدخال عدد القطع في الكرتونة.', context),
+        };
       }
 
       options.push({ type: 'carton', price, piecesCount });
     }
 
     if (!options.length) {
-      return { options: [], error: 'يجب اختيار وحدة بيع واحدة على الأقل.' };
+      return {
+        options: [],
+        error: this.formatUnitError('يجب اختيار وحدة بيع واحدة على الأقل.', context),
+      };
     }
 
     return { options };
   }
 
-  private resolveBasePrice(options: ProductUnitOption[]): number {
-    return options.find((option) => option.type === 'piece')?.price ?? options[0]?.price ?? 0;
+  private normalizeFabrics(fabricsArray: FormArray<FabricFormGroup>): {
+    fabrics: ProductFabric[];
+    error?: string;
+  } {
+    const fabrics: ProductFabric[] = [];
+
+    for (const control of fabricsArray.controls) {
+      const { name, colors, unitOptions } = control.getRawValue();
+      const trimmedName = name.trim();
+
+      if (!trimmedName) {
+        return { fabrics: [], error: 'يرجى إدخال اسم نوع القماش.' };
+      }
+
+      const normalizedColors = this.normalizeColors(colors);
+      if (!normalizedColors.length) {
+        return {
+          fabrics: [],
+          error: `يرجى إضافة لون واحد على الأقل لنوع القماش «${trimmedName}».`,
+        };
+      }
+
+      const { options, error } = this.normalizeUnitOptions(
+        unitOptions,
+        `نوع القماش: ${trimmedName}`
+      );
+
+      if (error) {
+        return { fabrics: [], error };
+      }
+
+      fabrics.push({ name: trimmedName, colors: normalizedColors, unitOptions: options });
+    }
+
+    if (!fabrics.length) {
+      return { fabrics: [], error: 'يجب إضافة نوع قماش واحد على الأقل.' };
+    }
+
+    return { fabrics };
+  }
+
+  private collectFabricColors(fabrics: ProductFabric[]): string[] {
+    return Array.from(
+      new Set(
+        fabrics
+          .flatMap((fabric) => fabric.colors ?? [])
+          .map((color) => color.trim())
+          .filter(Boolean)
+      )
+    );
+  }
+
+  private resolveFabricsBasePrice(fabrics: ProductFabric[]): number {
+    const prices = fabrics
+      .flatMap((fabric) => fabric.unitOptions ?? [])
+      .map((option) => option.price)
+      .filter((price): price is number => Number.isFinite(price) && price > 0);
+
+    if (!prices.length) {
+      return 0;
+    }
+
+    return Math.min(...prices);
   }
 
   getUnitOptionLabel(option: ProductUnitOption): string {
@@ -661,19 +850,20 @@ export class ProductManagerComponent implements OnDestroy {
 
     this.feedback.set('');
 
-    const { unitOptions: unitOptionsRaw, colors, ...rest } = this.form.getRawValue();
-    const { options, error } = this.normalizeUnitOptions(unitOptionsRaw);
+    const { fabrics: _rawFabrics, ...rest } = this.form.getRawValue();
+    const fabricsControl = this.getFabricFormArray('create');
+    const { fabrics, error } = this.normalizeFabrics(fabricsControl);
 
     if (error) {
       this.feedback.set(error);
       return;
     }
 
-    const basePrice = this.resolveBasePrice(options);
-    const normalizedColors = this.normalizeColors(colors);
+    const basePrice = this.resolveFabricsBasePrice(fabrics);
+    const allColors = this.collectFabricColors(fabrics);
 
-    if (!normalizedColors.length) {
-      this.feedback.set('يرجى إضافة لون واحد على الأقل للمنتج.');
+    if (!allColors.length) {
+      this.feedback.set('يرجى إضافة لون واحد على الأقل لكل نوع قماش.');
       return;
     }
     this.isSavingProduct.set(true);
@@ -683,9 +873,11 @@ export class ProductManagerComponent implements OnDestroy {
         {
           ...rest,
           price: basePrice,
-          unitOptions: options,
-          color: normalizedColors[0],
-          colors: normalizedColors,
+
+          unitOptions: fabrics[0]?.unitOptions ?? [],
+          color: allColors[0],
+          colors: allColors,
+          fabrics,
         },
         this.mainImage ?? undefined,
         this.galleryImages
@@ -723,11 +915,16 @@ export class ProductManagerComponent implements OnDestroy {
       description: product.description ?? '',
       categoryId: product.categoryId ?? '',
       subcategoryId: product.subcategoryId ?? '',
-      unitOptions: this.buildUnitOptionsFormValue(product.unitOptions, product.price ?? 0),
     });
-    this.setFormColors(
+
+    const fabrics = getProductFabrics(product);
+    const fallbackColors = this.collectFabricColors(fabrics);
+    const fallbackPrice = product.price ?? this.resolveFabricsBasePrice(fabrics);
+    this.setFormFabrics(
       this.editForm,
-      product.colors?.length ? product.colors : [product.color ?? '']
+      fabrics,
+      fallbackPrice,
+      fallbackColors.length ? fallbackColors : ['']
     );
     this.editGalleryUrls = [...(product.galleryUrls ?? [])];
     this.editNewGalleryFiles = [];
@@ -784,19 +981,20 @@ export class ProductManagerComponent implements OnDestroy {
       return;
     }
 
-    const { unitOptions: unitOptionsRaw, colors, ...rest } = this.editForm.getRawValue();
-    const { options, error } = this.normalizeUnitOptions(unitOptionsRaw);
+    const { fabrics: _rawFabrics, ...rest } = this.editForm.getRawValue();
+    const fabricsControl = this.getFabricFormArray('edit');
+    const { fabrics, error } = this.normalizeFabrics(fabricsControl);
 
     if (error) {
       this.editFeedback = error;
       return;
     }
 
-    const basePrice = this.resolveBasePrice(options);
-    const normalizedColors = this.normalizeColors(colors);
+    const basePrice = this.resolveFabricsBasePrice(fabrics);
+    const allColors = this.collectFabricColors(fabrics);
 
-    if (!normalizedColors.length) {
-      this.editFeedback = 'يرجى إضافة لون واحد على الأقل للمنتج.';
+    if (!allColors.length) {
+      this.editFeedback = 'يرجى إضافة لون واحد على الأقل لكل نوع قماش.';
       return;
     }
 
@@ -808,9 +1006,11 @@ export class ProductManagerComponent implements OnDestroy {
         {
           ...rest,
           price: basePrice,
-          unitOptions: options,
-          color: normalizedColors[0],
-          colors: normalizedColors,
+
+          unitOptions: fabrics[0]?.unitOptions ?? [],
+          color: allColors[0],
+          colors: allColors,
+          fabrics,
         },
         this.editMainImageFile ?? undefined,
         this.editNewGalleryFiles,

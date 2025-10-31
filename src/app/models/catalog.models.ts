@@ -22,6 +22,12 @@ export interface ProductUnitOption {
   piecesCount?: number;
 }
 
+export interface ProductFabric {
+  name: string;
+  colors: string[];
+  unitOptions: ProductUnitOption[];
+}
+
 export interface Product {
   id: string;
   categoryId: string;
@@ -37,6 +43,7 @@ export interface Product {
   features?: string[];
   sequence?: number;
   unitOptions?: ProductUnitOption[];
+  fabrics?: ProductFabric[];
 }
 
 export interface CategoryGroup {

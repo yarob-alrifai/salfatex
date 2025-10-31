@@ -5,6 +5,7 @@ import { Timestamp } from 'firebase/firestore';
 import type { AdminOrder, OrderItem } from '../admin/admin-data.service';
 import { Product, ProductUnitOption, ProductUnitType } from '../models/catalog.models';
 import { CartItem, CartUnitSelection } from '../models/cart.models';
+import { getProductFabrics } from '../models/product-helpers';
 
 export interface CheckoutDetails {
   customerName: string;
@@ -42,10 +43,17 @@ export class CartService {
     product: Product,
     unitOption?: ProductUnitOption,
     selectedColor?: string,
-    quantity: number = 1
+
+    quantity: number = 1,
+    selectedFabric?: string
   ) {
     const resolvedUnit = this.createUnitSelection(product, unitOption);
     const normalizedColor = selectedColor?.trim() || product.color?.trim();
+
+    const normalizedFabric = (
+      selectedFabric?.trim() || getProductFabrics(product)[0]?.name
+    )?.trim();
+
     const productWithColor = normalizedColor ? { ...product, color: normalizedColor } : product;
     const quantityToAdd = Number.isFinite(quantity) ? Math.max(1, Math.floor(quantity)) : 1;
 
@@ -58,7 +66,8 @@ export class CartService {
         (item) =>
           item.product.id === product.id &&
           item.unit.type === resolvedUnit.type &&
-          (item.color ?? item.product.color ?? null) === (normalizedColor ?? null)
+          (item.color ?? item.product.color ?? null) === (normalizedColor ?? null) &&
+          (item.fabric ?? null) === (normalizedFabric ?? null)
       );
       if (existingIndex >= 0) {
         return items.map((item, index) =>
@@ -73,12 +82,19 @@ export class CartService {
           quantity: quantityToAdd,
           unit: resolvedUnit,
           color: normalizedColor ?? undefined,
+          fabric: normalizedFabric,
         },
       ];
     });
   }
 
-  increment(productId: string, unitType: ProductUnitType, color?: string, step: number = 1) {
+  increment(
+    productId: string,
+    unitType: ProductUnitType,
+    color?: string,
+    step: number = 1,
+    fabric?: string
+  ) {
     if (!Number.isFinite(step) || step <= 0) {
       return;
     }
@@ -88,14 +104,21 @@ export class CartService {
       items.map((item) =>
         item.product.id === productId &&
         item.unit.type === unitType &&
-        (item.color ?? item.product.color ?? null) === (color ?? null)
+        (item.color ?? item.product.color ?? null) === (color ?? null) &&
+        (item.fabric ?? null) === (fabric ?? null)
           ? { ...item, quantity: item.quantity + normalizedStep }
           : item
       )
     );
   }
 
-  decrement(productId: string, unitType: ProductUnitType, color?: string, step: number = 1) {
+  decrement(
+    productId: string,
+    unitType: ProductUnitType,
+    color?: string,
+    step: number = 1,
+    fabric?: string
+  ) {
     if (!Number.isFinite(step) || step <= 0) {
       return;
     }
@@ -106,7 +129,8 @@ export class CartService {
         .map((item) =>
           item.product.id === productId &&
           item.unit.type === unitType &&
-          (item.color ?? item.product.color ?? null) === (color ?? null)
+          (item.color ?? item.product.color ?? null) === (color ?? null) &&
+          (item.fabric ?? null) === (fabric ?? null)
             ? { ...item, quantity: item.quantity - normalizedStep }
             : item
         )
@@ -114,7 +138,13 @@ export class CartService {
     );
   }
 
-  updateQuantity(productId: string, unitType: ProductUnitType, quantity: number, color?: string) {
+  updateQuantity(
+    productId: string,
+    unitType: ProductUnitType,
+    quantity: number,
+    color?: string,
+    fabric?: string
+  ) {
     if (!Number.isFinite(quantity)) {
       return;
     }
@@ -126,7 +156,8 @@ export class CartService {
         (item) =>
           item.product.id === productId &&
           item.unit.type === unitType &&
-          (item.color ?? item.product.color ?? null) === (color ?? null)
+          (item.color ?? item.product.color ?? null) === (color ?? null) &&
+          (item.fabric ?? null) === (fabric ?? null)
       );
       if (index === -1) {
         return items;
@@ -138,7 +169,8 @@ export class CartService {
             !(
               item.product.id === productId &&
               item.unit.type === unitType &&
-              (item.color ?? item.product.color ?? null) === (color ?? null)
+              (item.color ?? item.product.color ?? null) === (color ?? null) &&
+              (item.fabric ?? null) === (fabric ?? null)
             )
         );
       }
@@ -146,21 +178,23 @@ export class CartService {
       return items.map((item) =>
         item.product.id === productId &&
         item.unit.type === unitType &&
-        (item.color ?? item.product.color ?? null) === (color ?? null)
+        (item.color ?? item.product.color ?? null) === (color ?? null) &&
+        (item.fabric ?? null) === (fabric ?? null)
           ? { ...item, quantity: normalizedQuantity }
           : item
       );
     });
   }
 
-  removeProduct(productId: string, unitType: ProductUnitType, color?: string) {
+  removeProduct(productId: string, unitType: ProductUnitType, color?: string, fabric?: string) {
     this.itemsSignal.update((items) =>
       items.filter(
         (item) =>
           !(
             item.product.id === productId &&
             item.unit.type === unitType &&
-            (item.color ?? item.product.color ?? null) === (color ?? null)
+            (item.color ?? item.product.color ?? null) === (color ?? null) &&
+            (item.fabric ?? null) === (fabric ?? null)
           )
       )
     );
@@ -170,13 +204,19 @@ export class CartService {
     this.itemsSignal.set([]);
   }
 
-  getQuantity(productId: string, unitType: ProductUnitType, color?: string): number {
+  getQuantity(
+    productId: string,
+    unitType: ProductUnitType,
+    color?: string,
+    fabric?: string
+  ): number {
     return (
       this.itemsSignal().find(
         (item) =>
           item.product.id === productId &&
           item.unit.type === unitType &&
-          (item.color ?? item.product.color ?? null) === (color ?? null)
+          (item.color ?? item.product.color ?? null) === (color ?? null) &&
+          (item.fabric ?? null) === (fabric ?? null)
       )?.quantity ?? 0
     );
   }
@@ -205,6 +245,8 @@ export class CartService {
       name: item.product.name,
       quantity: item.quantity,
       color: item.color ?? item.product.color,
+      fabric: item.fabric,
+
       price: item.unit.price,
       unitPrice: item.unit.price,
       unitType: item.unit.type,
@@ -273,8 +315,15 @@ export class CartService {
       return unitOption;
     }
 
+    const fabrics = getProductFabrics(product);
+    const [firstFabric] = fabrics;
+
     if (product.unitOptions?.length) {
       return product.unitOptions[0];
+    }
+
+    if (firstFabric?.unitOptions?.length) {
+      return firstFabric.unitOptions[0];
     }
 
     return {

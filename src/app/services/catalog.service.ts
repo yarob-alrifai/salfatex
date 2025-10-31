@@ -10,7 +10,11 @@ import {
 } from '@angular/fire/firestore';
 import { Observable, catchError, map, of } from 'rxjs';
 import { Category, CategoryGroup, Product, Subcategory } from '../models/catalog.models';
-
+import {
+  getProductAllColors,
+  getProductFabrics,
+  getProductMinimumPrice,
+} from '../models/product-helpers';
 @Injectable({
   providedIn: 'root',
 })
@@ -251,20 +255,26 @@ export class CatalogService {
 
     const localFilter = (products: Product[]) =>
       products.filter((product) => {
+        const productName = product.name?.toLowerCase() ?? '';
+        const productDescription = product.description?.toLowerCase() ?? '';
+        const fabricNames = getProductFabrics(product)
+          .map((fabric) => fabric.name?.toLowerCase() ?? '')
+          .filter((value): value is string => Boolean(value));
+
         const matchesTerm = normalizedTerm
-          ? product.name.toLowerCase().includes(normalizedTerm) ||
-            product.description.toLowerCase().includes(normalizedTerm)
+          ? [productName, productDescription, ...fabricNames].some((value) =>
+              value.includes(normalizedTerm)
+            )
           : true;
-        const availableColors = [product.color, ...(product.colors ?? [])]
-          .filter((value): value is string => Boolean(value))
-          .map((value) => value.toLowerCase());
+
+        const availableColors = getProductAllColors(product).map((value) => value.toLowerCase());
 
         const matchesColor = normalizedColor
           ? availableColors.some((value) => value.includes(normalizedColor))
           : true;
-        const effectivePrice = product.unitOptions?.length
-          ? Math.min(...product.unitOptions.map((option) => option.price))
-          : product.price;
+
+        const effectivePrice = getProductMinimumPrice(product);
+
         const matchesPrice = price ? effectivePrice <= price : true;
         return matchesTerm && matchesColor && matchesPrice;
       });

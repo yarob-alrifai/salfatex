@@ -357,6 +357,10 @@ export class OrdersDashboardComponent {
                 <td>
                   <div class="item-name">${escapeHtml(item.name ?? '—')}</div>
                   <div class="item-meta">Цвет: ${escapeHtml(item.color ?? '—')}</div>
+                                    <div class="item-meta">Ткань: ${escapeHtml(
+                                      item.fabric ?? '—'
+                                    )}</div>
+
                 </td>
                 <td class="text-center">${escapeHtml(unit)}</td>
                 <td class="text-center">${formatQuantity(quantity)}</td>

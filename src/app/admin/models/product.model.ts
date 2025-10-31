@@ -1,5 +1,5 @@
 import { Timestamp } from '@angular/fire/firestore';
-import { ProductUnitOption } from 'src/app/models/catalog.models';
+import { ProductUnitOption, ProductFabric } from 'src/app/models/catalog.models';
 
 export interface Product {
   id?: string;
@@ -16,4 +16,5 @@ export interface Product {
   createdAt?: Timestamp;
   sequence?: number;
   unitOptions?: ProductUnitOption[];
+  fabrics?: ProductFabric[];
 }

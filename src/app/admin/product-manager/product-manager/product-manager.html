@@ -12,7 +12,10 @@
     <section class="app-card space-y-6">
       <header class="space-y-2 text-left">
         <h2 class="text-xl font-semibold text-neutral-900">المعلومات الأساسية</h2>
-        <p class="text-sm text-neutral-500">حدّد التصنيف، الاسم، والألوان الخاصة بالمنتج.</p>
+
+        <p class="text-sm text-neutral-500">
+          حدّد التصنيف والبيانات العامة قبل ضبط أنواع القماش والتسعير.
+        </p>
       </header>
 
       <!-- Subcategory -->
@@ -30,10 +33,11 @@
 
         <!-- Name -->
 
-        <div class="app-field">
+        <div class="app-field sm:col-span-2">
           <label class="app-field__label" for="product-subcategory">التصنيف الفرعي</label>
           <select id="product-subcategory" formControlName="subcategoryId" class="app-select">
             <option value="">بدون</option>
+
             <option
               *ngFor="let subcategory of filteredSubcategories$ | async"
               [value]="subcategory.id"
@@ -52,129 +56,191 @@
             placeholder="اسم المنتج"
           />
         </div>
-
-        <div class="app-field sm:col-span-2" formArrayName="colors">
-          <div class="flex items-center justify-between">
-            <span class="app-field__label">ألوان المنتج</span>
-            <button type="button" class="app-chip--action" (click)="addColorControl('create')">
-              إضافة لون آخر
-            </button>
-          </div>
-          <div class="space-y-3">
-            <div
-              class="flex flex-col gap-2 sm:flex-row sm:items-center"
-              *ngFor="let control of createColorControls; index as i"
-            >
-              <input class="app-input sm:flex-1" placeholder="لون المنتج" [formControl]="control" />
-              <button
-                type="button"
-                class="app-button app-button--ghost !px-4 !py-2 text-xs text-rose-600 hover:text-rose-600"
-                (click)="removeColorControl('create', i)"
-                aria-label="إزالة اللون"
-              >
-                حذف
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 
     <section class="app-card space-y-6">
       <header class="space-y-2 text-left">
-        <h2 class="text-xl font-semibold text-neutral-900">خيارات التسعير</h2>
+        <h2 class="text-xl font-semibold text-neutral-900">أنواع القماش والتسعير</h2>
         <p class="text-sm text-neutral-500">
-          فعّل خيارات البيع المناسبة وقم بتعيين الأسعار لكل وحدة.
+          أضف كل نوع قماش مع ألوانه وخيارات البيع المتاحة حسب الوحدة المناسبة.
         </p>
       </header>
 
       <!-- Unit Options -->
 
-      <fieldset class="grid gap-4 sm:grid-cols-3" formGroupName="unitOptions">
-        <legend class="sr-only">خيارات البيع</legend>
-        <div class="app-card app-card--muted space-y-4">
-          <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
-            <span>بيع بالقطعة</span>
-            <input type="checkbox" formControlName="pieceEnabled" class="h-4 w-4" />
-          </label>
-
-          <div class="app-field">
-            <label class="app-field__label" for="piece-price">سعر القطعة</label>
-            <input
-              id="piece-price"
-              type="number"
-              min="0"
-              step="0.01"
-              formControlName="piecePrice"
-              class="app-input"
-            />
+      <div class="space-y-6" formArrayName="fabrics">
+        <div
+          class="app-card app-card--muted space-y-5"
+          *ngFor="let fabricGroup of createFabricControls; index as fabricIndex"
+          [formGroupName]="fabricIndex"
+        >
+          <div class="flex flex-col gap-2 text-left sm:flex-row sm:items-center sm:justify-between">
+            <h3 class="text-lg font-semibold text-neutral-800">
+              نوع القماش رقم {{ fabricIndex + 1 }}
+            </h3>
+            <button
+              type="button"
+              class="app-button app-button--ghost !px-4 !py-2 text-xs text-rose-600 hover:text-rose-600"
+              (click)="removeFabric('create', fabricIndex)"
+            >
+              حذف هذا النوع
+            </button>
           </div>
+
+          <div class="app-form app-form--two-columns">
+            <div class="app-field">
+              <label class="app-field__label" [for]="'fabric-name-' + fabricIndex"
+                >اسم نوع القماش</label
+              >
+              <input
+                class="app-input"
+                [id]="'fabric-name-' + fabricIndex"
+                formControlName="name"
+                placeholder="مثال: قطن فاخر"
+              />
+            </div>
+
+            <div class="app-field sm:col-span-2" formArrayName="colors">
+              <div class="flex items-center justify-between">
+                <span class="app-field__label">ألوان القماش</span>
+                <button
+                  type="button"
+                  class="app-chip--action"
+                  (click)="addFabricColorControl('create', fabricIndex)"
+                >
+                  إضافة لون
+                </button>
+              </div>
+
+              <div class="space-y-3">
+                <div
+                  class="flex flex-col gap-2 sm:flex-row sm:items-center"
+                  *ngFor="
+                    let control of getFabricColorControls('create', fabricIndex);
+                    index as colorIndex
+                  "
+                >
+                  <input
+                    class="app-input sm:flex-1"
+                    [formControl]="control"
+                    placeholder="لون القماش"
+                  />
+                  <button
+                    type="button"
+                    class="app-button app-button--ghost !px-4 !py-2 text-xs text-rose-600 hover:text-rose-600"
+                    (click)="removeFabricColorControl('create', fabricIndex, colorIndex)"
+                  >
+                    حذف
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <fieldset class="grid gap-4 sm:grid-cols-3" formGroupName="unitOptions">
+            <legend class="sr-only">خيارات البيع لهذا النوع</legend>
+            <div class="space-y-4 rounded-2xl border border-white/70 bg-white/60 p-4">
+              <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
+                <span>بيع بالقطعة</span>
+                <input type="checkbox" formControlName="pieceEnabled" class="h-4 w-4" />
+              </label>
+
+              <div class="app-field">
+                <label class="app-field__label" [for]="'piece-price-' + fabricIndex"
+                  >سعر القطعة</label
+                >
+                <input
+                  [id]="'piece-price-' + fabricIndex"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  formControlName="piecePrice"
+                  class="app-input"
+                />
+              </div>
+            </div>
+
+            <div class="space-y-4 rounded-2xl border border-white/70 bg-white/60 p-4">
+              <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
+                <span>بيع بالمجموعة</span>
+                <input type="checkbox" formControlName="bundleEnabled" class="h-4 w-4" />
+              </label>
+
+              <div class="app-field">
+                <label class="app-field__label" [for]="'bundle-price-' + fabricIndex"
+                  >سعر المجموعة</label
+                >
+                <input
+                  [id]="'bundle-price-' + fabricIndex"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  formControlName="bundlePrice"
+                  class="app-input"
+                  [disabled]="!fabricGroup.get(['unitOptions', 'bundleEnabled'])?.value"
+                />
+              </div>
+              <div class="app-field">
+                <label class="app-field__label" [for]="'bundle-count-' + fabricIndex"
+                  >عدد القطع في المجموعة</label
+                >
+                <input
+                  [id]="'bundle-count-' + fabricIndex"
+                  type="number"
+                  min="0"
+                  step="1"
+                  formControlName="bundlePiecesCount"
+                  class="app-input"
+                  [disabled]="!fabricGroup.get(['unitOptions', 'bundleEnabled'])?.value"
+                />
+              </div>
+            </div>
+
+            <div class="space-y-4 rounded-2xl border border-white/70 bg-white/60 p-4">
+              <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
+                <span>بيع بالكرتونة</span>
+                <input type="checkbox" formControlName="cartonEnabled" class="h-4 w-4" />
+              </label>
+
+              <div class="app-field">
+                <label class="app-field__label" [for]="'carton-price-' + fabricIndex"
+                  >سعر الكرتونة</label
+                >
+                <input
+                  [id]="'carton-price-' + fabricIndex"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  formControlName="cartonPrice"
+                  class="app-input"
+                  [disabled]="!fabricGroup.get(['unitOptions', 'cartonEnabled'])?.value"
+                />
+              </div>
+              <div class="app-field">
+                <label class="app-field__label" [for]="'carton-count-' + fabricIndex"
+                  >عدد القطع في الكرتونة</label
+                >
+                <input
+                  [id]="'carton-count-' + fabricIndex"
+                  type="number"
+                  min="0"
+                  step="1"
+                  formControlName="cartonPiecesCount"
+                  class="app-input"
+                  [disabled]="!fabricGroup.get(['unitOptions', 'cartonEnabled'])?.value"
+                />
+              </div>
+            </div>
+          </fieldset>
         </div>
+      </div>
 
-        <div class="app-card app-card--muted space-y-4">
-          <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
-            <span>بيع بالمجموعة</span>
-            <input type="checkbox" formControlName="bundleEnabled" class="h-4 w-4" />
-          </label>
-
-          <div class="app-field">
-            <label class="app-field__label" for="bundle-price">سعر المجموعة</label>
-            <input
-              id="bundle-price"
-              type="number"
-              min="0"
-              step="0.01"
-              formControlName="bundlePrice"
-              class="app-input"
-              [disabled]="!form.get('unitOptions.bundleEnabled')?.value"
-            />
-          </div>
-          <div class="app-field">
-            <label class="app-field__label" for="bundle-count">عدد القطع في المجموعة</label>
-            <input
-              id="bundle-count"
-              type="number"
-              min="0"
-              step="1"
-              formControlName="bundlePiecesCount"
-              class="app-input"
-              [disabled]="!form.get('unitOptions.bundleEnabled')?.value"
-            />
-          </div>
-        </div>
-
-        <div class="app-card app-card--muted space-y-4">
-          <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
-            <span>بيع بالكرتونة</span>
-            <input type="checkbox" formControlName="cartonEnabled" class="h-4 w-4" />
-          </label>
-
-          <div class="app-field">
-            <label class="app-field__label" for="carton-price">سعر الكرتونة</label>
-            <input
-              id="carton-price"
-              type="number"
-              min="0"
-              step="0.01"
-              formControlName="cartonPrice"
-              class="app-input"
-              [disabled]="!form.get('unitOptions.cartonEnabled')?.value"
-            />
-          </div>
-          <div class="app-field">
-            <label class="app-field__label" for="carton-count">عدد القطع في الكرتونة</label>
-            <input
-              id="carton-count"
-              type="number"
-              min="0"
-              step="1"
-              formControlName="cartonPiecesCount"
-              class="app-input"
-              [disabled]="!form.get('unitOptions.cartonEnabled')?.value"
-            />
-          </div>
-        </div>
-      </fieldset>
+      <div class="flex justify-end">
+        <button type="button" class="app-chip--action" (click)="addFabric('create')">
+          إضافة نوع قماش جديد
+        </button>
+      </div>
     </section>
 
     <!-- Description -->
@@ -522,66 +588,221 @@
         <p class="text-sm text-neutral-500">قم بتحديث بيانات المنتج والصور ثم احفظ التغييرات.</p>
       </header>
 
-      <form
-        class="app-form app-form--two-columns"
-        [formGroup]="editForm"
-        (ngSubmit)="saveProductEdits()"
-      >
-        <div class="app-field">
-          <label class="app-field__label" for="edit-category">التصنيف</label>
-          <select id="edit-category" formControlName="categoryId" class="app-select">
-            <option value="" disabled>اختر التصنيف</option>
-            <option *ngFor="let category of categories$ | async" [value]="category.id">
-              {{ category.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="app-field">
-          <label class="app-field__label" for="edit-subcategory">التصنيف الفرعي</label>
-          <select id="edit-subcategory" formControlName="subcategoryId" class="app-select">
-            <option value="">بدون</option>
-
-            <option
-              *ngFor="let subcategory of filteredSubcategories$ | async"
-              [value]="subcategory.id"
-            >
-              {{ subcategory.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="app-field">
-          <label class="app-field__label" for="edit-name">اسم المنتج</label>
-          <input id="edit-name" formControlName="name" class="app-input" />
-        </div>
-
-        <div class="app-field sm:col-span-2" formArrayName="colors">
-          <div class="flex items-center justify-between">
-            <span class="app-field__label">ألوان المنتج</span>
-            <button type="button" class="app-chip--action" (click)="addColorControl('edit')">
-              إضافة لون آخر
-            </button>
+      <form class="space-y-6" [formGroup]="editForm" (ngSubmit)="saveProductEdits()">
+        <div class="app-form app-form--two-columns">
+          <div class="app-field">
+            <label class="app-field__label" for="edit-category">التصنيف</label>
+            <select id="edit-category" formControlName="categoryId" class="app-select">
+              <option value="" disabled>اختر التصنيف</option>
+              <option *ngFor="let category of categories$ | async" [value]="category.id">
+                {{ category.name }}
+              </option>
+            </select>
           </div>
-          <div class="space-y-3">
+
+          <div class="app-field">
+            <label class="app-field__label" for="edit-subcategory">التصنيف الفرعي</label>
+            <select id="edit-subcategory" formControlName="subcategoryId" class="app-select">
+              <option value="">بدون</option>
+
+              <option
+                *ngFor="let subcategory of filteredSubcategories$ | async"
+                [value]="subcategory.id"
+              >
+                {{ subcategory.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="app-field sm:col-span-2">
+            <label class="app-field__label" for="edit-name">اسم المنتج</label>
+            <input id="edit-name" formControlName="name" class="app-input" />
+          </div>
+        </div>
+
+        <div class="space-y-6" formArrayName="fabrics">
+          <div
+            class="app-card app-card--muted space-y-5"
+            *ngFor="let fabricGroup of editFabricControls; index as fabricIndex"
+            [formGroupName]="fabricIndex"
+          >
             <div
-              class="flex flex-col gap-2 sm:flex-row sm:items-center"
-              *ngFor="let control of editColorControls; index as i"
+              class="flex flex-col gap-2 text-left sm:flex-row sm:items-center sm:justify-between"
             >
-              <input class="app-input sm:flex-1" placeholder="لون المنتج" [formControl]="control" />
+              <h4 class="text-lg font-semibold text-neutral-800">
+                نوع القماش رقم {{ fabricIndex + 1 }}
+              </h4>
+
               <button
                 type="button"
                 class="app-button app-button--ghost !px-4 !py-2 text-xs text-rose-600 hover:text-rose-600"
-                (click)="removeColorControl('edit', i)"
-                aria-label="إزالة اللون"
+                (click)="removeFabric('edit', fabricIndex)"
               >
-                حذف
+                حذف هذا النوع
               </button>
             </div>
+
+            <div class="app-form app-form--two-columns">
+              <div class="app-field">
+                <label class="app-field__label" [for]="'edit-fabric-name-' + fabricIndex"
+                  >اسم نوع القماش</label
+                >
+                <input
+                  class="app-input"
+                  [id]="'edit-fabric-name-' + fabricIndex"
+                  formControlName="name"
+                  placeholder="مثال: قطن فاخر"
+                />
+              </div>
+
+              <div class="app-field sm:col-span-2" formArrayName="colors">
+                <div class="flex items-center justify-between">
+                  <span class="app-field__label">ألوان القماش</span>
+                  <button
+                    type="button"
+                    class="app-chip--action"
+                    (click)="addFabricColorControl('edit', fabricIndex)"
+                  >
+                    إضافة لون
+                  </button>
+                </div>
+
+                <div class="space-y-3">
+                  <div
+                    class="flex flex-col gap-2 sm:flex-row sm:items-center"
+                    *ngFor="
+                      let control of getFabricColorControls('edit', fabricIndex);
+                      index as colorIndex
+                    "
+                  >
+                    <input
+                      class="app-input sm:flex-1"
+                      [formControl]="control"
+                      placeholder="لون القماش"
+                    />
+                    <button
+                      type="button"
+                      class="app-button app-button--ghost !px-4 !py-2 text-xs text-rose-600 hover:text-rose-600"
+                      (click)="removeFabricColorControl('edit', fabricIndex, colorIndex)"
+                    >
+                      حذف
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <fieldset class="grid gap-4 sm:grid-cols-3" formGroupName="unitOptions">
+              <legend class="sr-only">خيارات البيع لهذا النوع</legend>
+              <div class="space-y-4 rounded-2xl border border-white/70 bg-white/60 p-4">
+                <label
+                  class="flex items-center justify-between text-sm font-medium text-neutral-700"
+                >
+                  <span>بيع بالقطعة</span>
+                  <input type="checkbox" formControlName="pieceEnabled" class="h-4 w-4" />
+                </label>
+
+                <div class="app-field">
+                  <label class="app-field__label" [for]="'edit-piece-price-' + fabricIndex"
+                    >سعر القطعة</label
+                  >
+                  <input
+                    [id]="'edit-piece-price-' + fabricIndex"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    formControlName="piecePrice"
+                    class="app-input"
+                  />
+                </div>
+              </div>
+
+              <div class="space-y-4 rounded-2xl border border-white/70 bg-white/60 p-4">
+                <label
+                  class="flex items-center justify-between text-sm font-medium text-neutral-700"
+                >
+                  <span>بيع بالمجموعة</span>
+                  <input type="checkbox" formControlName="bundleEnabled" class="h-4 w-4" />
+                </label>
+
+                <div class="app-field">
+                  <label class="app-field__label" [for]="'edit-bundle-price-' + fabricIndex"
+                    >سعر المجموعة</label
+                  >
+                  <input
+                    [id]="'edit-bundle-price-' + fabricIndex"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    formControlName="bundlePrice"
+                    class="app-input"
+                    [disabled]="!fabricGroup.get(['unitOptions', 'bundleEnabled'])?.value"
+                  />
+                </div>
+                <div class="app-field">
+                  <label class="app-field__label" [for]="'edit-bundle-count-' + fabricIndex"
+                    >عدد القطع في المجموعة</label
+                  >
+                  <input
+                    [id]="'edit-bundle-count-' + fabricIndex"
+                    type="number"
+                    min="0"
+                    step="1"
+                    formControlName="bundlePiecesCount"
+                    class="app-input"
+                    [disabled]="!fabricGroup.get(['unitOptions', 'bundleEnabled'])?.value"
+                  />
+                </div>
+              </div>
+
+              <div class="space-y-4 rounded-2xl border border-white/70 bg-white/60 p-4">
+                <label
+                  class="flex items-center justify-between text-sm font-medium text-neutral-700"
+                >
+                  <span>بيع بالكرتونة</span>
+                  <input type="checkbox" formControlName="cartonEnabled" class="h-4 w-4" />
+                </label>
+
+                <div class="app-field">
+                  <label class="app-field__label" [for]="'edit-carton-price-' + fabricIndex"
+                    >سعر الكرتونة</label
+                  >
+                  <input
+                    [id]="'edit-carton-price-' + fabricIndex"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    formControlName="cartonPrice"
+                    class="app-input"
+                    [disabled]="!fabricGroup.get(['unitOptions', 'cartonEnabled'])?.value"
+                  />
+                </div>
+                <div class="app-field">
+                  <label class="app-field__label" [for]="'edit-carton-count-' + fabricIndex"
+                    >عدد القطع في الكرتونة</label
+                  >
+                  <input
+                    [id]="'edit-carton-count-' + fabricIndex"
+                    type="number"
+                    min="0"
+                    step="1"
+                    formControlName="cartonPiecesCount"
+                    class="app-input"
+                    [disabled]="!fabricGroup.get(['unitOptions', 'cartonEnabled'])?.value"
+                  />
+                </div>
+              </div>
+            </fieldset>
           </div>
         </div>
 
-        <div class="app-field sm:col-span-2">
+        <div class="flex justify-end">
+          <button type="button" class="app-chip--action" (click)="addFabric('edit')">
+            إضافة نوع قماش جديد
+          </button>
+        </div>
+
+        <div class="app-field">
           <label class="app-field__label" for="edit-description">الوصف</label>
           <textarea
             id="edit-description"
@@ -590,96 +811,6 @@
             class="app-textarea"
           ></textarea>
         </div>
-
-        <fieldset class="sm:col-span-2 grid gap-4 lg:grid-cols-3" formGroupName="unitOptions">
-          <legend class="sr-only">خيارات البيع</legend>
-
-          <div class="app-card app-card--muted space-y-4">
-            <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
-              <span>بيع بالقطعة</span>
-              <input type="checkbox" formControlName="pieceEnabled" class="h-4 w-4" />
-            </label>
-
-            <div class="app-field">
-              <label class="app-field__label" for="edit-piece-price">سعر القطعة</label>
-              <input
-                id="edit-piece-price"
-                type="number"
-                min="0"
-                step="0.01"
-                formControlName="piecePrice"
-                class="app-input"
-                [disabled]="!editForm.get('unitOptions.pieceEnabled')?.value"
-              />
-            </div>
-          </div>
-
-          <div class="app-card app-card--muted space-y-4">
-            <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
-              <span>بيع بالمجموعة</span>
-              <input type="checkbox" formControlName="bundleEnabled" class="h-4 w-4" />
-            </label>
-
-            <div class="app-field">
-              <label class="app-field__label" for="edit-bundle-price">سعر المجموعة</label>
-              <input
-                id="edit-bundle-price"
-                type="number"
-                min="0"
-                step="0.01"
-                formControlName="bundlePrice"
-                class="app-input"
-                [disabled]="!editForm.get('unitOptions.bundleEnabled')?.value"
-              />
-            </div>
-
-            <div class="app-field">
-              <label class="app-field__label" for="edit-bundle-count">عدد القطع في المجموعة</label>
-              <input
-                id="edit-bundle-count"
-                type="number"
-                min="0"
-                step="1"
-                formControlName="bundlePiecesCount"
-                class="app-input"
-                [disabled]="!editForm.get('unitOptions.bundleEnabled')?.value"
-              />
-            </div>
-          </div>
-
-          <div class="app-card app-card--muted space-y-4">
-            <label class="flex items-center justify-between text-sm font-medium text-neutral-700">
-              <span>بيع بالكرتونة</span>
-              <input type="checkbox" formControlName="cartonEnabled" class="h-4 w-4" />
-            </label>
-
-            <div class="app-field">
-              <label class="app-field__label" for="edit-carton-price">سعر الكرتونة</label>
-              <input
-                id="edit-carton-price"
-                type="number"
-                min="0"
-                step="0.01"
-                formControlName="cartonPrice"
-                class="app-input"
-                [disabled]="!editForm.get('unitOptions.cartonEnabled')?.value"
-              />
-            </div>
-
-            <div class="app-field">
-              <label class="app-field__label" for="edit-carton-count">عدد القطع في الكرتونة</label>
-              <input
-                id="edit-carton-count"
-                type="number"
-                min="0"
-                step="1"
-                formControlName="cartonPiecesCount"
-                class="app-input"
-                [disabled]="!editForm.get('unitOptions.cartonEnabled')?.value"
-              />
-            </div>
-          </div>
-        </fieldset>
 
         <div class="sm:col-span-2 grid gap-6 lg:grid-cols-2">
           <div class="space-y-4">

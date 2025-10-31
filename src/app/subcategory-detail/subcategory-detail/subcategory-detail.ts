@@ -10,7 +10,10 @@ import {
   ProductUnitOption,
   ProductUnitType,
   Subcategory,
+  ProductFabric,
 } from '../../models/catalog.models';
+import { getProductAllColors, getProductFabrics } from '../../models/product-helpers';
+
 import { BackButtonComponent } from 'src/app/component/back-button/back-button';
 import { FormsModule } from '@angular/forms';
 
@@ -37,6 +40,7 @@ export class SubcategoryDetailComponent {
   private readonly selectedUnits = signal<Record<string, ProductUnitType>>({});
   private readonly selectedColors = signal<Record<string, string | undefined>>({});
   private readonly searchTermSubject = new BehaviorSubject<string>('');
+  private readonly selectedFabrics = signal<Record<string, number>>({});
 
   private readonly baseViewModel$: Observable<SubcategoryDetailViewModel> =
     this.route.paramMap.pipe(
@@ -82,7 +86,10 @@ export class SubcategoryDetailComponent {
     this.cart.addProduct(
       product,
       this.getSelectedUnitOption(product),
-      this.getSelectedColor(product)
+
+      this.getSelectedColor(product),
+      1,
+      this.getSelectedFabric(product)?.name
     );
   }
 
@@ -92,7 +99,8 @@ export class SubcategoryDetailComponent {
       product.id,
       this.getSelectedUnitType(product),
       this.getSelectedColor(product),
-      step
+      step,
+      this.getSelectedFabric(product)?.name
     );
   }
 
@@ -102,7 +110,8 @@ export class SubcategoryDetailComponent {
       product.id,
       this.getSelectedUnitType(product),
       this.getSelectedColor(product),
-      step
+      step,
+      this.getSelectedFabric(product)?.name
     );
   }
 
@@ -110,7 +119,8 @@ export class SubcategoryDetailComponent {
     return this.cart.getQuantity(
       product.id,
       this.getSelectedUnitType(product),
-      this.getSelectedColor(product)
+      this.getSelectedColor(product),
+      this.getSelectedFabric(product)?.name
     );
   }
 
@@ -132,6 +142,16 @@ export class SubcategoryDetailComponent {
     this.searchTermSubject.next(term);
   }
   getAvailableUnitOptions(product: Product): ProductUnitOption[] {
+    const fabric = this.getSelectedFabric(product);
+    if (fabric?.unitOptions?.length) {
+      return fabric.unitOptions;
+    }
+
+    const fallbackFabric = this.getAvailableFabrics(product)[0];
+    if (fallbackFabric?.unitOptions?.length) {
+      return fallbackFabric.unitOptions;
+    }
+
     if (product.unitOptions?.length) {
       return product.unitOptions;
     }
@@ -139,7 +159,7 @@ export class SubcategoryDetailComponent {
     return [
       {
         type: 'piece',
-        price: product.price,
+        price: product.price ?? 0,
       },
     ];
   }
@@ -147,19 +167,29 @@ export class SubcategoryDetailComponent {
   getSelectedUnitOption(product: Product): ProductUnitOption {
     const selectedType = this.getSelectedUnitType(product);
     const options = this.getAvailableUnitOptions(product);
-    return (
-      options.find((option) => option.type === selectedType) ?? {
-        type: 'piece',
-        price: product.price,
-      }
-    );
+
+    const fallbackOption =
+      options[0] ?? ({ type: 'piece', price: product.price ?? 0 } as ProductUnitOption);
+
+    return options.find((option) => option.type === selectedType) ?? fallbackOption;
   }
 
   getSelectedUnitPrice(product: Product): number {
-    return this.getSelectedUnitOption(product).price;
+    const option = this.getSelectedUnitOption(product);
+    return option.price ?? product.price ?? 0;
   }
 
   getAvailableColors(product: Product): string[] {
+    const fabric = this.getSelectedFabric(product);
+    if (fabric?.colors?.length) {
+      return fabric.colors;
+    }
+
+    const fallbackFabric = this.getAvailableFabrics(product)[0];
+    if (fallbackFabric?.colors?.length) {
+      return fallbackFabric.colors;
+    }
+
     if (product.colors?.length) {
       return product.colors;
     }
@@ -179,6 +209,31 @@ export class SubcategoryDetailComponent {
     return this.getSelectedColor(product) === color;
   }
 
+  getAvailableFabrics(product: Product): ProductFabric[] {
+    return getProductFabrics(product);
+  }
+
+  selectFabric(product: Product, index: number): void {
+    this.selectedFabrics.update((fabrics) => ({ ...fabrics, [product.id]: index }));
+    const defaultUnit = this.getAvailableUnitOptions(product)[0]?.type ?? 'piece';
+    this.selectedUnits.update((units) => ({ ...units, [product.id]: defaultUnit }));
+    const colors = this.getAvailableColors(product);
+    if (colors.length) {
+      this.selectedColors.update((map) => ({ ...map, [product.id]: colors[0] }));
+    } else {
+      this.selectedColors.update((map) => {
+        const next = { ...map };
+        delete next[product.id];
+        return next;
+      });
+    }
+  }
+
+  isSelectedFabric(product: Product, index: number): boolean {
+    const current = this.selectedFabrics()[product.id];
+    return (current ?? 0) === index;
+  }
+
   getUnitLabel(option: ProductUnitOption): string {
     switch (option.type) {
       case 'bundle':
@@ -195,11 +250,16 @@ export class SubcategoryDetailComponent {
   }
 
   private matchesSearch(product: Product, searchTerm: string): boolean {
+    const fabrics = getProductFabrics(product);
+    const fabricNames = fabrics
+      .map((fabric) => fabric.name ?? '')
+      .filter((value): value is string => Boolean(value));
+    const colorValues = getProductAllColors(product);
     const haystacks = [
       product.name ?? '',
       product.description ?? '',
-      product.color ?? '',
-      ...(product.colors ?? []),
+      ...fabricNames,
+      ...colorValues,
     ]
       .filter((value): value is string => Boolean(value))
       .map((value) => value.toLowerCase());
@@ -208,28 +268,53 @@ export class SubcategoryDetailComponent {
   }
 
   private ensureDefaults(products: Product[]): void {
+    this.selectedFabrics.update((fabrics) => {
+      const next = { ...fabrics };
+      for (const product of products) {
+        const availableFabrics = this.getAvailableFabrics(product);
+        const currentIndex = next[product.id];
+        if (currentIndex !== undefined && availableFabrics[currentIndex]) {
+          continue;
+        }
+        if (availableFabrics.length) {
+          next[product.id] = 0;
+        } else {
+          delete next[product.id];
+        }
+      }
+      return next;
+    });
+
     this.selectedUnits.update((units) => {
       const next = { ...units };
       for (const product of products) {
-        if (next[product.id]) {
+        const options = this.getAvailableUnitOptions(product);
+        const current = next[product.id];
+        if (current && options.some((option) => option.type === current)) {
           continue;
         }
 
-        const defaultType = product.unitOptions?.[0]?.type;
-
-        next[product.id] = defaultType ?? 'piece';
+        if (options.length) {
+          next[product.id] = options[0].type;
+        } else {
+          delete next[product.id];
+        }
       }
       return next;
     });
     this.selectedColors.update((colors) => {
       const next = { ...colors };
       for (const product of products) {
-        if (next[product.id]) {
+        const available = this.getAvailableColors(product);
+        const current = next[product.id];
+        if (current && available.includes(current)) {
           continue;
         }
-        const available = this.getAvailableColors(product);
+
         if (available.length) {
           next[product.id] = available[0];
+        } else {
+          delete next[product.id];
         }
       }
       return next;
@@ -238,11 +323,22 @@ export class SubcategoryDetailComponent {
 
   private getSelectedUnitType(product: Product): ProductUnitType {
     const current = this.selectedUnits()[product.id];
-    if (current) {
+    const options = this.getAvailableUnitOptions(product);
+    if (current && options.some((option) => option.type === current)) {
       return current;
     }
 
-    const defaultType = product.unitOptions?.[0]?.type;
-    return defaultType ?? 'piece';
+    const defaultType = options[0]?.type ?? 'piece';
+    this.selectedUnits.update((units) => ({ ...units, [product.id]: defaultType }));
+    return defaultType;
+  }
+
+  private getSelectedFabric(product: Product): ProductFabric | null {
+    const fabrics = this.getAvailableFabrics(product);
+    const index = this.selectedFabrics()[product.id];
+    if (index !== undefined && fabrics[index]) {
+      return fabrics[index];
+    }
+    return fabrics[0] ?? null;
   }
 }

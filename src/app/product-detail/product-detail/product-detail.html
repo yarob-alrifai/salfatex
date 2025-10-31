@@ -69,6 +69,25 @@
             </button>
           </div>
 
+          <div *ngIf="getAvailableFabrics(product).length > 1" class="space-y-2 text-left">
+            <p class="text-sm font-medium text-neutral-600">Выберите ткань</p>
+            <div class="flex flex-wrap justify-start gap-2">
+              <button
+                type="button"
+                *ngFor="let fabric of getAvailableFabrics(product); index as fabricIndex"
+                class="rounded-full border px-3 py-1 text-sm transition"
+                [class.bg-brand-500]="isSelectedFabric(product, fabricIndex)"
+                [class.text-white]="isSelectedFabric(product, fabricIndex)"
+                [class.border-brand-500]="isSelectedFabric(product, fabricIndex)"
+                [class.text-brand-600]="!isSelectedFabric(product, fabricIndex)"
+                [class.border-brand-200]="!isSelectedFabric(product, fabricIndex)"
+                (click)="selectFabric(product, fabricIndex)"
+              >
+                {{ fabric.name }}
+              </button>
+            </div>
+          </div>
+
           <div *ngIf="getAvailableColors(product).length" class="space-y-2 text-left">
             <p class="text-sm font-medium text-neutral-600">Выберите цвет</p>
             <div class="flex flex-wrap justify-start gap-2">

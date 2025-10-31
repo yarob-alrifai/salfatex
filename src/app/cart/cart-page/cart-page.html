@@ -47,6 +47,10 @@
                     <span class="block text-xs font-medium text-neutral-500">
                       Цвет: {{ item.color || item.product.color || 'не указано' }}
                     </span>
+
+                    <span class="block text-xs font-medium text-neutral-500" *ngIf="item.fabric">
+                      Ткань: {{ item.fabric }}
+                    </span>
                   </div>
                 </div>
               </td>

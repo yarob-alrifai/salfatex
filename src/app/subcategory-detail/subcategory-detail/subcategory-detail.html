@@ -97,6 +97,29 @@
             </div>
 
             <div
+              *ngIf="getAvailableFabrics(product).length > 1"
+              class="flex flex-wrap justify-start gap-2 text-xs text-neutral-600"
+            >
+              <button
+                type="button"
+                *ngFor="let fabric of getAvailableFabrics(product); index as fabricIndex"
+                class="rounded-full border px-2 py-1 transition"
+                [class.bg-brand-500]="isSelectedFabric(product, fabricIndex)"
+                [class.text-white]="isSelectedFabric(product, fabricIndex)"
+                [class.border-brand-500]="isSelectedFabric(product, fabricIndex)"
+                [class.text-brand-600]="!isSelectedFabric(product, fabricIndex)"
+                [class.border-brand-200]="!isSelectedFabric(product, fabricIndex)"
+                (click)="
+                  selectFabric(product, fabricIndex);
+                  $event.preventDefault();
+                  $event.stopPropagation()
+                "
+              >
+                {{ fabric.name }}
+              </button>
+            </div>
+
+            <div
               *ngIf="getAvailableColors(product).length"
               class="flex flex-wrap justify-start gap-2 text-xs text-neutral-600"
             >

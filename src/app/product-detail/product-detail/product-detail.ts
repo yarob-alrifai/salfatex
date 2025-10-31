@@ -3,9 +3,16 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Observable, map, switchMap, tap } from 'rxjs';
 import { CatalogService } from '../../services/catalog.service';
-import { Product, ProductUnitOption, ProductUnitType } from '../../models/catalog.models';
+
 import { CartService } from '../../services/cart.service';
 import { BackButtonComponent } from 'src/app/component/back-button/back-button';
+import {
+  Product,
+  ProductFabric,
+  ProductUnitOption,
+  ProductUnitType,
+} from '../../models/catalog.models';
+import { getProductFabrics } from '../../models/product-helpers';
 
 @Component({
   selector: 'app-product-detail',
@@ -19,6 +26,7 @@ export class ProductDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly catalog = inject(CatalogService);
   private readonly cart = inject(CartService);
+  private readonly selectedFabricIndex = signal<number | null>(null);
 
   readonly quantity = signal(1);
   private readonly selectedUnitType = signal<ProductUnitType | null>(null);
@@ -28,6 +36,8 @@ export class ProductDetailComponent {
     map((params) => params.get('productId') ?? ''),
     switchMap((productId) => this.catalog.getProductById(productId)),
     tap((product) => {
+      this.ensureDefaultFabric(product);
+
       this.ensureDefaultUnit(product);
       this.ensureDefaultColor(product);
     })
@@ -39,7 +49,8 @@ export class ProductDetailComponent {
       this.getSelectedUnitOption(product),
 
       this.getSelectedColor(product) ?? undefined,
-      quantity
+      quantity,
+      this.getSelectedFabric(product)?.name
     );
   }
 
@@ -48,7 +59,8 @@ export class ProductDetailComponent {
       product.id,
       this.getSelectedUnitType(product),
       this.getSelectedColor(product) ?? undefined,
-      step
+      step,
+      this.getSelectedFabric(product)?.name
     );
   }
 
@@ -58,7 +70,8 @@ export class ProductDetailComponent {
       this.getSelectedUnitType(product),
 
       this.getSelectedColor(product) ?? undefined,
-      step
+      step,
+      this.getSelectedFabric(product)?.name
     );
   }
 
@@ -66,7 +79,8 @@ export class ProductDetailComponent {
     return this.cart.getQuantity(
       product.id,
       this.getSelectedUnitType(product),
-      this.getSelectedColor(product) ?? undefined
+      this.getSelectedColor(product) ?? undefined,
+      this.getSelectedFabric(product)?.name
     );
   }
 
@@ -95,6 +109,16 @@ export class ProductDetailComponent {
   }
 
   getAvailableUnitOptions(product: Product): ProductUnitOption[] {
+    const fabric = this.getSelectedFabric(product);
+    if (fabric?.unitOptions?.length) {
+      return fabric.unitOptions;
+    }
+
+    const fallbackFabric = this.getAvailableFabrics(product)[0];
+    if (fallbackFabric?.unitOptions?.length) {
+      return fallbackFabric.unitOptions;
+    }
+
     if (product.unitOptions?.length) {
       return product.unitOptions;
     }
@@ -102,7 +126,7 @@ export class ProductDetailComponent {
     return [
       {
         type: 'piece',
-        price: product.price,
+        price: product.price ?? 0,
       },
     ];
   }
@@ -127,10 +151,21 @@ export class ProductDetailComponent {
   }
 
   getSelectedUnitPrice(product: Product): number {
-    return this.getSelectedUnitOption(product).price;
+    const option = this.getSelectedUnitOption(product);
+    return option.price ?? product.price ?? 0;
   }
 
   getAvailableColors(product: Product): string[] {
+    const fabric = this.getSelectedFabric(product);
+    if (fabric?.colors?.length) {
+      return fabric.colors;
+    }
+
+    const fallbackFabric = this.getAvailableFabrics(product)[0];
+    if (fallbackFabric?.colors?.length) {
+      return fallbackFabric.colors;
+    }
+
     if (product.colors?.length) {
       return product.colors;
     }
@@ -157,12 +192,11 @@ export class ProductDetailComponent {
   private getSelectedUnitOption(product: Product): ProductUnitOption {
     const selectedType = this.getSelectedUnitType(product);
     const options = this.getAvailableUnitOptions(product);
-    return (
-      options.find((option) => option.type === selectedType) ?? {
-        type: 'piece',
-        price: product.price,
-      }
-    );
+
+    const fallbackOption =
+      options[0] ?? ({ type: 'piece', price: product.price ?? 0 } as ProductUnitOption);
+
+    return options.find((option) => option.type === selectedType) ?? fallbackOption;
   }
 
   private getSelectedUnitType(product: Product): ProductUnitType {
@@ -175,8 +209,8 @@ export class ProductDetailComponent {
       }
     }
 
-    const defaultType = product.unitOptions?.[0]?.type;
-    return defaultType ?? 'piece';
+    const defaultType = this.getAvailableUnitOptions(product)[0]?.type ?? 'piece';
+    return defaultType;
   }
 
   private ensureDefaultUnit(product?: Product): void {
@@ -195,9 +229,26 @@ export class ProductDetailComponent {
       }
     }
 
-    const defaultType = product.unitOptions?.[0]?.type ?? 'piece';
+    const defaultType = this.getAvailableUnitOptions(product)[0]?.type ?? 'piece';
+
     this.selectedUnitType.set(defaultType);
   }
+
+  private ensureDefaultFabric(product?: Product): void {
+    if (!product) {
+      this.selectedFabricIndex.set(null);
+      return;
+    }
+
+    const fabrics = this.getAvailableFabrics(product);
+    const current = this.selectedFabricIndex();
+    if (current !== null && fabrics[current]) {
+      return;
+    }
+
+    this.selectedFabricIndex.set(fabrics.length ? 0 : null);
+  }
+
   private ensureDefaultColor(product?: Product): void {
     if (!product) {
       this.selectedColor.set(null);
@@ -216,5 +267,38 @@ export class ProductDetailComponent {
     }
 
     this.selectedColor.set(colors[0]);
+  }
+
+  getAvailableFabrics(product: Product): ProductFabric[] {
+    return getProductFabrics(product);
+  }
+
+  selectFabric(product: Product, index: number): void {
+    this.selectedFabricIndex.set(index);
+    this.selectedColor.set(null);
+    this.ensureDefaultUnit(product);
+    this.ensureDefaultColor(product);
+  }
+
+  isSelectedFabric(product: Product, index: number): boolean {
+    return this.getSelectedFabricIndex(product) === index;
+  }
+
+  private getSelectedFabric(product: Product): ProductFabric | null {
+    const fabrics = this.getAvailableFabrics(product);
+    const index = this.getSelectedFabricIndex(product);
+    if (index === null) {
+      return fabrics[0] ?? null;
+    }
+    return fabrics[index] ?? fabrics[0] ?? null;
+  }
+
+  private getSelectedFabricIndex(product: Product): number | null {
+    const current = this.selectedFabricIndex();
+    const fabrics = this.getAvailableFabrics(product);
+    if (current !== null && fabrics[current]) {
+      return current;
+    }
+    return fabrics.length ? 0 : null;
   }
 }
