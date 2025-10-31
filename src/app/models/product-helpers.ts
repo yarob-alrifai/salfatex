@@ -1,5 +1,5 @@
-import { Product, ProductFabric, ProductUnitOption } from './catalog.models';
-
+import { Product } from '../admin/models/product.model';
+import { ProductFabric, ProductUnitOption } from './catalog.models';
 export const DEFAULT_FABRIC_NAME = 'Основная ткань';
 
 function uniqueValues(values: string[]): string[] {
