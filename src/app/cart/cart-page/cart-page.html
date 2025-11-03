@@ -57,7 +57,7 @@
               <td class="px-4 py-4 text-left">
                 <span class="block text-xs text-neutral-500">{{ item.unit.label }}</span>
                 <span class="text-base font-semibold text-brand-600">
-                  {{ item.unit.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+                  {{ item.unit.price | currency : 'RUB' : 'symbol' : '1.0-0' }}
                 </span>
               </td>
               <td class="px-4 py-4">
@@ -90,7 +90,7 @@
               </td>
               <td class="px-4 py-4">
                 <span class="text-base font-semibold text-neutral-900">
-                  {{ lineTotal(item) | currency : 'USD' : 'symbol' : '1.0-0' }}
+                  {{ lineTotal(item) | currency : 'RUB' : 'symbol' : '1.0-0' }}
                 </span>
               </td>
               <td class="px-4 py-4">
@@ -114,7 +114,7 @@
         <div class="flex flex-col gap-1 text-left">
           <span class="text-sm text-neutral-500">Итого</span>
           <span class="text-2xl font-bold text-neutral-900">
-            {{ totalPrice() | currency : 'USD' : 'symbol' : '1.0-0' }}
+            {{ totalPrice() | currency : 'RUB' : 'symbol' : '1.0-0' }}
           </span>
         </div>
         <div class="flex flex-col gap-3 sm:flex-row">

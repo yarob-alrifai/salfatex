@@ -251,7 +251,7 @@ export class OrdersDashboardComponent {
     const formatCurrency = (value: number | null | undefined) =>
       new Intl.NumberFormat('ru-RU', {
         style: 'currency',
-        currency: 'SAR',
+        currency: 'RUB',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(toNumber(value));
@@ -765,8 +765,8 @@ export class OrdersDashboardComponent {
                   <th rowspan="2" class="col-name">Наименование товаров (описание выполненных работ, оказанных услуг)</th>
                   <th rowspan="2">Ед. изм.</th>
                   <th colspan="2">Количество</th>
-                  <th rowspan="2">Цена, SAR</th>
-                  <th rowspan="2">Сумма, SAR</th>
+                  <th rowspan="2">Цена, RUB</th>
+                  <th rowspan="2">Сумма, RUB</th>
                 </tr>
                 <tr>
                   <th>Кол-во</th>

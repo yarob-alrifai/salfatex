@@ -75,7 +75,7 @@
                 </div>
 
                 <span class="font-semibold text-brand-600">
-                  {{ item.quantity * item.unit.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+                  {{ item.quantity * item.unit.price | currency : 'RUB' : 'symbol' : '1.0-0' }}
                 </span>
               </li>
             </ul>
@@ -84,7 +84,7 @@
               class="flex items-center justify-between rounded-2xl bg-brand-600/10 px-4 py-3 text-sm font-semibold text-neutral-900"
             >
               <span>Итого:</span>
-              {{ confirmation.snapshot.total | currency : 'USD' : 'symbol' : '1.0-0' }}
+              {{ confirmation.snapshot.total | currency : 'RUB' : 'symbol' : '1.0-0' }}
             </p>
           </div>
         </div>
@@ -111,12 +111,12 @@
                 <p class="text-xs text-neutral-500">{{ item.unit.label }}</p>
                 <p class="text-sm text-neutral-500">
                   {{ item.quantity }} ×
-                  {{ item.unit.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+                  {{ item.unit.price | currency : 'RUB' : 'symbol' : '1.0-0' }}
                 </p>
               </div>
 
               <span class="text-base font-bold text-brand-600">
-                {{ item.quantity * item.unit.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+                {{ item.quantity * item.unit.price | currency : 'RUB' : 'symbol' : '1.0-0' }}
               </span>
             </li>
           </ul>
@@ -126,7 +126,7 @@
           >
             <span class="text-sm font-medium text-neutral-200">Общая сумма</span>
             <strong class="text-2xl font-semibold">{{
-              totalPrice() | currency : 'USD' : 'symbol' : '1.0-0'
+              totalPrice() | currency : 'RUB' : 'symbol' : '1.0-0'
             }}</strong>
           </div>
         </section>
