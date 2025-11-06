@@ -1,25 +1,6 @@
 <section class="app-section space-y-10" *ngIf="viewModel$ | async as vm; else loading">
   <header class="space-y-6">
     <app-back-button label="Назад к предыдущему списку"></app-back-button>
-
-    <div
-      class="app-card flex flex-col gap-6 sm:flex-row sm:items-center"
-      *ngIf="vm.subcategory as subcategory"
-    >
-      <img
-        class="h-44 w-full rounded-3xl object-cover shadow-sm sm:h-48 sm:w-48"
-        [src]="subcategory.imageUrl"
-        [alt]="subcategory.name"
-        loading="lazy"
-      />
-
-      <div class="space-y-3 text-left">
-        <h1 class="app-heading text-2xl sm:text-3xl">{{ subcategory.name }}</h1>
-        <p class="app-subheading text-sm sm:text-base" *ngIf="subcategory.description">
-          {{ subcategory.description }}
-        </p>
-      </div>
-    </div>
   </header>
 
   <section class="space-y-6">
