@@ -23,7 +23,7 @@
           <div>
             <h3>{{ item.product.name }}</h3>
             <span class="cart-widget__price">
-              {{ item.product.price | currency : 'USD' : 'symbol' : '1.0-0' }}
+              {{ item.product.price | number : '1.0-0' }} USD
             </span>
           </div>
 
@@ -38,14 +38,14 @@
           </div>
 
           <span class="cart-widget__line-total">
-            {{ item.product.price * item.quantity | currency : 'USD' : 'symbol' : '1.0-0' }}
+            {{ item.product.price * item.quantity | number : '1.0-0' }} USD
           </span>
         </li>
       </ul>
 
       <div class="cart-widget__summary">
         <span>الإجمالي </span>
-        <strong>{{ total() | currency : 'USD' : 'symbol' : '1.0-0' }}</strong>
+        <strong>{{ total() | number : '1.0-0' }} USD</strong>
       </div>
 
       <form class="cart-widget__form" [formGroup]="checkoutForm" (ngSubmit)="submitOrder()">

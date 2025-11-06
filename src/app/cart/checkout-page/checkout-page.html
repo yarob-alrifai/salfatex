@@ -75,7 +75,7 @@
                 </div>
 
                 <span class="font-semibold text-brand-600">
-                  {{ item.quantity * item.unit.price | currency : 'RUB' : 'symbol' : '1.0-0' }}
+                  {{ item.quantity * item.unit.price | number : '1.0-0' }} RUB
                 </span>
               </li>
             </ul>
@@ -84,7 +84,7 @@
               class="flex items-center justify-between rounded-2xl bg-brand-600/10 px-4 py-3 text-sm font-semibold text-neutral-900"
             >
               <span>Итого:</span>
-              {{ confirmation.snapshot.total | currency : 'RUB' : 'symbol' : '1.0-0' }}
+              {{ confirmation.snapshot.total | number : '1.0-0' }} RUB
             </p>
           </div>
         </div>
@@ -110,13 +110,12 @@
                 <p class="text-base font-semibold text-neutral-900">{{ item.product.name }}</p>
                 <p class="text-xs text-neutral-500">{{ item.unit.label }}</p>
                 <p class="text-sm text-neutral-500">
-                  {{ item.quantity }} ×
-                  {{ item.unit.price | currency : 'RUB' : 'symbol' : '1.0-0' }}
+                  {{ item.quantity }} × {{ item.unit.price | number : '1.0-0' }} RUB
                 </p>
               </div>
 
               <span class="text-base font-bold text-brand-600">
-                {{ item.quantity * item.unit.price | currency : 'RUB' : 'symbol' : '1.0-0' }}
+                {{ item.quantity * item.unit.price | number : '1.0-0' }} RUB
               </span>
             </li>
           </ul>
@@ -125,9 +124,9 @@
             class="flex flex-col gap-2 rounded-2xl bg-neutral-900 px-6 py-4 text-left text-white sm:flex-row sm:items-center sm:justify-between"
           >
             <span class="text-sm font-medium text-neutral-200">Общая сумма</span>
-            <strong class="text-2xl font-semibold">{{
-              totalPrice() | currency : 'RUB' : 'symbol' : '1.0-0'
-            }}</strong>
+            <strong class="text-2xl font-semibold"
+              >{{ totalPrice() | number : '1.0-0' }} RUB</strong
+            >
           </div>
         </section>
 

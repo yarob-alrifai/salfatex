@@ -50,7 +50,7 @@
           <h1 class="app-heading text-3xl md:text-4xl">{{ product.name }}</h1>
 
           <p class="text-3xl font-semibold text-brand-600">
-            {{ getSelectedUnitPrice(product) | currency : 'RUB' : 'symbol' : '1.0-0' }}
+            {{ getSelectedUnitPrice(product) | number : '1.0-0' }} RUB
           </p>
 
           <div class="flex flex-wrap gap-2">

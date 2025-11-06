@@ -493,14 +493,14 @@
                         getUnitOptionLabel(option)
                       }}</span>
                       <span class="block font-semibold text-brand-600">
-                        {{ option.price | currency : 'RUB' }}
+                        {{ option.price | number : '1.0-0' }} RUB
                       </span>
                     </li>
                   </ul>
                 </ng-container>
                 <ng-template #singlePrice>
                   <span class="font-semibold text-brand-600">
-                    {{ product.price | currency : 'RUB' }}
+                    {{ product.price | number : '1.0-0' }} RUB
                   </span>
                 </ng-template>
               </td>
