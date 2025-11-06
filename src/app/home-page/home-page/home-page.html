@@ -79,15 +79,6 @@
 
   <section *ngIf="featuredGroups$ | async as featuredGroups">
     <div class="app-section space-y-12">
-      <div class="space-y-3 text-left">
-        <span class="app-badge">Основные разделы</span>
-        <h2 class="app-heading text-3xl">Просматривайте товары по главным категориям</h2>
-        <p class="app-subheading">
-          Выберите категорию, подходящую вашему бизнесу, и изучите ключевые товары прямо с главной
-          страницы.
-        </p>
-      </div>
-
       <div class="space-y-16" *ngFor="let group of featuredGroups; trackBy: trackGroup">
         <div class="space-y-3 text-left">
           <div
