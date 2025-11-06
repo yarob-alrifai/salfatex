@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { Observable, combineLatest, map } from 'rxjs';
 import { CatalogService } from '../../services/catalog.service';
-import { Category } from '../../models/catalog.models';
+import { Observable, combineLatest, map, shareReplay } from 'rxjs';
+import { Category, CategoryGroup, Subcategory } from '../../models/catalog.models';
 
 @Component({
   selector: 'app-categories',
@@ -15,27 +15,63 @@ import { Category } from '../../models/catalog.models';
 export class CategoriesComponent {
   private readonly catalogService = inject(CatalogService);
 
-  readonly categories$: Observable<CategorySummary[]> = combineLatest([
+  readonly categoryGroups$: Observable<CategoryGroupViewModel[]> = combineLatest([
+    this.catalogService.getCategoryGroups(),
     this.catalogService.getCategories(),
     this.catalogService.getAllSubcategories(),
     this.catalogService.getAllProducts(),
   ]).pipe(
-    map(([categories, subcategories, products]) =>
-      categories.map((category) => {
-        const subcategoryCount = subcategories.filter(
-          (subcategory) => subcategory.categoryId === category.id
-        ).length;
-        const productCount = products.filter(
-          (product) => product.categoryId === category.id
-        ).length;
+    map(([groups, categories, subcategories, products]) =>
+      groups
+        .map((group) => {
+          const groupCategories = categories
+            .filter((category) => category.groupId === group.id)
+            .map((category) => {
+              const relatedSubcategories = subcategories
+                .filter((subcategory) => subcategory.categoryId === category.id)
+                .sort((a, b) => a.name.localeCompare(b.name));
+              const productCount = products.filter(
+                (product) => product.categoryId === category.id
+              ).length;
 
-        return { ...category, subcategoryCount, productCount } satisfies CategorySummary;
-      })
-    )
+              return {
+                ...category,
+                subcategories: relatedSubcategories,
+                subcategoryCount: relatedSubcategories.length,
+                productCount,
+              } satisfies CategoryWithDetails;
+            });
+
+          return {
+            ...group,
+            categories: groupCategories,
+          } satisfies CategoryGroupViewModel;
+        })
+        .filter((group) => group.categories.length > 0)
+    ),
+    shareReplay({ bufferSize: 1, refCount: true })
   );
+
+  trackGroup(_: number, group: CategoryGroupViewModel): string {
+    return group.id;
+  }
+
+  trackCategory(_: number, category: CategoryWithDetails): string {
+    return category.id;
+  }
+
+  trackSubcategory(_: number, subcategory: Subcategory): string {
+    return subcategory.id;
+  }
 }
 
-type CategorySummary = Category & {
+type CategoryGroupViewModel = CategoryGroup & {
+  categories: CategoryWithDetails[];
+};
+
+type CategoryWithDetails = Category & {
+  subcategories: Subcategory[];
+
   subcategoryCount: number;
   productCount: number;
 };
