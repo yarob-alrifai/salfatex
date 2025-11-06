@@ -12,6 +12,28 @@
     @if (contactInfo$ | async; as info) {
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <article class="contact-card">
+        <h3 class="contact-card__title">WhatsApp</h3>
+        @if (info.whatsappUrl) {
+        <a class="contact-card__link" [href]="info.whatsappUrl" target="_blank" rel="noopener">
+          Нажмите, чтобы связаться через WhatsApp
+        </a>
+        } @else {
+        <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
+        }
+      </article>
+
+      <article class="contact-card">
+        <h3 class="contact-card__title">Telegram</h3>
+        @if (info.telegramUrl) {
+        <a class="contact-card__link" [href]="info.telegramUrl" target="_blank" rel="noopener">
+          Нажмите, чтобы связаться через Telegram
+        </a>
+        } @else {
+        <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
+        }
+      </article>
+
+      <!-- <article class="contact-card">
         <h3 class="contact-card__title">Городской телефон</h3>
         @if (info.phone) {
         <a class="contact-card__link" [href]="'tel:' + info.phone" dir="ltr">
@@ -21,7 +43,7 @@
         } @else {
         <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
         }
-      </article>
+      </article> -->
 
       <article class="contact-card">
         <h3 class="contact-card__title">Мобильный телефон</h3>
@@ -49,28 +71,6 @@
         <h3 class="contact-card__title">Адрес</h3>
         @if (info.address) {
         <p class="contact-card__text">{{ info.address }}</p>
-        } @else {
-        <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
-        }
-      </article>
-
-      <article class="contact-card">
-        <h3 class="contact-card__title">WhatsApp</h3>
-        @if (info.whatsappUrl) {
-        <a class="contact-card__link" [href]="info.whatsappUrl" target="_blank" rel="noopener">
-          Нажмите, чтобы связаться через WhatsApp
-        </a>
-        } @else {
-        <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
-        }
-      </article>
-
-      <article class="contact-card">
-        <h3 class="contact-card__title">Telegram</h3>
-        @if (info.telegramUrl) {
-        <a class="contact-card__link" [href]="info.telegramUrl" target="_blank" rel="noopener">
-          Нажмите, чтобы связаться через Telegram
-        </a>
         } @else {
         <span class="contact-card__placeholder" aria-hidden="true">&nbsp;</span>
         }
