@@ -14,7 +14,7 @@
     </header>
 
     <div class="app-card" *ngIf="items().length; else empty">
-      <div class="overflow-x-auto">
+      <div class="hidden overflow-x-auto lg:block">
         <table class="app-table">
           <thead>
             <tr class="whitespace-nowrap">
@@ -106,6 +106,89 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="flex flex-col gap-4 lg:hidden">
+        <article
+          *ngFor="let item of items(); trackBy: trackByProduct"
+          class="rounded-3xl border border-neutral-200 p-4 shadow-sm ring-1 ring-white/60"
+        >
+          <div class="flex items-start gap-4">
+            <img
+              [src]="item.product.mainImageUrl"
+              [alt]="item.product.name"
+              class="h-20 w-20 shrink-0 rounded-3xl object-cover ring-1 ring-white/70"
+              loading="lazy"
+            />
+            <div class="flex flex-1 flex-col gap-1 text-left">
+              <strong class="text-base font-semibold text-neutral-900">
+                {{ item.product.name }}
+              </strong>
+
+              <span class="text-xs font-medium text-neutral-500">
+                Цвет: {{ item.color || item.product.color || 'не указано' }}
+              </span>
+
+              <span class="text-xs font-medium text-neutral-500" *ngIf="item.fabric">
+                Ткань: {{ item.fabric }}
+              </span>
+            </div>
+            <button
+              type="button"
+              (click)="remove(item)"
+              class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-rose-500 transition hover:bg-rose-50 hover:text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-200"
+              aria-label="Удалить товар"
+            >
+              <span class="text-base leading-none">✕</span>
+            </button>
+          </div>
+
+          <div class="mt-4 grid grid-cols-1 gap-4 text-sm text-neutral-600">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-neutral-500">Цена</span>
+              <span class="text-base font-semibold text-brand-600">
+                {{ item.unit.price | number : '1.0-0' }} RUB
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-xs font-medium text-neutral-500">Количество</span>
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  (click)="decrement(item)"
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 bg-white text-lg font-semibold text-neutral-600 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-200 hover:text-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-200"
+                  aria-label="Уменьшить количество"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  min="0"
+                  [value]="item.quantity"
+                  (change)="updateQuantity(item, $any($event.target).value)"
+                  class="app-input app-input--small w-20 text-center font-semibold"
+                  aria-label="Количество товара"
+                />
+                <button
+                  type="button"
+                  (click)="increment(item)"
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-brand-200 bg-brand-600 text-lg font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-200"
+                  aria-label="Увеличить количество"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-neutral-500">Сумма</span>
+              <span class="text-base font-semibold text-neutral-900">
+                {{ lineTotal(item) | number : '1.0-0' }} RUB
+              </span>
+            </div>
+          </div>
+        </article>
       </div>
 
       <footer
