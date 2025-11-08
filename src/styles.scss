@@ -91,7 +91,7 @@ body {
   }
 
   .app-section {
-    @apply mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-6xl px-4 py-4 sm:px-6 lg:px-8;
   }
 
   .app-section--tight {
@@ -99,7 +99,7 @@ body {
   }
 
   .app-hero {
-    @apply relative overflow-hidden rounded-4xl bg-white/80 p-10 text-left shadow-card backdrop-blur;
+    @apply relative overflow-hidden rounded-4xl bg-white/80 p-4 text-left shadow-card backdrop-blur;
   }
 
   .app-hero::before {
