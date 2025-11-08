@@ -283,7 +283,6 @@ export class CartService {
       const orderRef = doc(collection(this.firestore, 'orders'), metadata.orderNumber);
       await setDoc(orderRef, payload);
       const order: AdminOrder = { ...payload, id: metadata.orderNumber };
-      console.log({ order: order });
       this.clearCart();
       return order;
     }
