@@ -8,7 +8,12 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { connectAuthEmulator, getAuth, provideAuth } from '@angular/fire/auth';
-import { connectFirestoreEmulator, getFirestore, provideFirestore } from '@angular/fire/firestore';
+import {
+  connectFirestoreEmulator,
+  enableIndexedDbPersistence,
+  getFirestore,
+  provideFirestore,
+} from '@angular/fire/firestore';
 import { connectStorageEmulator, getStorage, provideStorage } from '@angular/fire/storage';
 import { browserLocalPersistence, setPersistence } from 'firebase/auth';
 
@@ -38,7 +43,11 @@ export const appConfig: ApplicationConfig = {
 
       return auth;
     }),
-    provideFirestore(() => getFirestore()),
+    provideFirestore(() => {
+      const firestore = getFirestore();
+      void enableIndexedDbPersistence(firestore);
+      return firestore;
+    }),
     provideStorage(() => getStorage()),
 
     // provideFirebaseApp(() =>
