@@ -1,4 +1,4 @@
-import { AsyncPipe, CommonModule, CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, CommonModule, DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, inject, computed, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
@@ -8,7 +8,7 @@ import { ContactInfo, EMPTY_CONTACT_INFO } from '../../../models/contact-info.mo
 @Component({
   selector: 'app-orders-dashboard',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, NgFor, AsyncPipe, DatePipe, CurrencyPipe, CommonModule],
+  imports: [ReactiveFormsModule, NgIf, NgFor, AsyncPipe, DatePipe, CommonModule],
   templateUrl: './orders-dashboard.html',
   styleUrls: ['./orders-dashboard.scss'],
 })

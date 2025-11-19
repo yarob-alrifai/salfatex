@@ -23,7 +23,7 @@ import { CatalogService } from 'src/app/services/catalog.service';
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, CategoriesComponent],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './home-page.html',
   styleUrls: ['./home-page.scss'],
 })

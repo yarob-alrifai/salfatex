@@ -1,4 +1,4 @@
-import { AsyncPipe, CommonModule, CurrencyPipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -64,7 +64,6 @@ type FabricFormGroup = FormGroup<{
     NgFor,
     NgClass,
     AsyncPipe,
-    CurrencyPipe,
     CommonModule,
     ImageCropperComponent,
   ],
