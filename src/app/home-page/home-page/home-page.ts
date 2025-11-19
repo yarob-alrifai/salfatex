@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CategoriesComponent } from '../../categories/categories/categories';
 import { FormsModule } from '@angular/forms';
@@ -23,7 +23,7 @@ import { CatalogService } from 'src/app/services/catalog.service';
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, NgOptimizedImage],
   templateUrl: './home-page.html',
   styleUrls: ['./home-page.scss'],
 })

@@ -29,8 +29,10 @@
             <div class="relative aspect-[4/3] overflow-hidden">
               <img
                 class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                [src]="category.imageUrl"
+                [ngSrc]="category.imageUrl"
                 [alt]="category.name"
+                width="1200"
+                height="900"
                 loading="lazy"
                 decoding="async"
               />

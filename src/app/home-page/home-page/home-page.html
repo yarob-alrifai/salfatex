@@ -50,8 +50,10 @@
                 >
                   <img
                     class="h-44 w-full rounded-2xl object-cover"
-                    [src]="product.mainImageUrl"
+                    [ngSrc]="product.mainImageUrl || ''"
                     [alt]="product.name"
+                    width="640"
+                    height="352"
                     loading="lazy"
                     decoding="async"
                   />
@@ -109,8 +111,10 @@
               <a class="flex flex-col gap-4" [routerLink]="['/categories', category.id]">
                 <img
                   class="h-44 w-full rounded-2xl object-cover"
-                  [src]="category.imageUrl"
+                  [ngSrc]="category.imageUrl"
                   [alt]="category.name"
+                  width="640"
+                  height="352"
                   loading="lazy"
                   decoding="async"
                 />

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CatalogService } from '../../services/catalog.service';
@@ -8,7 +8,7 @@ import { Category, CategoryGroup, Subcategory } from '../../models/catalog.model
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, NgOptimizedImage],
   templateUrl: './categories.html',
   styleUrls: ['./categories.scss'],
 })

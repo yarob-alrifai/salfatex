@@ -46,8 +46,10 @@
         >
           <img
             class="h-44 w-full rounded-2xl object-cover transition duration-200 group-hover:scale-[1.02]"
-            [src]="product.mainImageUrl"
+            [ngSrc]="product.mainImageUrl || ''"
             [alt]="product.name"
+            width="640"
+            height="352"
             loading="lazy"
             decoding="async"
           />

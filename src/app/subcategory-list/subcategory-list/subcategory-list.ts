@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest, map, of, switchMap } from 'rxjs';
@@ -11,7 +11,7 @@ import { BackButtonComponent } from 'src/app/component/back-button/back-button';
 @Component({
   selector: 'app-subcategory-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, BackButtonComponent],
+  imports: [CommonModule, RouterModule, FormsModule, BackButtonComponent, NgOptimizedImage],
   templateUrl: './subcategory-list.html',
   styleUrls: ['./subcategory-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

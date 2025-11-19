@@ -10,8 +10,10 @@
           <div class="app-card">
             <img
               class="h-full w-full rounded-3xl object-cover object-center"
-              [src]="getMainImage(product)"
+              [ngSrc]="getMainImage(product) || ''"
               [alt]="product.name"
+              width="1200"
+              height="900"
               loading="eager"
               fetchpriority="high"
               decoding="async"
@@ -26,8 +28,10 @@
               <img
                 *ngFor="let image of galleryImages; trackBy: trackImage"
                 class="h-28 w-full rounded-2xl object-cover object-center shadow-sm ring-1 ring-white/60 transition duration-200 hover:scale-[1.02]"
-                [src]="image"
+                [ngSrc]="image"
                 [alt]="product.name"
+                width="640"
+                height="360"
                 loading="lazy"
                 decoding="async"
               />

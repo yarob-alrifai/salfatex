@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest, map, switchMap, tap } from 'rxjs';
@@ -28,7 +28,7 @@ interface SubcategoryDetailViewModel {
 @Component({
   selector: 'app-subcategory-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, BackButtonComponent],
+  imports: [CommonModule, RouterModule, FormsModule, BackButtonComponent, NgOptimizedImage],
   templateUrl: './subcategory-detail.html',
   styleUrls: ['./subcategory-detail.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

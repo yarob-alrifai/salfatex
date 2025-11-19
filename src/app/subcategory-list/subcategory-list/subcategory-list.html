@@ -54,8 +54,10 @@
         <div class="relative w-full overflow-hidden rounded-3xl lg:w-72">
           <img
             class="h-52 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-            [src]="subcategory.imageUrl"
+            [ngSrc]="subcategory.imageUrl"
             [alt]="subcategory.name"
+            width="720"
+            height="416"
             loading="lazy"
             decoding="async"
           />
