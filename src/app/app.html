@@ -1,4 +1,6 @@
 <div class="app-shell">
+  <a class="skip-link" href="#main-content">Перейти к основному содержимому</a>
+
   <header class="sticky top-0 z-50 border-b border-white/40 bg-white/70 backdrop-blur-lg">
     <div class="app-container">
       <div class="flex items-center justify-between gap-4 py-4">
@@ -202,7 +204,7 @@
     </div>
   </header>
 
-  <main class="app-shell__content">
+  <main class="app-shell__content" id="main-content" tabindex="-1">
     <router-outlet></router-outlet>
   </main>
 

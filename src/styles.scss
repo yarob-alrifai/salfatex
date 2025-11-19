@@ -64,6 +64,10 @@ body {
       radial-gradient(circle at 50% 90%, rgba(79, 70, 229, 0.12), transparent 50%);
   }
 
+  .skip-link {
+    @apply absolute left-1/2 z-[100] -translate-x-1/2 -translate-y-full rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition focus:translate-y-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-600;
+  }
+
   a {
     @apply text-brand-600 transition-colors duration-200;
   }

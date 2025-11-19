@@ -12,7 +12,9 @@
               class="h-full w-full rounded-3xl object-cover object-center"
               [src]="getMainImage(product)"
               [alt]="product.name"
-              loading="lazy"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
             />
           </div>
 
@@ -27,6 +29,7 @@
                 [src]="image"
                 [alt]="product.name"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </ng-container>

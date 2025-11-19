@@ -80,7 +80,12 @@
         <h3 class="contact-card__title">QR-код WhatsApp</h3>
         @if (info.whatsappQrUrl) {
         <div class="contact-card__qr">
-          <img [src]="info.whatsappQrUrl" loading="lazy" alt="QR-код для связи через WhatsApp" />
+          <img
+            [src]="info.whatsappQrUrl"
+            loading="lazy"
+            decoding="async"
+            alt="QR-код для связи через WhatsApp"
+          />
         </div>
         } @else {
         <div class="contact-card__qr contact-card__qr--empty" aria-hidden="true"></div>
